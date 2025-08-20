@@ -15,16 +15,27 @@ export default function Home() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
+        const scrollContainer = document.querySelector('.scroll-container');
         const sections = document.querySelectorAll('.section');
+        
+        if (!scrollContainer) return;
+        
+        const containerRect = scrollContainer.getBoundingClientRect();
         const currentSection = Array.from(sections).findIndex(section => {
           const rect = section.getBoundingClientRect();
-          return rect.top >= -100 && rect.top <= 100;
+          return rect.top >= containerRect.top - 100 && rect.top <= containerRect.top + 100;
         });
 
         if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
-          sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+          sections[currentSection + 1].scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
         } else if (e.key === 'ArrowUp' && currentSection > 0) {
-          sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+          sections[currentSection - 1].scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
         }
       }
     };
@@ -34,7 +45,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="overflow-y-scroll h-screen">
+    <main className="scroll-container">
       <HeroSection />
       <ProblemSolutionSection />
       <FeaturesSection />

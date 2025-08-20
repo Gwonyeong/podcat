@@ -3,19 +3,21 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
 /* 스크롤 스냅 기본 설정 */
-html {
-  scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
-  overflow-y: scroll;
-  height: 100vh;
-}
-
-body {
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
   font-family: "Inter", "Pretendard", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 스크롤 컨테이너 설정 */
+.scroll-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 }
 
 /* 섹션 기본 스타일 */
@@ -33,7 +35,7 @@ body {
   display: none;
 }
 
-html {
+.scroll-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -67,18 +69,21 @@ html {
 
 /* 모바일 스크롤 최적화 */
 @media (max-width: 768px) {
-  html {
+  .scroll-container {
     -webkit-overflow-scrolling: touch;
-  }
-
-  body {
     overscroll-behavior: none;
   }
 }
 
+/* iOS Safari 호환성 */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+
 /* 접근성 - 애니메이션 감소 */
 @media (prefers-reduced-motion: reduce) {
-  html {
+  .scroll-container {
     scroll-behavior: auto;
   }
 
