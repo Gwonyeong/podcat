@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion } from "framer-motion";
+import { useInView } from "framer-motion";
+import { useRef, useState } from "react";
 
 interface Category {
   title: string;
@@ -17,29 +17,29 @@ export default function CategoriesSection() {
 
   const categories: Category[] = [
     {
-      title: '글로벌 뉴스',
-      description: '세계의 중요한 소식들',
-      sample: 'sample-global-news.mp3',
+      title: "글로벌 뉴스",
+      description: "세계의 중요한 소식들",
+      sample: "sample-global-news.mp3",
     },
     {
-      title: '경제 & 투자',
-      description: '돈의 흐름을 읽다',
-      sample: 'sample-economy.mp3',
+      title: "경제 & 투자",
+      description: "돈의 흐름을 읽다",
+      sample: "sample-economy.mp3",
     },
     {
-      title: '테크 트렌드',
-      description: '미래를 앞서가는 기술',
-      sample: 'sample-tech.mp3',
+      title: "테크 트렌드",
+      description: "미래를 앞서가는 기술",
+      sample: "sample-tech.mp3",
     },
     {
-      title: 'K-컬처',
-      description: '우리의 문화 이야기',
-      sample: 'sample-culture.mp3',
+      title: "K-컬처",
+      description: "우리의 문화 이야기",
+      sample: "sample-culture.mp3",
     },
     {
-      title: '라이프 스타일',
-      description: '더 나은 삶을 위한 팁',
-      sample: 'sample-lifestyle.mp3',
+      title: "라이프 스타일",
+      description: "더 나은 삶을 위한 팁",
+      sample: "sample-lifestyle.mp3",
     },
   ];
 
@@ -54,13 +54,16 @@ export default function CategoriesSection() {
   };
 
   return (
-    <section ref={ref} className="section bg-black text-white flex-col px-6 md:px-12">
+    <section
+      ref={ref}
+      className="section bg-black text-white flex-col px-6 md:px-12"
+    >
       <div className="max-w-4xl w-full">
         <motion.h2
           className="text-section-title-mobile md:text-section-title font-black text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           무엇을 들을까
         </motion.h2>
@@ -72,10 +75,10 @@ export default function CategoriesSection() {
               className="flex items-center justify-between border-b border-gray-800 pb-6 md:pb-8 group cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ 
-                duration: 0.6, 
-                delay: 0.2 + index * 0.1, 
-                ease: 'easeOut' 
+              transition={{
+                duration: 0.6,
+                delay: 0.2 + index * 0.1,
+                ease: "easeOut",
               }}
               onClick={() => handlePlay(index)}
               whileHover={{ x: 10 }}
@@ -88,7 +91,7 @@ export default function CategoriesSection() {
                   {category.description}
                 </p>
               </div>
-              
+
               <motion.button
                 className="w-12 h-12 md:w-16 md:h-16 border border-white rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors ml-6"
                 whileHover={{ scale: 1.1 }}

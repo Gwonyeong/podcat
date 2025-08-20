@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
 /* 스크롤 스냅 기본 설정 */
 html {
@@ -13,7 +13,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', 'Pretendard', system-ui, sans-serif;
+  font-family: "Inter", "Pretendard", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -52,17 +52,25 @@ html {
   animation: wave 2s ease-in-out infinite;
 }
 
-.wave-bar:nth-child(2) { animation-delay: 0.2s; }
-.wave-bar:nth-child(3) { animation-delay: 0.4s; }
-.wave-bar:nth-child(4) { animation-delay: 0.6s; }
-.wave-bar:nth-child(5) { animation-delay: 0.8s; }
+.wave-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.wave-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.wave-bar:nth-child(4) {
+  animation-delay: 0.6s;
+}
+.wave-bar:nth-child(5) {
+  animation-delay: 0.8s;
+}
 
 /* 모바일 스크롤 최적화 */
 @media (max-width: 768px) {
   html {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   body {
     overscroll-behavior: none;
   }
@@ -73,7 +81,7 @@ html {
   html {
     scroll-behavior: auto;
   }
-  
+
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
