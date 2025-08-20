@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface Category {
   title: string;
@@ -14,42 +14,78 @@ export default function CategoriesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   const categories: Category[] = [
     {
       title: "글로벌 뉴스",
       description: "세계의 중요한 소식들",
-      sample: "sample-global-news.mp3",
+      sample: "/sample/글로벌 3대 뉴스- 0820.mp3",
     },
     {
       title: "경제 & 투자",
       description: "돈의 흐름을 읽다",
-      sample: "sample-economy.mp3",
+      sample: "/sample/경제- 0820.mp3",
     },
     {
       title: "테크 트렌드",
       description: "미래를 앞서가는 기술",
-      sample: "sample-tech.mp3",
-    },
-    {
-      title: "K-컬처",
-      description: "우리의 문화 이야기",
-      sample: "sample-culture.mp3",
+      sample: "/sample/테크- 0820.mp3",
     },
     {
       title: "라이프 스타일",
       description: "더 나은 삶을 위한 팁",
-      sample: "sample-lifestyle.mp3",
+      sample: "/sample/라이프스타일- 0820.mp3",
     },
   ];
 
+  // 오디오 정리 함수
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = '';
+      }
+    };
+  }, [currentAudio]);
+
   const handlePlay = (index: number) => {
+    // 현재 재생 중인 오디오 정지
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
     if (playingIndex === index) {
+      // 같은 오디오 클릭 시 정지
       setPlayingIndex(null);
+      setCurrentAudio(null);
     } else {
-      setPlayingIndex(index);
-      // 실제 오디오 재생 로직은 추후 구현
-      console.log(`Playing: ${categories[index].sample}`);
+      // 새로운 오디오 재생
+      const audio = new Audio(categories[index].sample);
+      audio.volume = 0.7;
+      
+      audio.addEventListener('loadstart', () => {
+        setPlayingIndex(index);
+      });
+      
+      audio.addEventListener('ended', () => {
+        setPlayingIndex(null);
+        setCurrentAudio(null);
+      });
+      
+      audio.addEventListener('error', (e) => {
+        console.error('Audio playback error:', e);
+        setPlayingIndex(null);
+        setCurrentAudio(null);
+      });
+
+      setCurrentAudio(audio);
+      audio.play().catch((error) => {
+        console.error('Audio play failed:', error);
+        setPlayingIndex(null);
+        setCurrentAudio(null);
+      });
     }
   };
 
