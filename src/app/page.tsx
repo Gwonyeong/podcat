@@ -53,7 +53,7 @@ export default function Home() {
       {/* <ProblemSolutionSection /> */}
       <FeaturesSection />
       <CategoriesSection />
-      <HowItWorksSection />
+      {/* <HowItWorksSection /> */}
       <CTASection />
       <FooterSection />
     </main>

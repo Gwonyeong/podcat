@@ -11,7 +11,7 @@ export default function FeaturesSection() {
   const features = [
     {
       number: "01",
-      title: "AI 자동 생성",
+      title: "매일 새롭게 업데이트",
       description: "매일 새로운 고품질 콘텐츠",
     },
     {
@@ -21,12 +21,12 @@ export default function FeaturesSection() {
     },
     {
       number: "03",
-      title: "15분 완결",
+      title: "5분 이내의 가벼운",
       description: "핵심만 간결하게",
     },
     {
       number: "04",
-      title: "멀티 플랫폼",
+      title: "카카오톡으로 쉽게",
       description: "언제 어디서나",
     },
   ];

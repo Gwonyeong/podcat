@@ -31,6 +31,14 @@ export default function CTASection() {
         >
           무료로 체험해보세요
         </motion.p>
+        <motion.p
+          className="text-lg md:text-xl text-gray-600 mb-12 font-medium"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        >
+          카카오톡으로 쉽게 들어보세요.
+        </motion.p>
 
         <motion.button
           className="bg-black text-white px-16 py-6 text-xl font-semibold hover:scale-105 transition-transform duration-200"
