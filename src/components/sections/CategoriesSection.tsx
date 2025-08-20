@@ -3,11 +3,14 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Category {
   title: string;
   description: string;
   sample: string;
+  image: string;
+  imageAlt: string;
 }
 
 export default function CategoriesSection() {
@@ -23,21 +26,23 @@ export default function CategoriesSection() {
       title: "글로벌 뉴스",
       description: "세계의 중요한 소식들",
       sample: "/sample/글로벌 3대 뉴스- 0820.mp3",
+      image: "/images/global-namsu.jpg",
+      imageAlt: "글로벌 뉴스 진행자",
     },
-    {
-      title: "경제 & 투자",
-      description: "돈의 흐름을 읽다",
-      sample: "/sample/경제- 0820.mp3",
-    },
+
     {
       title: "테크 트렌드",
       description: "미래를 앞서가는 기술",
       sample: "/sample/테크- 0820.mp3",
+      image: "/images/it-baehyun.jpg",
+      imageAlt: "테크 전문가",
     },
     {
       title: "라이프 스타일",
       description: "더 나은 삶을 위한 팁",
       sample: "/sample/라이프스타일- 0820.mp3",
+      image: "/images/lifestyle-ari.webp",
+      imageAlt: "라이프스타일 전문가",
     },
   ];
 
@@ -103,7 +108,7 @@ export default function CategoriesSection() {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          무엇을 들을까
+          고품질의 팟캐스트를 들어보세요
         </motion.h2>
 
         <div className="space-y-8 md:space-y-12">
@@ -121,6 +126,19 @@ export default function CategoriesSection() {
               onClick={() => handlePlay(index)}
               whileHover={{ x: 10 }}
             >
+              {/* 원형 프로필 이미지 */}
+              <div className="flex-shrink-0 mr-4 md:mr-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gray-600 group-hover:border-white transition-colors">
+                  <Image
+                    src={category.image}
+                    alt={category.imageAlt}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
               <div className="flex-1">
                 <h3 className="text-lg md:text-xl font-bold mb-2 group-hover:text-gray-300 transition-colors">
                   {category.title}

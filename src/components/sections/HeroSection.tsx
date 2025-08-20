@@ -17,7 +17,7 @@ export default function HeroSection() {
           priority
         />
         {/* 그라데이션 오버레이 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/90" />
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/90" /> */}
       </div>
 
       <motion.div
