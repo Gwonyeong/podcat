@@ -7,6 +7,7 @@ import FeaturesSection from "@/components/sections/FeaturesSection";
 import CategoriesSection from "@/components/sections/CategoriesSection";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import CTASection from "@/components/sections/CTASection";
+import CompanyInfoSection from "@/components/sections/CompanyInfoSection";
 import FooterSection from "@/components/sections/FooterSection";
 
 export default function Home() {
@@ -55,6 +56,7 @@ export default function Home() {
       <CategoriesSection />
       {/* <HowItWorksSection /> */}
       <CTASection />
+      <CompanyInfoSection />
       <FooterSection />
     </main>
   );
