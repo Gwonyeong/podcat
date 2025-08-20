@@ -14,7 +14,9 @@ export default function CategoriesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
+    null
+  );
 
   const categories: Category[] = [
     {
@@ -44,7 +46,7 @@ export default function CategoriesSection() {
     return () => {
       if (currentAudio) {
         currentAudio.pause();
-        currentAudio.src = '';
+        currentAudio.src = "";
       }
     };
   }, [currentAudio]);
@@ -64,25 +66,25 @@ export default function CategoriesSection() {
       // 새로운 오디오 재생
       const audio = new Audio(categories[index].sample);
       audio.volume = 0.7;
-      
-      audio.addEventListener('loadstart', () => {
+
+      audio.addEventListener("loadstart", () => {
         setPlayingIndex(index);
       });
-      
-      audio.addEventListener('ended', () => {
+
+      audio.addEventListener("ended", () => {
         setPlayingIndex(null);
         setCurrentAudio(null);
       });
-      
-      audio.addEventListener('error', (e) => {
-        console.error('Audio playback error:', e);
+
+      audio.addEventListener("error", (e) => {
+        console.error("Audio playback error:", e);
         setPlayingIndex(null);
         setCurrentAudio(null);
       });
 
       setCurrentAudio(audio);
       audio.play().catch((error) => {
-        console.error('Audio play failed:', error);
+        console.error("Audio play failed:", error);
         setPlayingIndex(null);
         setCurrentAudio(null);
       });

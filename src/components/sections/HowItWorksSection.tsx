@@ -15,7 +15,7 @@ export default function HowItWorksSection() {
     },
     {
       title: "생성",
-      description: "AI가 매일 만들어드려요",
+      description: "엄밀하게 중요한 내용만 간결하게",
     },
     {
       title: "청취",
@@ -35,7 +35,7 @@ export default function HowItWorksSection() {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          어떻게 사용하나
+          이렇게 사용합니다.
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">

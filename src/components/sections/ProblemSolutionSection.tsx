@@ -37,14 +37,16 @@ export default function ProblemSolutionSection() {
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
         >
           <div className="text-center">
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">AI 큐레이션</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">
+              내가 원하는 주제로
+            </h3>
             <p className="text-gray-400 text-sm md:text-base">
               당신을 위한 맞춤 선별
             </p>
           </div>
 
           <div className="text-center">
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">15분 완결</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">5분 이내</h3>
             <p className="text-gray-400 text-sm md:text-base">
               핵심만 간결하게
             </p>
