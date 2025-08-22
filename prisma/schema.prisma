@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserApplication {
+  id               Int      @id @default(autoincrement())
+  name             String
+  phoneNumber      String   @unique // 전화번호 중복 방지
+  interestedTopics String[] // 최대 3개의 관심 주제 (PostgreSQL에서 배열 지원)
+  privacyConsent   Boolean  @default(false) // 개인정보 처리방침 동의
+  marketingConsent Boolean  @default(false) // 마케팅 수신 동의
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("user_applications")
+}

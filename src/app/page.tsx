@@ -5,10 +5,11 @@ import HeroSection from "@/components/sections/HeroSection";
 import ProblemSolutionSection from "@/components/sections/ProblemSolutionSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import CategoriesSection from "@/components/sections/CategoriesSection";
-import HowItWorksSection from "@/components/sections/HowItWorksSection";
+
 import CTASection from "@/components/sections/CTASection";
 import CompanyInfoSection from "@/components/sections/CompanyInfoSection";
 import FooterSection from "@/components/sections/FooterSection";
+import ApplicationModal from "@/components/ui/ApplicationModal";
 
 export default function Home() {
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function Home() {
       <CTASection />
       <CompanyInfoSection />
       <FooterSection />
+      <ApplicationModal />
     </main>
   );
 }

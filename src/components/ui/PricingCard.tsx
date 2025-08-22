@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
+import { useModalStore } from "@/store/modalStore";
 
 interface PricingPlan {
   name: string;
@@ -27,6 +28,7 @@ export default function PricingCard({
   index,
   isInView,
 }: PricingCardProps) {
+  const { openApplicationModal } = useModalStore();
   return (
     <motion.div
       className={`relative bg-white rounded-2xl shadow-xl p-6 md:p-8 ${
@@ -57,10 +59,14 @@ export default function PricingCard({
       )}
 
       {/* 플랜 이름 */}
-      <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+      <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+        {plan.name}
+      </h3>
 
       {/* 설명 */}
-      <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">{plan.description}</p>
+      <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
+        {plan.description}
+      </p>
 
       {/* 가격 */}
       <div className="mb-4 md:mb-6">
@@ -77,7 +83,9 @@ export default function PricingCard({
           >
             {plan.price}
           </span>
-          <span className="text-gray-600 text-sm md:text-base">{plan.period}</span>
+          <span className="text-gray-600 text-sm md:text-base">
+            {plan.period}
+          </span>
         </div>
       </div>
 
@@ -91,13 +99,16 @@ export default function PricingCard({
                 plan.isCurrentPlan ? "text-green-500" : "text-blue-500"
               } flex-shrink-0`}
             />
-            <span className="text-gray-700 text-sm md:text-base">{feature}</span>
+            <span className="text-gray-700 text-sm md:text-base">
+              {feature}
+            </span>
           </li>
         ))}
       </ul>
 
       {/* 버튼 */}
       <button
+        onClick={openApplicationModal}
         className={`w-full py-3 md:py-4 px-4 md:px-6 rounded-xl font-semibold text-base md:text-lg transition-all duration-200 ${
           plan.buttonVariant === "primary"
             ? plan.isCurrentPlan

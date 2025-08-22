@@ -2,6 +2,24 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Database Setup
+
+1. PostgreSQL 데이터베이스를 설정하고 `.env` 파일을 생성하세요:
+
+```bash
+# .env
+DATABASE_URL="postgresql://username:password@localhost:5432/podcat?schema=public"
+```
+
+2. Prisma 마이그레이션을 실행하세요:
+
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+### Development Server
+
 First, run the development server:
 
 ```bash
