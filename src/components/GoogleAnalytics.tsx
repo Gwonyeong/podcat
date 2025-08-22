@@ -1,8 +1,8 @@
 "use client";
 
-import Script from 'next/script';
+import Script from "next/script";
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || '';
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "";
 
 export default function GoogleTagManager() {
   // GTM ID가 없으면 렌더링하지 않음
@@ -42,7 +42,7 @@ export function GoogleTagManagerBody() {
         src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
         height="0"
         width="0"
-        style={{ display: 'none', visibility: 'hidden' }}
+        style={{ display: "none", visibility: "hidden" }}
       />
     </noscript>
   );

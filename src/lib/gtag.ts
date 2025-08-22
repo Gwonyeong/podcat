@@ -24,7 +24,7 @@ export const pushToDataLayer = (eventData: Record<string, any>): void => {
 // 페이지뷰 추적
 export const pageview = (url: string): void => {
   pushToDataLayer({
-    event: 'page_view',
+    event: "page_view",
     page_location: url,
     page_title: document.title,
   });
