@@ -11,23 +11,24 @@ export default function FeaturesSection() {
   const features = [
     {
       number: "01",
-      title: "매일 새롭게 업데이트",
-      description: "매일 새로운 고품질 콘텐츠",
+      title: "매일 새로운 팟캐스트",
+      description: "엄중하게 선정한 주제를 매력적인 보이스로 들어볼 수 있어요.",
     },
     {
       number: "02",
       title: "맞춤형 추천",
-      description: "당신의 관심사만 골라서",
+      description:
+        "내가 선택한 주제를 기반으로 팟캐스트 플레이리스트를 만들어요.",
     },
     {
       number: "03",
-      title: "5분 이내의 가벼운",
-      description: "핵심만 간결하게",
+      title: "5분 이내 가볍게",
+      description: "간결하지만 쉽게 알아들을 수 있게 정리해드릴게요.",
     },
     {
       number: "04",
       title: "카카오톡으로 쉽게",
-      description: "언제 어디서나",
+      description: "내가 원하는 시간, 카카오톡으로 알림을 드릴게요.",
     },
   ];
 
@@ -54,7 +55,7 @@ export default function FeaturesSection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            어떻게 다른가
+            podcat은 이렇게 해결해요.
           </motion.h2>
 
           <div className="space-y-6 md:space-y-8 lg:space-y-10">

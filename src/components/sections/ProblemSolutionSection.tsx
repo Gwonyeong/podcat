@@ -14,17 +14,17 @@ export default function ProblemSolutionSection() {
     {
       icon: Car,
       title: "멀티태스킹의 어려움",
-      description: "운전이나 다른 일을 하면서 뉴스레터를 확인하기 어려움",
+      description: "출퇴근 때, 운전하며 뉴스레터를 확인하기 어려워요.",
     },
     {
       icon: Eye,
       title: "시각적 피로",
-      description: "화면에 글이 많아 눈이 쉽게 피로해짐",
+      description: "화면에 글이 많아 눈이 쉽게 피로해요.",
     },
     {
       icon: Clock,
       title: "시간 부족",
-      description: "긴 텍스트를 읽을 시간을 따로 내기 어려움",
+      description: "긴 텍스트를 읽을 시간을 따로 내기 어려워요.",
     },
   ];
 
@@ -33,7 +33,7 @@ export default function ProblemSolutionSection() {
       ref={ref}
       className="section relative bg-gray-50 text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
-        backgroundImage: "url(/images/coffeeInCafeWithYoungGirl.png)",
+        backgroundImage: "url(/images/driver-man.jpg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -68,8 +68,7 @@ export default function ProblemSolutionSection() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             >
-              바쁜 일상 속에서 텍스트로 된 뉴스레터를 읽는 것은 생각보다 어려운
-              일입니다
+              시간을 들여 눈으로 화면을 보며 읽는 것, 쉽지 않잖아요.
             </motion.p>
           </motion.div>
 
@@ -77,7 +76,9 @@ export default function ProblemSolutionSection() {
           <motion.div
             className="flex justify-center mb-12 md:mb-16 lg:mb-20"
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+            animate={
+              isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }
+            }
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
           >
             <motion.div
