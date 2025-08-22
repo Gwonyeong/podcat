@@ -24,11 +24,20 @@ body {
 /* 섹션 기본 스타일 */
 .section {
   scroll-snap-align: start;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+/* 모바일에서 섹션 높이 조정 */
+@media (max-width: 768px) {
+  .section {
+    min-height: 100svh; /* Safe area viewport height for mobile */
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
 }
 
 /* 스크롤바 숨기기 */

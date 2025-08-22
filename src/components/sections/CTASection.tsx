@@ -43,10 +43,10 @@ export default function CTASection() {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[1px]"></div>
 
       {/* 콘텐츠 */}
-      <div className="relative z-10 w-full flex flex-col items-center justify-center min-h-screen py-20">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center py-12 md:py-20">
         {/* 제목 섹션 */}
         <motion.div
-          className="text-center max-w-4xl mb-16"
+          className="text-center max-w-4xl mb-8 md:mb-12 lg:mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}

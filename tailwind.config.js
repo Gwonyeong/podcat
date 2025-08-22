@@ -19,9 +19,9 @@ module.exports = {
       },
       fontSize: {
         'hero': ['72px', { lineHeight: '1.1', fontWeight: '900' }],
-        'hero-mobile': ['48px', { lineHeight: '1.1', fontWeight: '900' }],
+        'hero-mobile': ['40px', { lineHeight: '1.1', fontWeight: '900' }],
         'section-title': ['48px', { lineHeight: '1.2', fontWeight: '900' }],
-        'section-title-mobile': ['32px', { lineHeight: '1.2', fontWeight: '900' }],
+        'section-title-mobile': ['28px', { lineHeight: '1.2', fontWeight: '900' }],
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-in-out',

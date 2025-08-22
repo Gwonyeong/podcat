@@ -103,7 +103,7 @@ export default function CategoriesSection() {
     >
       <div className="max-w-4xl w-full">
         <motion.h2
-          className="text-section-title-mobile md:text-section-title font-black text-center mb-16"
+          className="text-section-title-mobile md:text-section-title font-black text-center mb-8 md:mb-12 lg:mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -111,7 +111,7 @@ export default function CategoriesSection() {
           고품질의 팟캐스트를 들어보세요
         </motion.h2>
 
-        <div className="space-y-8 md:space-y-12">
+        <div className="space-y-6 md:space-y-8 lg:space-y-12">
           {categories.map((category, index) => (
             <motion.div
               key={category.title}

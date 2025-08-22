@@ -28,7 +28,7 @@ export default function HeroSection() {
       >
         {/* 로고 */}
         <motion.div
-          className="mb-8"
+          className="mb-6 md:mb-8"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -36,21 +36,21 @@ export default function HeroSection() {
           <Image
             src="/logo.png"
             alt="Podcat Logo"
-            width={120}
-            height={120}
-            className="mx-auto"
+            width={100}
+            height={100}
+            className="mx-auto md:w-[120px] md:h-[120px]"
             priority
           />
         </motion.div>
 
-        <h1 className="text-hero-mobile md:text-hero font-black leading-none mb-6">
+        <h1 className="text-hero-mobile md:text-hero font-black leading-none mb-4 md:mb-6">
           AI가 만드는
           <br />
           매일의 팟캐스트
         </h1>
 
         <motion.p
-          className="text-lg md:text-xl text-gray-700 mb-12 font-medium"
+          className="text-lg md:text-xl text-gray-700 mb-8 md:mb-12 font-medium"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -59,16 +59,16 @@ export default function HeroSection() {
         </motion.p>
 
         <motion.button
-          className="bg-black text-white px-12 py-4 text-lg font-semibold hover:scale-105 transition-transform duration-200 mb-16 shadow-lg"
+          className="bg-black text-white px-8 md:px-12 py-3 md:py-4 text-base md:text-lg font-semibold hover:scale-105 transition-transform duration-200 mb-8 md:mb-16 shadow-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => {
-            document.getElementById('pricing')?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
+            document.getElementById("pricing")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
             });
           }}
         >

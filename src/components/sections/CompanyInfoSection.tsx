@@ -29,7 +29,7 @@ export default function CompanyInfoSection() {
       <div className="max-w-4xl w-full">
         {/* 회사 로고 및 소개 */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-12 lg:mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -51,7 +51,7 @@ export default function CompanyInfoSection() {
 
         {/* FAQ 섹션 */}
         <motion.div
-          className="mb-16"
+          className="mb-8 md:mb-12 lg:mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
