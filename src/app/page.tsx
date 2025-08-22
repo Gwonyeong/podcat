@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <main className="scroll-container">
       <HeroSection />
-      {/* <ProblemSolutionSection /> */}
+      <ProblemSolutionSection />
       <FeaturesSection />
       <CategoriesSection />
       {/* <HowItWorksSection /> */}
