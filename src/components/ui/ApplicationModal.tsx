@@ -60,17 +60,44 @@ export default function ApplicationModal() {
 
     if (!validateForm()) return;
 
+    // 기존 에러 메시지 초기화
+    setErrors({});
     setSubmitting(true);
 
     try {
-      // 재정비 안내 메시지 표시
-      setTimeout(() => {
-        setSubmitting(false);
-        setShowMaintenanceMessage(true);
-      }, 1000);
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phoneNumber: formData.phoneNumber,
+          interestedTopics: formData.interestedTopics,
+          privacyConsent: formData.privacyConsent,
+          marketingConsent: formData.marketingConsent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '신청 처리 중 오류가 발생했습니다.');
+      }
+
+      // 성공 시 감사 메시지 표시
+      setSubmitting(false);
+      setShowMaintenanceMessage(true);
     } catch (error) {
       console.error("Application submission error:", error);
       setSubmitting(false);
+      
+      // 에러 메시지 표시
+      if (error instanceof Error) {
+        setErrors({ submit: error.message });
+      } else {
+        setErrors({ submit: '신청 처리 중 오류가 발생했습니다.' });
+      }
     }
   };
 
@@ -141,12 +168,12 @@ export default function ApplicationModal() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">
-                      서비스 준비 중
+                      관심을 가져주셔 감사합니다!
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
-                      현재 더 좋은 서비스를 위해 재정비중입니다.
+                      무료 체험 신청이 완료되었습니다.
                       <br />
-                      9월 1일부터 다시 팟캐스트를 전송해드릴게요!
+                      곧 연락드리겠습니다!
                     </p>
                   </div>
                   <button
@@ -295,6 +322,13 @@ export default function ApplicationModal() {
                       </span>
                     </label>
                   </div>
+
+                  {/* 제출 에러 메시지 */}
+                  {errors.submit && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{errors.submit}</p>
+                    </div>
+                  )}
 
                   {/* 제출 버튼 */}
                   <button
