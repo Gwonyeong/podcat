@@ -3,7 +3,8 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
 /* 스크롤 스냅 기본 설정 */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -40,32 +41,7 @@ html, body {
   scrollbar-width: none;
 }
 
-/* 웨이브폼 애니메이션 */
-.waveform {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.wave-bar {
-  width: 3px;
-  background-color: currentColor;
-  border-radius: 1.5px;
-  animation: wave 2s ease-in-out infinite;
-}
-
-.wave-bar:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.wave-bar:nth-child(3) {
-  animation-delay: 0.4s;
-}
-.wave-bar:nth-child(4) {
-  animation-delay: 0.6s;
-}
-.wave-bar:nth-child(5) {
-  animation-delay: 0.8s;
-}
+/* 웨이브폼 애니메이션 - Framer Motion으로 대체됨 */
 
 /* 모바일 스크롤 최적화 */
 @media (max-width: 768px) {

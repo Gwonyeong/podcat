@@ -34,8 +34,19 @@ export default function FeaturesSection() {
   return (
     <section
       ref={ref}
-      className="section bg-white text-black flex-col px-6 md:px-12"
+      className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
+      style={{
+        backgroundImage: 'url(/images/coffeeInCafeWithYoungGirl.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
     >
+      {/* 오버레이 */}
+      <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px]"></div>
+      
+      {/* 콘텐츠 */}
+      <div className="relative z-10 w-full flex flex-col items-center justify-center min-h-screen">
       <div className="max-w-4xl w-full">
         <motion.h2
           className="text-section-title-mobile md:text-section-title font-black text-center mb-16"
@@ -73,6 +84,7 @@ export default function FeaturesSection() {
             </motion.div>
           ))}
         </div>
+      </div>
       </div>
     </section>
   );

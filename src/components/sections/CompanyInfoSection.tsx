@@ -43,11 +43,9 @@ export default function CompanyInfoSection() {
               className="mx-auto"
             />
           </div>
-          <h2 className="text-section-title-mobile md:text-section-title font-black mb-6">
-            Podcat
-          </h2>
+
           <p className="text-lg md:text-xl text-gray-300 mb-12">
-            AI가 만드는 매일의 팟캐스트
+            내가 원하는 주제로 만드는 매일의 팟캐스트
           </p>
         </motion.div>
 
@@ -133,11 +131,11 @@ export default function CompanyInfoSection() {
               <p className="text-gray-300">busGwonyeong@gmail.com</p>
             </div>
 
-            <div className="text-center">
+            {/* <div className="text-center">
               <div className="text-3xl mb-4">💬</div>
               <h4 className="font-semibold mb-2">카카오톡</h4>
               <p className="text-gray-300">준비중입니다.</p>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-12 p-6 bg-gray-800 rounded-lg">
