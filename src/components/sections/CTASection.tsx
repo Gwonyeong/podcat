@@ -14,7 +14,7 @@ export default function CTASection() {
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
         backgroundImage: "url(/images/example_player.png)",
-        backgroundSize: "cover",
+        backgroundSize: "auto 100%",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
