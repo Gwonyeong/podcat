@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
 
 export default function HowItWorksSection() {
@@ -12,6 +12,11 @@ export default function HowItWorksSection() {
     sectionName: "how_it_works_section",
     threshold: 0.3,
   });
+
+  const setRefs = useCallback((element: HTMLElement | null) => {
+    (ref as React.MutableRefObject<HTMLElement | null>).current = element;
+    sectionRef.current = element;
+  }, [ref, sectionRef]);
 
   const steps = [
     {
@@ -30,11 +35,7 @@ export default function HowItWorksSection() {
 
   return (
     <section
-      ref={(el) => {
-        // 기존 ref와 스크롤 추적 ref 모두 적용
-        (ref as any).current = el;
-        (sectionRef as any).current = el;
-      }}
+      ref={setRefs}
       className="section bg-white text-black flex-col px-6 md:px-12"
     >
       <div className="max-w-6xl w-full">

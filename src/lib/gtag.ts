@@ -1,8 +1,13 @@
 // Google Tag Manager 설정 및 유틸리티
 
+interface DataLayerEvent {
+  event: string;
+  [key: string]: string | number | boolean | undefined;
+}
+
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: DataLayerEvent[];
   }
 }
 
@@ -14,7 +19,7 @@ export const isGTMEnabled = (): boolean => {
 };
 
 // dataLayer에 이벤트 푸시
-export const pushToDataLayer = (eventData: Record<string, any>): void => {
+export const pushToDataLayer = (eventData: DataLayerEvent): void => {
   if (!isGTMEnabled()) return;
 
   window.dataLayer = window.dataLayer || [];
@@ -42,7 +47,7 @@ export const event = (
     event_category?: string;
     event_label?: string;
     value?: number;
-    [key: string]: any;
+    [key: string]: string | number | boolean | undefined;
   } = {}
 ): void => {
   pushToDataLayer({

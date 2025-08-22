@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import PricingCard from "@/components/ui/PricingCard";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
 import { trackCTAClick } from "@/lib/gtag";
@@ -14,6 +14,11 @@ export default function CTASection() {
     sectionName: "cta_section",
     threshold: 0.3,
   });
+
+  const setRefs = useCallback((element: HTMLElement | null) => {
+    (ref as React.MutableRefObject<HTMLElement | null>).current = element;
+    sectionRef.current = element;
+  }, [ref, sectionRef]);
 
   const handleCTAClick = () => {
     trackCTAClick("지금 무료로 시작하기", "cta_section");
@@ -41,11 +46,7 @@ export default function CTASection() {
   return (
     <section
       id="pricing"
-      ref={(el) => {
-        // 기존 ref와 스크롤 추적 ref 모두 적용
-        (ref as any).current = el;
-        (sectionRef as any).current = el;
-      }}
+      ref={setRefs}
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
         backgroundImage: "url(/images/example_player.png)",

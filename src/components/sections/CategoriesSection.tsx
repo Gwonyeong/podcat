@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
 import { trackMediaPlay } from "@/lib/gtag";
@@ -22,6 +22,12 @@ export default function CategoriesSection() {
     sectionName: "categories_section",
     threshold: 0.3,
   });
+
+  const setRefs = useCallback((element: HTMLElement | null) => {
+    // 기존 ref와 스크롤 추적 ref 모두 적용
+    (ref as React.MutableRefObject<HTMLElement | null>).current = element;
+    sectionRef.current = element;
+  }, [ref, sectionRef]);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
     null
@@ -161,11 +167,7 @@ export default function CategoriesSection() {
 
   return (
     <section
-      ref={(el) => {
-        // 기존 ref와 스크롤 추적 ref 모두 적용
-        (ref as any).current = el;
-        (sectionRef as any).current = el;
-      }}
+      ref={setRefs}
       className="section bg-black text-white flex-col px-6 md:px-12"
     >
       <div className="max-w-4xl w-full">

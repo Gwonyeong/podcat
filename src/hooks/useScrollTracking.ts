@@ -14,7 +14,7 @@ export const useScrollTracking = ({
   threshold = 0.5,
   trackOnce = true,
 }: UseScrollTrackingOptions) => {
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
   const hasTracked = useRef(false);
 
   useEffect(() => {
