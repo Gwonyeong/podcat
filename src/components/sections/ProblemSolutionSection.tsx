@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Clock, Eye, Car, Smartphone, Brain, Volume2 } from "lucide-react";
+import { Clock, Eye, Car } from "lucide-react";
 
 export default function ProblemSolutionSection() {
   const ref = useRef(null);
@@ -24,21 +24,6 @@ export default function ProblemSolutionSection() {
       icon: Clock,
       title: "시간 부족",
       description: "긴 텍스트를 읽을 시간을 따로 내기 어려움",
-    },
-    {
-      icon: Smartphone,
-      title: "모바일 가독성",
-      description: "작은 화면에서 긴 텍스트 읽기 불편",
-    },
-    {
-      icon: Brain,
-      title: "집중력 분산",
-      description: "텍스트 읽기 중 다른 생각으로 집중력이 흩어짐",
-    },
-    {
-      icon: Volume2,
-      title: "정보 전달의 한계",
-      description: "음성의 감정과 뉘앙스를 텍스트로 완전히 전달하기 어려움",
     },
   ];
 
@@ -82,24 +67,27 @@ export default function ProblemSolutionSection() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             >
-              바쁜 일상 속에서 텍스트로 된 뉴스레터를 읽는 것은 생각보다 어려운 일입니다
+              바쁜 일상 속에서 텍스트로 된 뉴스레터를 읽는 것은 생각보다 어려운
+              일입니다
             </motion.p>
           </motion.div>
 
           {/* 문제점 그리드 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
             {problems.map((problem, index) => (
               <motion.div
                 key={problem.title}
                 className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200/50"
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 60 }}
+                animate={
+                  isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }
+                }
                 transition={{
-                  duration: 0.6,
-                  delay: 0.6 + index * 0.1,
-                  ease: "easeOut",
+                  duration: 0.8,
+                  delay: 0.6 + index * 0.2,
+                  ease: [0.25, 0.46, 0.45, 0.94],
                 }}
-                whileHover={{ y: -5, scale: 1.02 }}
+                whileHover={{ y: -8, scale: 1.03 }}
               >
                 <div className="flex flex-col items-center text-center">
                   <motion.div
@@ -107,16 +95,16 @@ export default function ProblemSolutionSection() {
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <problem.icon 
-                      size={32} 
-                      className="text-red-500 md:w-10 md:h-10" 
+                    <problem.icon
+                      size={32}
+                      className="text-red-500 md:w-10 md:h-10"
                     />
                   </motion.div>
-                  
+
                   <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
                     {problem.title}
                   </h3>
-                  
+
                   <p className="text-gray-600 text-sm md:text-base leading-relaxed">
                     {problem.description}
                   </p>
