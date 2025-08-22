@@ -3,10 +3,19 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Waveform from "@/components/ui/Waveform";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
 
 export default function HeroSection() {
+  const sectionRef = useScrollTracking({ 
+    sectionName: 'hero_section',
+    threshold: 0.3 
+  });
+
   return (
-    <section className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden">
+    <section 
+      ref={sectionRef}
+      className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
+    >
       {/* 배경 이미지 */}
       <div className="absolute inset-0 z-0">
         <Image

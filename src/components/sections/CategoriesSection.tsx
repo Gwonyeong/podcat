@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
+import { trackMediaPlay } from "@/lib/gtag";
 
 interface Category {
   title: string;
@@ -16,6 +18,10 @@ interface Category {
 export default function CategoriesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const sectionRef = useScrollTracking({ 
+    sectionName: 'categories_section',
+    threshold: 0.3 
+  });
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
     null
@@ -117,6 +123,8 @@ export default function CategoriesSection() {
       // 이벤트 리스너들을 함수로 분리하여 나중에 제거할 수 있도록 함
       const handleLoadStart = () => {
         setPlayingIndex(index);
+        // GA 이벤트 추적
+        trackMediaPlay(categories[index].title, 'audio');
       };
 
       const handleEnded = () => {
@@ -153,7 +161,11 @@ export default function CategoriesSection() {
 
   return (
     <section
-      ref={ref}
+      ref={(el) => {
+        // 기존 ref와 스크롤 추적 ref 모두 적용
+        (ref as any).current = el;
+        (sectionRef as any).current = el;
+      }}
       className="section bg-black text-white flex-col px-6 md:px-12"
     >
       <div className="max-w-4xl w-full">

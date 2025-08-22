@@ -3,10 +3,15 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
 
 export default function FeaturesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const sectionRef = useScrollTracking({ 
+    sectionName: 'features_section',
+    threshold: 0.3 
+  });
 
   const features = [
     {
@@ -34,7 +39,11 @@ export default function FeaturesSection() {
 
   return (
     <section
-      ref={ref}
+      ref={(el) => {
+        // 기존 ref와 스크롤 추적 ref 모두 적용
+        (ref as any).current = el;
+        (sectionRef as any).current = el;
+      }}
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
         backgroundImage: "url(/images/coffeeInCafeWithYoungGirl.png)",

@@ -4,10 +4,20 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import PricingCard from "@/components/ui/PricingCard";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
+import { trackCTAClick } from "@/lib/gtag";
 
 export default function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const sectionRef = useScrollTracking({ 
+    sectionName: 'cta_section',
+    threshold: 0.3 
+  });
+
+  const handleCTAClick = () => {
+    trackCTAClick('지금 무료로 시작하기', 'cta_section');
+  };
 
   const pricingPlan = {
     name: "베타 체험",
@@ -25,12 +35,17 @@ export default function CTASection() {
     isCurrentPlan: true,
     buttonText: "지금 무료로 시작하기",
     buttonVariant: "primary" as const,
+    onButtonClick: handleCTAClick,
   };
 
   return (
     <section
       id="pricing"
-      ref={ref}
+      ref={(el) => {
+        // 기존 ref와 스크롤 추적 ref 모두 적용
+        (ref as any).current = el;
+        (sectionRef as any).current = el;
+      }}
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
         backgroundImage: "url(/images/example_player.png)",

@@ -15,6 +15,7 @@ interface PricingPlan {
   isCurrentPlan?: boolean;
   buttonText: string;
   buttonVariant: "primary" | "secondary";
+  onButtonClick?: () => void;
 }
 
 interface PricingCardProps {
@@ -108,7 +109,10 @@ export default function PricingCard({
 
       {/* 버튼 */}
       <button
-        onClick={openApplicationModal}
+        onClick={() => {
+          plan.onButtonClick?.();
+          openApplicationModal();
+        }}
         className={`w-full py-3 md:py-4 px-4 md:px-6 rounded-xl font-semibold text-base md:text-lg transition-all duration-200 ${
           plan.buttonVariant === "primary"
             ? plan.isCurrentPlan

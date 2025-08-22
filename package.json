@@ -12,6 +12,7 @@
     "@prisma/client": "^6.14.0",
     "@tailwindcss/typography": "^0.5.16",
     "framer-motion": "^12.23.12",
+    "gtag": "^1.0.1",
     "lucide-react": "^0.540.0",
     "next": "15.5.0",
     "prisma": "^6.14.0",

@@ -65,10 +65,10 @@ export default function ApplicationModal() {
     setSubmitting(true);
 
     try {
-      const response = await fetch('/api/applications', {
-        method: 'POST',
+      const response = await fetch("/api/applications", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.name,
@@ -82,7 +82,7 @@ export default function ApplicationModal() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '신청 처리 중 오류가 발생했습니다.');
+        throw new Error(data.error || "신청 처리 중 오류가 발생했습니다.");
       }
 
       // 성공 시 감사 메시지 표시
@@ -91,12 +91,12 @@ export default function ApplicationModal() {
     } catch (error) {
       console.error("Application submission error:", error);
       setSubmitting(false);
-      
+
       // 에러 메시지 표시
       if (error instanceof Error) {
         setErrors({ submit: error.message });
       } else {
-        setErrors({ submit: '신청 처리 중 오류가 발생했습니다.' });
+        setErrors({ submit: "신청 처리 중 오류가 발생했습니다." });
       }
     }
   };
@@ -172,8 +172,7 @@ export default function ApplicationModal() {
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
                       무료 체험 신청이 완료되었습니다.
-                      <br />
-                      곧 연락드리겠습니다!
+                      <br />곧 연락드리겠습니다!
                     </p>
                   </div>
                   <button
