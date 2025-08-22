@@ -20,6 +20,11 @@ export default function CategoriesSection() {
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
     null
   );
+  const audioHandlersRef = useRef<{
+    loadstart?: () => void;
+    ended?: () => void;
+    error?: (e: Event) => void;
+  }>({});
 
   const categories: Category[] = [
     {
@@ -46,12 +51,50 @@ export default function CategoriesSection() {
     },
   ];
 
-  // 오디오 정리 함수
+  // 오디오 안전하게 정리하는 함수
+  const cleanupAudio = (audio: HTMLAudioElement) => {
+    try {
+      // 이벤트 리스너 제거
+      const handlers = audioHandlersRef.current;
+      if (handlers.loadstart) {
+        audio.removeEventListener("loadstart", handlers.loadstart);
+      }
+      if (handlers.ended) {
+        audio.removeEventListener("ended", handlers.ended);
+      }
+      if (handlers.error) {
+        audio.removeEventListener("error", handlers.error);
+      }
+
+      // 오디오 정지 및 리소스 해제
+      if (!audio.paused) {
+        audio.pause();
+      }
+
+      // currentTime 설정 전에 잠시 대기하여 상태 충돌 방지
+      setTimeout(() => {
+        try {
+          audio.currentTime = 0;
+          audio.src = "";
+          audio.load(); // 리소스 완전 해제
+        } catch (error) {
+          // currentTime 설정 실패 시 무시 (이미 해제된 상태일 수 있음)
+          console.debug("Audio cleanup warning:", error);
+        }
+      }, 10);
+
+      // 핸들러 참조 정리
+      audioHandlersRef.current = {};
+    } catch (error) {
+      console.debug("Audio cleanup warning:", error);
+    }
+  };
+
+  // 컴포넌트 언마운트 시 정리
   useEffect(() => {
     return () => {
       if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.src = "";
+        cleanupAudio(currentAudio);
       }
     };
   }, [currentAudio]);
@@ -59,8 +102,7 @@ export default function CategoriesSection() {
   const handlePlay = (index: number) => {
     // 현재 재생 중인 오디오 정지
     if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+      cleanupAudio(currentAudio);
     }
 
     if (playingIndex === index) {
@@ -72,24 +114,37 @@ export default function CategoriesSection() {
       const audio = new Audio(categories[index].sample);
       audio.volume = 0.7;
 
-      audio.addEventListener("loadstart", () => {
+      // 이벤트 리스너들을 함수로 분리하여 나중에 제거할 수 있도록 함
+      const handleLoadStart = () => {
         setPlayingIndex(index);
-      });
+      };
 
-      audio.addEventListener("ended", () => {
+      const handleEnded = () => {
         setPlayingIndex(null);
         setCurrentAudio(null);
-      });
+      };
 
-      audio.addEventListener("error", (e) => {
-        console.error("Audio playback error:", e);
+      const handleError = (e: Event) => {
+        console.warn("오디오 재생 중 문제가 발생했습니다:", e.type);
         setPlayingIndex(null);
         setCurrentAudio(null);
-      });
+      };
+
+      // 핸들러 참조 저장
+      audioHandlersRef.current = {
+        loadstart: handleLoadStart,
+        ended: handleEnded,
+        error: handleError,
+      };
+
+      audio.addEventListener("loadstart", handleLoadStart);
+      audio.addEventListener("ended", handleEnded);
+      audio.addEventListener("error", handleError);
 
       setCurrentAudio(audio);
+
       audio.play().catch((error) => {
-        console.error("Audio play failed:", error);
+        console.warn("오디오 재생을 시작할 수 없습니다:", error.message);
         setPlayingIndex(null);
         setCurrentAudio(null);
       });
