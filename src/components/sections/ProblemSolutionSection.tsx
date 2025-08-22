@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Clock, Eye, Car } from "lucide-react";
+import Image from "next/image";
 
 export default function ProblemSolutionSection() {
   const ref = useRef(null);
@@ -72,6 +73,30 @@ export default function ProblemSolutionSection() {
             </motion.p>
           </motion.div>
 
+          {/* 중앙 원형 이미지 */}
+          <motion.div
+            className="flex justify-center mb-12 md:mb-16 lg:mb-20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          >
+            <motion.div
+              className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-full overflow-hidden shadow-2xl border-4 border-white/50"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Image
+                src="/images/newsletter-read-man.png"
+                alt="텍스트 뉴스레터를 읽으며 피로해하는 남성"
+                fill
+                className="object-cover"
+                priority
+              />
+              {/* 오버레이 효과 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </motion.div>
+          </motion.div>
+
           {/* 문제점 그리드 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
             {problems.map((problem, index) => (
@@ -112,23 +137,6 @@ export default function ProblemSolutionSection() {
               </motion.div>
             ))}
           </div>
-
-          {/* 해결책 프리뷰 */}
-          <motion.div
-            className="text-center mt-12 md:mt-16 lg:mt-20"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
-          >
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl p-6 md:p-8 max-w-4xl mx-auto">
-              <h3 className="text-xl md:text-2xl font-bold mb-4">
-                🎧 이제 들으면서 정보를 받아보세요!
-              </h3>
-              <p className="text-base md:text-lg opacity-90">
-                Podcat은 이 모든 문제를 해결하는 AI 팟캐스트 서비스입니다
-              </p>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
