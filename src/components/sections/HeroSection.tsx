@@ -65,6 +65,12 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            document.getElementById('pricing')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }}
         >
           시작하기
         </motion.button>
