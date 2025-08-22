@@ -18,9 +18,9 @@ interface Category {
 export default function CategoriesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const sectionRef = useScrollTracking({ 
-    sectionName: 'categories_section',
-    threshold: 0.3 
+  const sectionRef = useScrollTracking({
+    sectionName: "categories_section",
+    threshold: 0.3,
   });
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
@@ -124,7 +124,7 @@ export default function CategoriesSection() {
       const handleLoadStart = () => {
         setPlayingIndex(index);
         // GA 이벤트 추적
-        trackMediaPlay(categories[index].title, 'audio');
+        trackMediaPlay(categories[index].title, "audio");
       };
 
       const handleEnded = () => {

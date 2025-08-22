@@ -6,13 +6,13 @@ import Waveform from "@/components/ui/Waveform";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
 
 export default function HeroSection() {
-  const sectionRef = useScrollTracking({ 
-    sectionName: 'hero_section',
-    threshold: 0.3 
+  const sectionRef = useScrollTracking({
+    sectionName: "hero_section",
+    threshold: 0.3,
   });
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
     >

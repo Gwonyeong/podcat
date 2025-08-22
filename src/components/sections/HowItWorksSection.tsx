@@ -8,9 +8,9 @@ import { useScrollTracking } from "@/hooks/useScrollTracking";
 export default function HowItWorksSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const sectionRef = useScrollTracking({ 
-    sectionName: 'how_it_works_section',
-    threshold: 0.3 
+  const sectionRef = useScrollTracking({
+    sectionName: "how_it_works_section",
+    threshold: 0.3,
   });
 
   const steps = [

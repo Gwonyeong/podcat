@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { trackScroll } from '@/lib/gtag';
+import { useEffect, useRef } from "react";
+import { trackScroll } from "@/lib/gtag";
 
 interface UseScrollTrackingOptions {
   sectionName: string;
@@ -29,9 +29,9 @@ export const useScrollTracking = ({
             if (trackOnce && hasTracked.current) return;
 
             const visibilityRatio = Math.round(entry.intersectionRatio * 100);
-            
+
             trackScroll(sectionName, visibilityRatio);
-            
+
             if (trackOnce) {
               hasTracked.current = true;
             }
@@ -40,7 +40,7 @@ export const useScrollTracking = ({
       },
       {
         threshold,
-        rootMargin: '0px',
+        rootMargin: "0px",
       }
     );
 

@@ -10,13 +10,13 @@ import { trackCTAClick } from "@/lib/gtag";
 export default function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const sectionRef = useScrollTracking({ 
-    sectionName: 'cta_section',
-    threshold: 0.3 
+  const sectionRef = useScrollTracking({
+    sectionName: "cta_section",
+    threshold: 0.3,
   });
 
   const handleCTAClick = () => {
-    trackCTAClick('지금 무료로 시작하기', 'cta_section');
+    trackCTAClick("지금 무료로 시작하기", "cta_section");
   };
 
   const pricingPlan = {
