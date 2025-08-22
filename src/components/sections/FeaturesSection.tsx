@@ -36,55 +36,57 @@ export default function FeaturesSection() {
       ref={ref}
       className="section relative bg-white text-black flex-col px-6 md:px-12 overflow-hidden"
       style={{
-        backgroundImage: 'url(/images/coffeeInCafeWithYoungGirl.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundImage: "url(/images/coffeeInCafeWithYoungGirl.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       {/* 오버레이 */}
       <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px]"></div>
-      
+
       {/* 콘텐츠 */}
       <div className="relative z-10 w-full flex flex-col items-center justify-center min-h-screen">
-      <div className="max-w-4xl w-full">
-        <motion.h2
-          className="text-section-title-mobile md:text-section-title font-black text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          어떻게 다른가
-        </motion.h2>
+        <div className="max-w-4xl w-full">
+          <motion.h2
+            className="text-section-title-mobile md:text-section-title font-black text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            어떻게 다른가
+          </motion.h2>
 
-        <div className="space-y-12 md:space-y-16">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.number}
-              className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12"
-              initial={{ opacity: 0, x: -30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-              transition={{
-                duration: 0.6,
-                delay: 0.2 + index * 0.1,
-                ease: "easeOut",
-              }}
-            >
-              <div className="text-4xl md:text-6xl font-black text-gray-200 min-w-fit">
-                {feature.number}
-              </div>
-              <div>
-                <h3 className="text-xl md:text-2xl font-bold mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 text-sm md:text-base">
-                  {feature.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          <div className="space-y-12 md:space-y-16">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.number}
+                className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12"
+                initial={{ opacity: 0, x: -30 }}
+                animate={
+                  isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }
+                }
+                transition={{
+                  duration: 0.6,
+                  delay: 0.2 + index * 0.1,
+                  ease: "easeOut",
+                }}
+              >
+                <div className="text-4xl md:text-6xl font-black text-gray-200 min-w-fit">
+                  {feature.number}
+                </div>
+                <div>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm md:text-base">
+                    {feature.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
       </div>
     </section>
   );
