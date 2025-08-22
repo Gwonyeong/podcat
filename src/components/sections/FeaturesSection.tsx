@@ -46,7 +46,7 @@ export default function FeaturesSection() {
       <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px]"></div>
 
       {/* 콘텐츠 */}
-      <div className="relative z-10 w-full flex flex-col items-center justify-center py-8 md:py-16">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center py-12 md:py-16 lg:py-20">
         <div className="max-w-4xl w-full">
           <motion.h2
             className="text-section-title-mobile md:text-section-title font-black text-center mb-8 md:mb-12 lg:mb-16"
@@ -57,7 +57,7 @@ export default function FeaturesSection() {
             어떻게 다른가
           </motion.h2>
 
-          <div className="space-y-8 md:space-y-12 lg:space-y-16">
+          <div className="space-y-6 md:space-y-8 lg:space-y-10">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.number}

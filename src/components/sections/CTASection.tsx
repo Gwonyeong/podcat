@@ -43,7 +43,7 @@ export default function CTASection() {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[1px]"></div>
 
       {/* 콘텐츠 */}
-      <div className="relative z-10 w-full flex flex-col items-center justify-center py-12 md:py-20">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center py-16 md:py-24 lg:py-28">
         {/* 제목 섹션 */}
         <motion.div
           className="text-center max-w-4xl mb-8 md:mb-12 lg:mb-16"

@@ -35,8 +35,16 @@ body {
 @media (max-width: 768px) {
   .section {
     min-height: 100svh; /* Safe area viewport height for mobile */
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* 매우 작은 화면에서 추가 조정 */
+@media (max-width: 480px) {
+  .section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }
 
