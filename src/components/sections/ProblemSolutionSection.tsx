@@ -61,12 +61,12 @@ export default function ProblemSolutionSection() {
               텍스트 뉴스레터, 이런 불편함 없으신가요?
             </motion.h2>
             <motion.p
-              className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"
+              className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto break-keep"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             >
-              시간을 들여 눈으로 화면을 보며 읽는 것, 쉽지 않잖아요.
+              시간을 들여 눈으로 화면을 보며 읽는&nbsp;것, 쉽지&nbsp;않잖아요.
             </motion.p>
           </motion.div>
 
