@@ -58,9 +58,7 @@ export default function ProblemSolutionSection() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             >
-              텍스트 뉴스레터,
-              <br />
-              이런 불편함 없으신가요?
+              텍스트 뉴스레터, 이런 불편함 없으신가요?
             </motion.h2>
             <motion.p
               className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"

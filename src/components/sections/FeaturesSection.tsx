@@ -13,10 +13,13 @@ export default function FeaturesSection() {
     threshold: 0.3,
   });
 
-  const setRefs = useCallback((element: HTMLElement | null) => {
-    (ref as React.MutableRefObject<HTMLElement | null>).current = element;
-    sectionRef.current = element;
-  }, [ref, sectionRef]);
+  const setRefs = useCallback(
+    (element: HTMLElement | null) => {
+      (ref as React.MutableRefObject<HTMLElement | null>).current = element;
+      sectionRef.current = element;
+    },
+    [ref, sectionRef]
+  );
 
   const features = [
     {

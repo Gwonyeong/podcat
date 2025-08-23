@@ -53,9 +53,7 @@ export default function HeroSection() {
         </motion.div>
 
         <h1 className="text-hero-mobile md:text-hero font-black leading-none mb-4 md:mb-6">
-          AI가 만드는
-          <br />
-          매일의 팟캐스트
+          AI가 만드는 매일의 팟캐스트
         </h1>
 
         <motion.p

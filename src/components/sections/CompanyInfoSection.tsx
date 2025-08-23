@@ -141,8 +141,7 @@ export default function CompanyInfoSection() {
           <div className="mt-12 p-6 bg-gray-800 rounded-lg">
             <h4 className="font-semibold mb-4">비즈니스 문의</h4>
             <p className="text-gray-300 leading-relaxed">
-              파트너십, 광고, 기업 서비스에 대한 문의는
-              <br />
+              파트너십, 광고, 기업 서비스에 대한 문의는{" "}
               <span className="text-white font-semibold">
                 busGwonyeong@gmail.com
               </span>
