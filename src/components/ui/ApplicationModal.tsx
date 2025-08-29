@@ -21,6 +21,35 @@ export default function ApplicationModal() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showMaintenanceMessage, setShowMaintenanceMessage] = useState(false);
 
+  // 전화번호 포맷팅 함수
+  const formatPhoneNumber = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^0-9]/g, "");
+
+    // 길이에 따라 하이픈 추가
+    if (numbers.length <= 3) {
+      return numbers;
+    } else if (numbers.length <= 7) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    } else {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(
+        7,
+        11
+      )}`;
+    }
+  };
+
+  // 전화번호 입력 처리
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    const formatted = formatPhoneNumber(input);
+
+    // 최대 13자 (010-1234-5678 형식)
+    if (formatted.length <= 13) {
+      updateFormData({ phoneNumber: formatted });
+    }
+  };
+
   // 모달이 닫힐 때 상태 리셋
   const handleCloseModal = () => {
     setShowMaintenanceMessage(false);
@@ -37,8 +66,9 @@ export default function ApplicationModal() {
 
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "전화번호를 입력해주세요.";
-    } else if (!/^[0-9-+\s()]+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "올바른 전화번호 형식을 입력해주세요.";
+    } else if (!/^01[0-9]-\d{3,4}-\d{4}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber =
+        "올바른 휴대폰 번호 형식을 입력해주세요. (예: 010-1234-5678)";
     }
 
     if (formData.interestedTopics.length === 0) {
@@ -212,9 +242,10 @@ export default function ApplicationModal() {
                     <input
                       type="tel"
                       value={formData.phoneNumber}
-                      onChange={(e) =>
-                        updateFormData({ phoneNumber: e.target.value })
-                      }
+                      onChange={handlePhoneNumberChange}
+                      inputMode="numeric"
+                      pattern="[0-9-]*"
+                      maxLength={13}
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                         errors.phoneNumber
                           ? "border-red-500"
@@ -222,6 +253,9 @@ export default function ApplicationModal() {
                       }`}
                       placeholder="010-1234-5678"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      숫자만 입력하세요. 하이픈은 자동으로 추가됩니다.
+                    </p>
                     {errors.phoneNumber && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.phoneNumber}
@@ -233,6 +267,10 @@ export default function ApplicationModal() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       관심 있는 주제 <span className="text-red-500">*</span>
+                      <br />
+                      <span className="text-sm text-gray-500 ml-1">
+                        주제는 계속 추가될 예정입니다.
+                      </span>
                       <span className="text-sm text-gray-500 ml-1">
                         (최대 3개)
                       </span>

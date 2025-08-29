@@ -9,7 +9,7 @@ interface LandingAudioModalProps {
   onClose: () => void;
   isPlaying: boolean;
   onPlayPause: () => void;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
 export default function LandingAudioModal({
