@@ -42,14 +42,14 @@ export default function LandingCompanyInfoSection() {
   ];
 
   return (
-    <section className="landing-section py-20 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section className="landing-section py-20 px-4 bg-gradient-to-br from-slate-50 to-gray-100">
       <div className="max-w-7xl mx-auto">
         {/* 회사 통계 */}
         <div className="text-center mb-20 px-4">
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-slate-900 mb-6">
             Podcat의 성과
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-16">
+          <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto mb-16">
             오디오 뉴스레터 서비스로 달성한 놀라운 성과들을 확인해보세요.
           </p>
 
@@ -62,10 +62,10 @@ export default function LandingCompanyInfoSection() {
                 <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-300">
                   {stat.icon}
                 </div>
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
                   {stat.number}
                 </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
+                <div className="text-slate-600 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -74,10 +74,10 @@ export default function LandingCompanyInfoSection() {
         {/* 팀 소개 */}
         <div className="mb-20 px-4">
           <div className="text-center mb-16">
-            <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 mb-6">
               우리 팀을 소개합니다
             </h3>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto">
               오디오 뉴스레터 서비스를 만들어가는 열정적인 팀원들을 만나보세요.
             </p>
           </div>
@@ -88,27 +88,27 @@ export default function LandingCompanyInfoSection() {
                 key={index}
                 className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 text-center"
               >
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border-4 border-blue-100">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden border-4 border-slate-200">
                   <img
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h4 className="text-2xl font-bold text-gray-900 mb-2">
+                <h4 className="text-2xl font-bold text-slate-900 mb-2">
                   {member.name}
                 </h4>
-                <p className="text-blue-600 font-semibold mb-4">
+                <p className="text-slate-700 font-semibold mb-4">
                   {member.role}
                 </p>
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-slate-600 mb-6 leading-relaxed">
                   {member.description}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {member.skills.map((skill, skillIndex) => (
                     <span
                       key={skillIndex}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+                      className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium"
                     >
                       {skill}
                     </span>
@@ -122,11 +122,12 @@ export default function LandingCompanyInfoSection() {
         {/* 기술 스택 */}
         <div className="mb-20 px-4">
           <div className="text-center mb-16">
-            <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 mb-6">
               최신 기술로 구축
             </h3>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              안정적이고 확장 가능한 오디오 뉴스레터 플랫폼을 위한 최신 기술 스택.
+            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto">
+              안정적이고 확장 가능한 오디오 뉴스레터 플랫폼을 위한 최신 기술
+              스택.
             </p>
           </div>
 
@@ -139,10 +140,10 @@ export default function LandingCompanyInfoSection() {
                 <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-300">
                   {tech.icon}
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                <h4 className="text-lg font-semibold text-slate-900 mb-2">
                   {tech.name}
                 </h4>
-                <p className="text-sm text-gray-600">{tech.description}</p>
+                <p className="text-sm text-slate-600">{tech.description}</p>
               </div>
             ))}
           </div>
@@ -150,7 +151,7 @@ export default function LandingCompanyInfoSection() {
 
         {/* 회사 가치 */}
         <div className="text-center px-4">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-white max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-slate-900 to-black rounded-3xl p-8 sm:p-12 text-white max-w-4xl mx-auto">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
               Podcat의 핵심 가치
             </h3>
@@ -158,19 +159,19 @@ export default function LandingCompanyInfoSection() {
               <div>
                 <div className="text-4xl mb-4">🎯</div>
                 <h4 className="text-xl font-semibold mb-2">사용자 중심</h4>
-                <p className="text-blue-100">
+                <p className="text-gray-300">
                   사용자 경험을 최우선으로 생각합니다
                 </p>
               </div>
               <div>
                 <div className="text-4xl mb-4">🚀</div>
                 <h4 className="text-xl font-semibold mb-2">혁신</h4>
-                <p className="text-blue-100">최신 기술로 끊임없이 발전합니다</p>
+                <p className="text-gray-300">최신 기술로 끊임없이 발전합니다</p>
               </div>
               <div>
                 <div className="text-4xl mb-4">🤝</div>
                 <h4 className="text-xl font-semibold mb-2">협력</h4>
-                <p className="text-blue-100">
+                <p className="text-gray-300">
                   팀워크를 통해 큰 성과를 만듭니다
                 </p>
               </div>

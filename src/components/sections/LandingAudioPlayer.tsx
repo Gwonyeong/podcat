@@ -87,9 +87,9 @@ export default function LandingAudioPlayer({
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-slate-900 via-slate-800 to-black">
       {/* 왼쪽 사이드바 - 트랙 목록 */}
-      <div className="w-full lg:w-1/3 bg-black/20 backdrop-blur-sm p-4 sm:p-6">
+      <div className="w-full lg:w-1/3 bg-black/30 backdrop-blur-sm p-4 sm:p-6">
         <div className="mb-8">
           <div className="flex items-center mb-6">
             <img
@@ -150,21 +150,10 @@ export default function LandingAudioPlayer({
 
       {/* 메인 콘텐츠 영역 */}
       <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-8">
-        <div className="text-center mb-12 px-4">
-          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-6">
-            오디오 뉴스레터
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
-            샘플 뉴스레터를 선택하고 AI가 큐레이션한 맞춤형 콘텐츠를 경험해보세요.
-            <br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
-            각 뉴스레터는 카테고리별 핵심 정보로 구성되어 있습니다.
-          </p>
-        </div>
 
         {/* 현재 재생 중인 트랙 정보 */}
         {currentTrack !== null && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-8 max-w-md mx-4 sm:mx-0">
+          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-8 max-w-md mx-4 sm:mx-0 mt-8">
             <div className="w-32 h-32 mx-auto mb-6 rounded-2xl overflow-hidden">
               <img
                 src={sampleTracks[currentTrack].image}

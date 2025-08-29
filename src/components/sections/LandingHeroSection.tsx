@@ -21,18 +21,18 @@ export default function LandingHeroSection() {
   }, [texts.length]);
 
   return (
-    <section className="landing-section landing-hero text-white relative overflow-hidden">
+    <section className="landing-section landing-hero text-white relative overflow-hidden bg-gradient-to-br from-slate-900 via-navy-900 to-black">
       {/* 배경 그라데이션 오버레이 */}
-      <div className="absolute inset-0 bg-black/20"></div>
+      <div className="absolute inset-0 bg-black/30"></div>
 
       {/* 플로팅 요소들 - 모바일에서는 숨김 */}
-      <div className="hidden lg:block absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full animate-float"></div>
+      <div className="hidden lg:block absolute top-20 left-20 w-32 h-32 bg-white/5 rounded-full animate-float"></div>
       <div
-        className="hidden lg:block absolute top-40 right-20 w-24 h-24 bg-white/20 rounded-full animate-float"
+        className="hidden lg:block absolute top-40 right-20 w-24 h-24 bg-white/8 rounded-full animate-float"
         style={{ animationDelay: "2s" }}
       ></div>
       <div
-        className="hidden lg:block absolute bottom-20 left-1/4 w-20 h-20 bg-white/15 rounded-full animate-float"
+        className="hidden lg:block absolute bottom-20 left-1/4 w-20 h-20 bg-white/6 rounded-full animate-float"
         style={{ animationDelay: "4s" }}
       ></div>
 
@@ -55,7 +55,7 @@ export default function LandingHeroSection() {
         </h1>
 
         {/* 서브 타이틀 */}
-        <p className="text-lg sm:text-xl md:text-2xl mb-12 text-blue-100 max-w-3xl mx-auto leading-relaxed px-4">
+        <p className="text-lg sm:text-xl md:text-2xl mb-12 text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
           바쁜 일상 속에서도 놓치지 않는 핵심 정보.
           <br className="hidden sm:block" />
           <span className="sm:hidden"> </span>
@@ -64,10 +64,10 @@ export default function LandingHeroSection() {
 
         {/* CTA 버튼들 */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
-          <button className="w-full sm:w-auto bg-white text-blue-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+          <button className="w-full sm:w-auto bg-white text-slate-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
             🎧 무료 체험하기
           </button>
-          <button className="w-full sm:w-auto border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+          <button className="w-full sm:w-auto border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-slate-900 transition-all duration-300">
             📰 샘플 듣기
           </button>
         </div>

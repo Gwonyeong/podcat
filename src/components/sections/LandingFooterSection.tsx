@@ -39,7 +39,7 @@ export default function LandingFooterSection() {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white relative overflow-hidden">
+    <footer className="bg-slate-900 text-white relative overflow-hidden">
       {/* 배경 패턴 */}
       <div className="absolute inset-0 opacity-5">
         <div
@@ -69,12 +69,12 @@ export default function LandingFooterSection() {
             </p>
 
             {/* 소셜 링크 */}
-            <div className="flex space-x-4">
+                          <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-all duration-300 transform hover:scale-110"
                   aria-label={social.name}
                 >
                   <span className="text-lg">{social.icon}</span>
@@ -153,15 +153,15 @@ export default function LandingFooterSection() {
         </div>
 
         {/* 구분선 */}
-        <div className="border-t border-gray-800 pt-8 mb-8"></div>
+        <div className="border-t border-slate-800 pt-8 mb-8"></div>
 
         {/* 하단 푸터 */}
         <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
-          <div className="text-gray-400 text-sm mb-4 sm:mb-0">
+          <div className="text-slate-400 text-sm mb-4 sm:mb-0">
             © {currentYear} Podcat. 모든 권리 보유.
           </div>
 
-          <div className="flex items-center justify-center sm:justify-end space-x-4 sm:space-x-6 text-sm text-gray-400">
+          <div className="flex items-center justify-center sm:justify-end space-x-4 sm:space-x-6 text-sm text-slate-400">
             <span>Made with ❤️ in Korea</span>
             <span className="hidden sm:inline">•</span>
             <span>Version 2.0</span>
@@ -170,15 +170,15 @@ export default function LandingFooterSection() {
 
         {/* 추가 정보 */}
         <div className="mt-8 text-center px-4">
-          <div className="bg-gray-800/50 rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
-            <p className="text-gray-300 mb-4 text-sm sm:text-base">
-              매일 아침, AI가 큐레이션한 오디오 뉴스레터로 하루를 더 스마트하게 시작하세요.
-              지속적인 발전을 통해 더 나은 서비스를 제공합니다.
+          <div className="bg-slate-800/50 rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
+            <p className="text-slate-300 mb-4 text-sm sm:text-base">
+              매일 아침, AI가 큐레이션한 오디오 뉴스레터로 하루를 더 스마트하게
+              시작하세요. 지속적인 발전을 통해 더 나은 서비스를 제공합니다.
             </p>
             <div className="flex justify-center space-x-4">
-              <span className="text-blue-400">🎧</span>
-              <span className="text-purple-400">📰</span>
-              <span className="text-green-400">🤖</span>
+              <span className="text-white">🎧</span>
+              <span className="text-white">📰</span>
+              <span className="text-white">🤖</span>
             </div>
           </div>
         </div>

@@ -17,9 +17,9 @@ export default function LandingCTASection() {
   };
 
   return (
-    <section className="landing-section landing-cta relative overflow-hidden">
+    <section className="landing-section landing-cta relative overflow-hidden bg-slate-900">
       {/* 배경 패턴 */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-5">
         <div
           className="absolute inset-0"
           style={{
@@ -34,7 +34,7 @@ export default function LandingCTASection() {
           <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-8 leading-tight">
             지금 시작하세요
           </h2>
-          <p className="text-lg sm:text-2xl md:text-3xl mb-12 text-blue-50 leading-relaxed">
+          <p className="text-lg sm:text-2xl md:text-3xl mb-12 text-gray-300 leading-relaxed">
             매일 아침 15분, AI가 큐레이션한 오디오 뉴스레터로
             <br className="hidden sm:block" />
             <span className="sm:hidden"> </span>
@@ -44,10 +44,10 @@ export default function LandingCTASection() {
 
         {/* 액션 버튼들 */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 px-4">
-          <button className="w-full sm:w-auto bg-white text-green-600 px-10 py-5 rounded-full font-bold text-xl hover:bg-blue-50 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-110">
+          <button className="w-full sm:w-auto bg-white text-slate-900 px-10 py-5 rounded-full font-bold text-xl hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-110">
             🎧 무료 체험하기
           </button>
-          <button className="w-full sm:w-auto border-3 border-white text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-green-600 transition-all duration-300">
+          <button className="w-full sm:w-auto border-3 border-white text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-slate-900 transition-all duration-300">
             📰 샘플 뉴스레터 듣기
           </button>
         </div>
@@ -57,7 +57,7 @@ export default function LandingCTASection() {
           <h3 className="text-2xl sm:text-3xl font-bold text-white mb-6">
             얼리 액세스 신청하기
           </h3>
-          <p className="text-base sm:text-lg text-blue-100 mb-8">
+          <p className="text-base sm:text-lg text-gray-300 mb-8">
             오디오 뉴스레터 베타 서비스를 가장 먼저 경험해보세요
           </p>
 
@@ -76,7 +76,7 @@ export default function LandingCTASection() {
               />
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-blue-50 transition-all duration-300 whitespace-nowrap"
+                className="w-full sm:w-auto bg-white text-slate-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 whitespace-nowrap"
               >
                 신청하기
               </button>
@@ -94,17 +94,17 @@ export default function LandingCTASection() {
           <div className="text-white">
             <div className="text-4xl mb-4">🎧</div>
             <h4 className="text-lg sm:text-xl font-semibold mb-2">멀티태스킹</h4>
-            <p className="text-blue-100 text-sm sm:text-base">운동, 출근길에서 듣기</p>
+            <p className="text-gray-300 text-sm sm:text-base">운동, 출근길에서 듣기</p>
           </div>
           <div className="text-white">
             <div className="text-4xl mb-4">📰</div>
             <h4 className="text-lg sm:text-xl font-semibold mb-2">핵심 요약</h4>
-            <p className="text-blue-100 text-sm sm:text-base">15분 완성 브리핑</p>
+            <p className="text-gray-300 text-sm sm:text-base">15분 완성 브리핑</p>
           </div>
           <div className="text-white">
             <div className="text-4xl mb-4">🤖</div>
             <h4 className="text-lg sm:text-xl font-semibold mb-2">AI 큐레이션</h4>
-            <p className="text-blue-100 text-sm sm:text-base">개인 맞춤 선별</p>
+            <p className="text-gray-300 text-sm sm:text-base">개인 맞춤 선별</p>
           </div>
         </div>
       </div>
