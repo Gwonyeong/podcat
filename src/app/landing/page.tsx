@@ -28,10 +28,7 @@ export default function LandingPage() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
+    // 모달을 닫을 때 오디오 재생은 계속 유지
   };
 
   return (

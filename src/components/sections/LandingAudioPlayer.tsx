@@ -105,7 +105,12 @@ export default function LandingAudioPlayer({
         </div>
 
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">샘플 뉴스레터</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">
+            샘플 뉴스레터
+          </h2>
+          <p className="text-gray-300 text-sm">
+            카카오톡 무료 등록 후 더 많은 콘텐츠를 들어보세요
+          </p>
           <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
             {sampleTracks.map((track, index) => (
               <div
@@ -150,7 +155,6 @@ export default function LandingAudioPlayer({
 
       {/* 메인 콘텐츠 영역 */}
       <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-8">
-
         {/* 현재 재생 중인 트랙 정보 */}
         {currentTrack !== null && (
           <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-8 max-w-md mx-4 sm:mx-0 mt-8">
@@ -297,7 +301,11 @@ export default function LandingAudioPlayer({
         {/* 숨겨진 오디오 엘리먼트 */}
         <audio
           ref={audioRef}
-          src={currentTrack !== null ? sampleTracks[currentTrack].audioSrc : ""}
+          src={
+            currentTrack !== null
+              ? sampleTracks[currentTrack].audioSrc
+              : undefined
+          }
           preload="metadata"
         />
       </div>

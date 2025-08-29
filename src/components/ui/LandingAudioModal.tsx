@@ -88,45 +88,47 @@ export default function LandingAudioModal({
 
         {/* 트랙 이미지와 기본 정보 */}
         <div className="p-6">
-          <div className="flex items-start space-x-6">
-            <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0">
-              <img
-                src={track.image}
-                alt={track.title}
-                className="w-full h-full object-cover"
-              />
+          <div className="flex flex-col">
+            {/* 이미지 - 전체 가로축 사용, 중앙 정렬 */}
+            <div className="w-full flex justify-center mb-6">
+              <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden">
+                <img
+                  src={track.image}
+                  alt={track.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">
+
+            {/* 콘텐츠 정보 */}
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 {track.title}
               </h3>
-              <p className="text-xl text-gray-600 mb-3">{track.artist}</p>
-              <p className="text-gray-700 mb-4">{track.description}</p>
+              <p className="text-lg md:text-xl text-gray-600 mb-3">
+                {track.artist}
+              </p>
+              <p className="text-gray-700 mb-6">{track.description}</p>
 
               {/* 메타 정보 */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-sm">
+                <div className="flex justify-center md:justify-start">
                   <span className="text-gray-500">카테고리:</span>
                   <span className="ml-2 text-gray-900 font-medium">
                     {track.category}
                   </span>
                 </div>
-                <div>
+                <div className="flex justify-center md:justify-start">
                   <span className="text-gray-500">재생 시간:</span>
                   <span className="ml-2 text-gray-900 font-medium">
                     {track.duration}
                   </span>
                 </div>
-                <div>
+                <div className="flex justify-center md:justify-start">
                   <span className="text-gray-500">언어:</span>
-                  <span className="ml-2 text-gray-900 font-medium">
+                  <span className="ml-2 text-gray-900 font-medium flex items-center">
+                    <span className="text-lg mr-1">{track.languageFlag}</span>
                     {track.language}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-500">품질:</span>
-                  <span className="ml-2 text-gray-900 font-medium">
-                    {track.quality}
                   </span>
                 </div>
               </div>
