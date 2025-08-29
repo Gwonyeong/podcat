@@ -4,6 +4,10 @@ import { useModalStore } from "@/store/modalStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "lucide-react";
 import { useState } from "react";
+import {
+  generateSessionId,
+  trackNewsletterSignup,
+} from "@/lib/activityTracker";
 
 // 샘플 주제들 (public/sample 폴더의 파일들 기반)
 const AVAILABLE_TOPICS = ["글로벌 3대 뉴스", "테크", "라이프스타일"];
@@ -20,6 +24,7 @@ export default function ApplicationModal() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showMaintenanceMessage, setShowMaintenanceMessage] = useState(false);
+  const [sessionId] = useState(() => generateSessionId());
 
   // 전화번호 포맷팅 함수
   const formatPhoneNumber = (value: string) => {
@@ -114,6 +119,9 @@ export default function ApplicationModal() {
       if (!response.ok) {
         throw new Error(data.error || "신청 처리 중 오류가 발생했습니다.");
       }
+
+      // 뉴스레터 신청 활동 추적
+      await trackNewsletterSignup(sessionId);
 
       // 성공 시 감사 메시지 표시
       setSubmitting(false);

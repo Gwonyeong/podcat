@@ -1,8 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { sampleTracks } from "@/data/sampleTracks";
 import BottomSheet from "@/components/ui/BottomSheet";
+import {
+  generateSessionId,
+  trackSamplePlay,
+  trackSamplePlayComplete,
+  trackUserActivity,
+} from "@/lib/activityTracker";
 
 interface LandingAudioPlayerProps {
   currentTrack: number | null;
@@ -27,6 +33,7 @@ export default function LandingAudioPlayer({
   const [isShuffled, setIsShuffled] = useState(false);
   const [isRepeated, setIsRepeated] = useState(false);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [sessionId] = useState(() => generateSessionId());
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -34,10 +41,22 @@ export default function LandingAudioPlayer({
 
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration);
-    const handleEnded = () => {
+    const handleEnded = async () => {
       // 부모 컴포넌트에 재생 종료를 알림
       if (audioRef.current) {
         audioRef.current.pause();
+      }
+
+      // 샘플 재생 완료 활동 추적
+      if (currentTrack !== null) {
+        const track = sampleTracks[currentTrack];
+        await trackSamplePlayComplete(
+          sessionId,
+          track.id,
+          track.title,
+          track.category,
+          Math.floor(audioRef.current?.duration || 0)
+        );
       }
     };
 
@@ -50,7 +69,7 @@ export default function LandingAudioPlayer({
       audio.removeEventListener("loadedmetadata", updateDuration);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [audioRef]);
+  }, [audioRef, currentTrack, sessionId]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -258,7 +277,16 @@ export default function LandingAudioPlayer({
 
           {/* CTA 버튼 */}
           <button
-            onClick={onCTAClick}
+            onClick={async () => {
+              onCTAClick();
+
+              // CTA 버튼 클릭 활동 추적
+              await trackUserActivity({
+                sessionId,
+                action: "cta_button_click",
+                userAgent: navigator.userAgent,
+              });
+            }}
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:scale-105 mb-4"
           >
             🎧 지금 카카오톡으로 뉴스레터 받아보기
@@ -276,9 +304,18 @@ export default function LandingAudioPlayer({
                     ? "bg-blue-600/30 border border-blue-500/50"
                     : "bg-white/10 hover:bg-white/20"
                 }`}
-                onClick={() => {
+                onClick={async () => {
                   onTrackSelect(index);
                   setIsBottomSheetOpen(true);
+
+                  // 샘플 재생 활동 추적
+                  const track = sampleTracks[index];
+                  await trackSamplePlay(
+                    sessionId,
+                    track.id,
+                    track.title,
+                    track.category
+                  );
                 }}
               >
                 <div className="flex items-center space-x-3">

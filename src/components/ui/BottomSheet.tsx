@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 
 interface BottomSheetProps {
@@ -42,10 +42,13 @@ export default function BottomSheet({
     setCurrentY(e.touches[0].clientY);
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    setCurrentY(e.clientY);
-  };
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+      setCurrentY(e.clientY);
+    },
+    [isDragging]
+  );
 
   // 드래그 끝
   const handleTouchEnd = () => {
@@ -66,7 +69,7 @@ export default function BottomSheet({
     setStartY(0);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
 
@@ -80,7 +83,7 @@ export default function BottomSheet({
 
     setCurrentY(0);
     setStartY(0);
-  };
+  }, [isDragging, currentY, startY, isOpen, onClose, onOpen]);
 
   // 마우스 이벤트 리스너 등록
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function BottomSheet({
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [isDragging, currentY, startY]);
+  }, [isDragging, currentY, startY, handleMouseMove, handleMouseUp]);
 
   // 드래그 중일 때의 변환값 계산
   const getTransform = () => {

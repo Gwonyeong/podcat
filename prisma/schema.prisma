@@ -26,3 +26,18 @@ model UserApplication {
 
   @@map("user_applications")
 }
+
+model UserActivity {
+  id         Int      @id @default(autoincrement())
+  sessionId  String // 사용자 세션 식별자
+  action     String // 수행한 액션 (예: "newsletter_signup", "sample_play")
+  trackId    Int? // 재생한 트랙 ID (샘플 재생 시)
+  trackTitle String? // 재생한 트랙 제목
+  category   String? // 트랙 카테고리
+  duration   Int? // 재생 시간 (초)
+  userAgent  String? // 사용자 브라우저 정보
+  ipAddress  String? // IP 주소 (선택적)
+  createdAt  DateTime @default(now())
+
+  @@map("user_activities")
+}
