@@ -70,7 +70,8 @@ export const sampleTracks: SampleTrack[] = [
     duration: "45:30",
     category: "비즈니스",
     image: "/images/newsletter-read-man.png",
-    audioSrc: "/sample/겉과_속이_다른_비즈니스__고객,_팀,_영업의_진짜__Why_를_찾아서.m4a",
+    audioSrc:
+      "/sample/겉과_속이_다른_비즈니스__고객,_팀,_영업의_진짜__Why_를_찾아서.m4a",
     description: "비즈니스의 본질을 파헤치고 진정한 성공 요인을 탐구합니다.",
     longDescription:
       "겉으로 보이는 화려한 성과 뒤에 숨겨진 비즈니스의 진실을 파헤칩니다. 고객의 진짜 니즈, 팀의 숨겨진 동기, 영업의 본질적 가치를 찾아가는 여정을 담았습니다. 표면적인 지표와 수치를 넘어서 비즈니스의 핵심 동력을 이해하고, 지속가능한 성장을 위한 인사이트를 제공합니다. 실제 사례와 전문가 인터뷰를 통해 현실적이고 실용적인 비즈니스 철학을 전달합니다.",

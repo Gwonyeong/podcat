@@ -86,7 +86,7 @@ export default function FeaturesSection() {
                   ease: "easeOut",
                 }}
               >
-                <div className="text-4xl md:text-6xl font-black text-gray-200 min-w-fit">
+                <div className="text-4xl md:text-6xl font-black text-gray-500 min-w-fit">
                   {feature.number}
                 </div>
                 <div>
