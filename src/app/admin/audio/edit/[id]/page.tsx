@@ -3,11 +3,13 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Category {
   id: number;
   name: string;
   isFree: boolean;
+  presenterImage?: string | null;
 }
 
 interface Audio {
@@ -33,6 +35,9 @@ export default function EditAudioPage({
   const [initialLoading, setInitialLoading] = useState(true);
   const [currentAudio, setCurrentAudio] = useState<Audio | null>(null);
   const [audioId, setAudioId] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,6 +58,11 @@ export default function EditAudioPage({
           setTitle(audioData.title);
           setCategoryId(audioData.categoryId);
           setPublishDate(audioData.publishDate.split("T")[0]); // YYYY-MM-DD 형식으로 변환
+
+          const initialCategory = categoriesData.find(
+            (cat: Category) => cat.id === audioData.categoryId
+          );
+          setSelectedCategory(initialCategory || null);
         } else {
           alert("오디오를 찾을 수 없습니다.");
           router.push("/admin");
@@ -68,6 +78,13 @@ export default function EditAudioPage({
 
     fetchData();
   }, [params, router]);
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = parseInt(e.target.value);
+    setCategoryId(selectedId);
+    const category = categories.find((cat) => cat.id === selectedId);
+    setSelectedCategory(category || null);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -182,7 +199,7 @@ export default function EditAudioPage({
               id="category"
               name="category"
               value={categoryId}
-              onChange={(e) => setCategoryId(parseInt(e.target.value))}
+              onChange={handleCategoryChange}
               required
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
@@ -194,6 +211,23 @@ export default function EditAudioPage({
               ))}
             </select>
           </div>
+
+          {selectedCategory && selectedCategory.presenterImage && (
+            <div className="mt-4">
+              <p className="block text-sm font-medium text-gray-700 mb-2">
+                진행자 이미지 미리보기
+              </p>
+              <div className="relative h-48 w-48 rounded-lg overflow-hidden">
+                <Image
+                  src={selectedCategory.presenterImage}
+                  alt={selectedCategory.name}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label

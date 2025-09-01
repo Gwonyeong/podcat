@@ -8,6 +8,7 @@ export default function CreateCategoryPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [isFree, setIsFree] = useState(false);
+  const [presenterImage, setPresenterImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -21,12 +22,16 @@ export default function CreateCategoryPage() {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("isFree", String(isFree));
+      if (presenterImage) {
+        formData.append("presenterImage", presenterImage);
+      }
+
       const res = await fetch("/api/admin/categories", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: name.trim(), isFree }),
+        body: formData,
       });
 
       if (res.ok) {
@@ -80,6 +85,25 @@ export default function CreateCategoryPage() {
               required
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="카테고리 이름을 입력하세요"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="presenterImage"
+              className="block text-sm font-medium text-gray-700"
+            >
+              진행자 이미지
+            </label>
+            <input
+              type="file"
+              id="presenterImage"
+              name="presenterImage"
+              accept="image/*"
+              onChange={(e) =>
+                setPresenterImage(e.target.files ? e.target.files[0] : null)
+              }
+              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             />
           </div>
 

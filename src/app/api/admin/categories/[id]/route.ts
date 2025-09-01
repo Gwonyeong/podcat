@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     const category = await prisma.category.findUnique({
       where: { id },
@@ -31,10 +34,11 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     // 카테고리 정보 조회
     const category = await prisma.category.findUnique({
@@ -79,19 +83,40 @@ export async function DELETE(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
-    const body = await req.json();
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
+    const data = await req.formData();
+    const name = data.get("name") as string;
+    const isFree = data.get("isFree") === "true";
+    const presenterImageFile = data.get("presenterImage") as File | null;
 
-    const { name, isFree } = body;
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+    });
 
-    if (!name || name.trim() === "") {
+    if (!existingCategory) {
       return NextResponse.json(
-        { error: "Category name is required" },
-        { status: 400 }
+        { error: "Category not found" },
+        { status: 404 }
       );
+    }
+
+    let presenterImagePath: string | undefined | null = existingCategory.presenterImage;
+
+    if (presenterImageFile) {
+      const bytes = await presenterImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const imagePath = path.join(
+        process.cwd(),
+        "public",
+        "uploads",
+        `${Date.now()}_${presenterImageFile.name}`
+      );
+      await writeFile(imagePath, buffer);
+      presenterImagePath = `/uploads/${path.basename(imagePath)}`;
     }
 
     // 카테고리 업데이트
@@ -100,6 +125,7 @@ export async function PUT(
       data: {
         name: name.trim(),
         isFree: Boolean(isFree),
+        presenterImage: presenterImagePath,
       },
     });
 

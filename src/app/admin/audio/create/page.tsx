@@ -3,11 +3,13 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Category {
   id: number;
   name: string;
   isFree: boolean;
+  presenterImage?: string | null;
 }
 
 export default function CreateAudioPage() {
@@ -18,6 +20,9 @@ export default function CreateAudioPage() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -27,6 +32,7 @@ export default function CreateAudioPage() {
         setCategories(data);
         if (data.length > 0) {
           setCategoryId(data[0].id);
+          setSelectedCategory(data[0]);
         }
       } catch (error) {
         console.error("카테고리를 불러오는데 실패했습니다:", error);
@@ -35,6 +41,13 @@ export default function CreateAudioPage() {
 
     fetchCategories();
   }, []);
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = parseInt(e.target.value);
+    setCategoryId(selectedId);
+    const category = categories.find((cat) => cat.id === selectedId);
+    setSelectedCategory(category || null);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -121,7 +134,7 @@ export default function CreateAudioPage() {
               id="category"
               name="category"
               value={categoryId}
-              onChange={(e) => setCategoryId(parseInt(e.target.value))}
+              onChange={handleCategoryChange}
               required
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
@@ -133,6 +146,23 @@ export default function CreateAudioPage() {
               ))}
             </select>
           </div>
+
+          {selectedCategory && selectedCategory.presenterImage && (
+            <div className="mt-4">
+              <p className="block text-sm font-medium text-gray-700 mb-2">
+                진행자 이미지 미리보기
+              </p>
+              <div className="relative h-48 w-48 rounded-lg overflow-hidden">
+                <Image
+                  src={selectedCategory.presenterImage}
+                  alt={selectedCategory.name}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label

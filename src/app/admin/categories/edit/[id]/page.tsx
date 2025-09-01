@@ -3,11 +3,13 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Category {
   id: number;
   name: string;
   isFree: boolean;
+  presenterImage?: string | null;
 }
 
 export default function EditCategoryPage({
@@ -18,6 +20,8 @@ export default function EditCategoryPage({
   const router = useRouter();
   const [name, setName] = useState("");
   const [isFree, setIsFree] = useState(false);
+  const [presenterImage, setPresenterImage] = useState<File | null>(null);
+  const [existingPresenterImage, setExistingPresenterImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
@@ -35,6 +39,7 @@ export default function EditCategoryPage({
           setCurrentCategory(categoryData);
           setName(categoryData.name);
           setIsFree(categoryData.isFree);
+          setExistingPresenterImage(categoryData.presenterImage);
         } else {
           alert("카테고리를 찾을 수 없습니다.");
           router.push("/admin/categories");
@@ -62,12 +67,16 @@ export default function EditCategoryPage({
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("isFree", String(isFree));
+      if (presenterImage) {
+        formData.append("presenterImage", presenterImage);
+      }
+
       const res = await fetch(`/api/admin/categories/${categoryId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: name.trim(), isFree }),
+        body: formData,
       });
 
       if (res.ok) {
@@ -146,6 +155,39 @@ export default function EditCategoryPage({
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="카테고리 이름을 입력하세요"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="presenterImage"
+              className="block text-sm font-medium text-gray-700"
+            >
+              진행자 이미지
+            </label>
+            <input
+              type="file"
+              id="presenterImage"
+              name="presenterImage"
+              accept="image/*"
+              onChange={(e) =>
+                setPresenterImage(e.target.files ? e.target.files[0] : null)
+              }
+              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            />
+            {existingPresenterImage && (
+              <div className="mt-4">
+                <p className="block text-sm font-medium text-gray-700 mb-2">
+                  현재 이미지
+                </p>
+                <Image
+                  src={existingPresenterImage}
+                  alt={name}
+                  width={100}
+                  height={100}
+                  className="rounded-lg"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center">

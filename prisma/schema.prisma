@@ -101,10 +101,11 @@ model Audio {
 }
 
 model Category {
-  id     Int     @id @default(autoincrement())
-  name   String  @unique
-  isFree Boolean @default(false)
-  audios Audio[]
+  id             Int     @id @default(autoincrement())
+  name           String  @unique
+  isFree         Boolean @default(false)
+  presenterImage String?
+  audios         Audio[]
 
   @@map("categories")
 }
