@@ -27,13 +27,5 @@
   "scope": "/",
   "prefer_related_applications": false,
   "related_applications": [],
-  "features": ["Cross Platform", "fast", "simple"],
-  "screenshots": [
-    {
-      "src": "/screenshot1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ]
+  "features": ["Cross Platform", "fast", "simple"]
 }

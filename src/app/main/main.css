@@ -287,3 +287,74 @@
     width: 100px;
   }
 }
+
+/* MiniAudioPlayer 슬라이더 스타일 */
+.slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  transition: all 0.2s ease;
+  touch-action: pan-x; /* 가로 방향 팬만 허용 */
+  -webkit-touch-callout: none; /* iOS에서 길게 눌렀을 때 메뉴 방지 */
+  -webkit-user-select: none; /* 선택 방지 */
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.slider-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4f46e5;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  background: #4338ca;
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.4);
+}
+
+.slider-thumb::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4f46e5;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-moz-range-thumb:hover {
+  background: #4338ca;
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.4);
+}
+
+/* Firefox range track */
+.slider-thumb::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: transparent;
+}
+
+/* 모바일 터치 최적화 */
+@media (max-width: 640px) {
+  .slider-thumb::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .slider-thumb::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+}
