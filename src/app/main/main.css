@@ -1,0 +1,53 @@
+
+.main-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.calendar-container {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.react-calendar__tile--active {
+  background-color: #4f46e5 !important;
+  color: white !important;
+}
+
+.react-calendar__tile--now {
+  background-color: #e0e7ff !important;
+}
+
+.audio-list {
+  margin-top: 24px;
+}
+
+.audio-item {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.audio-item:hover {
+  transform: translateY(-2px);
+}
+
+.audio-item h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.audio-item p {
+  font-size: 0.9rem;
+  color: #6b7280;
+}

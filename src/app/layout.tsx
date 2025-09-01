@@ -4,6 +4,7 @@ import "./globals.css";
 import GoogleTagManager, {
   GoogleTagManagerBody,
 } from "@/components/GoogleAnalytics";
+import Providers from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,8 +49,10 @@ export default function RootLayout({
         <GoogleTagManager />
       </head>
       <body className="font-sans antialiased">
-        <GoogleTagManagerBody />
-        {children}
+        <Providers>
+          <GoogleTagManagerBody />
+          {children}
+        </Providers>
       </body>
     </html>
   );

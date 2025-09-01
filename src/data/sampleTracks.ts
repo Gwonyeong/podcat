@@ -17,6 +17,22 @@ export interface SampleTrack {
 
 export const sampleTracks: SampleTrack[] = [
   {
+    id: 6,
+    title: "[테스트] 2025년 9월 1일 오디오",
+    artist: "AI 테스터",
+    duration: "01:00",
+    category: "테스트",
+    image: "/images/logo.png",
+    audioSrc: "/sample/테크- 0820.mp3",
+    description: "2025년 9월 1일의 테스트 데이터입니다.",
+    longDescription: "이 데이터는 2025년 9월 1일에 목록이 정상적으로 출력되는지 확인하기 위한 테스트용입니다.",
+    tags: ["테스트"],
+    publishDate: "2025-09-01",
+    language: "한국어",
+    languageFlag: "🇰🇷",
+    quality: "HD",
+  },
+  {
     id: 4,
     title: "겉과 속이 다른 비즈니스: 고객, 팀, 영업의 진짜 Why를 찾아서",
     artist: "Business Insight",
