@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
@@ -126,7 +126,7 @@ export default function BottomSheet({
       {/* 바텀시트 */}
       <div
         ref={sheetRef}
-        className={`fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm rounded-t-3xl z-50 lg:hidden transition-transform duration-300 ease-out ${
+        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 lg:hidden transition-transform duration-300 ease-out shadow-lg ${
           isDragging ? "" : ""
         }`}
         style={{
@@ -144,18 +144,18 @@ export default function BottomSheet({
           onMouseDown={handleMouseDown}
         >
           {/* 드래그 바 */}
-          <div className="w-12 h-1 bg-white/40 rounded-full" />
+          <div className="w-12 h-1 bg-gray-300 rounded-full" />
         </div>
 
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 pb-4">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           {isOpen && (
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <X size={20} className="text-white" />
+              <X size={20} className="text-gray-500" />
             </button>
           )}
         </div>
