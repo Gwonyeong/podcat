@@ -120,6 +120,11 @@
   font-size: 0.875rem;
 }
 
+/* Markdown content within modal */
+.prose {
+  white-space: pre-wrap;
+}
+
 /* 고급 오디오 플레이어 스타일 */
 .advanced-audio-player {
   display: flex;

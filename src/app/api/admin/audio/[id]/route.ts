@@ -86,6 +86,9 @@ export async function PUT(
     const categoryId = formData.get("categoryId") as string;
     const publishDate = formData.get("publishDate") as string;
     const audioFile = formData.get("audioFile") as File | null;
+    const thumbnailFile = formData.get("thumbnailFile") as File | null;
+    const description = formData.get("description") as string;
+    const script = formData.get("script") as string;
 
     // 기존 오디오 정보 조회
     const existingAudio = await prisma.audio.findUnique({
@@ -97,6 +100,7 @@ export async function PUT(
     }
 
     let filePath = existingAudio.filePath;
+    let imageUrl = existingAudio.imageUrl;
 
     // 새 파일이 업로드된 경우
     if (audioFile) {
@@ -121,6 +125,31 @@ export async function PUT(
       filePath = `/uploads/${filename}`;
     }
 
+    // 새 썸네일이 업로드된 경우
+    if (thumbnailFile) {
+      // 기존 썸네일 파일 삭제
+      if (existingAudio.imageUrl) {
+        const oldImagePath = path.join(
+          process.cwd(),
+          "public",
+          existingAudio.imageUrl
+        );
+        try {
+          await fs.unlink(oldImagePath);
+        } catch (error) {
+          console.warn("Old thumbnail not found for deletion:", oldImagePath);
+        }
+      }
+
+      // 새 썸네일 파일 저장
+      const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
+      const imageFilename = `${Date.now()}_thumb_${thumbnailFile.name}`;
+      const newImagePath = path.join(process.cwd(), "public/uploads", imageFilename);
+
+      await fs.writeFile(newImagePath, imageBuffer);
+      imageUrl = `/uploads/${imageFilename}`;
+    }
+
     // 데이터베이스 업데이트
     const updatedAudio = await prisma.audio.update({
       where: { id },
@@ -128,7 +157,10 @@ export async function PUT(
         title,
         publishDate: new Date(publishDate),
         filePath,
+        imageUrl,
         categoryId: parseInt(categoryId),
+        description,
+        script,
       },
       include: {
         category: true,

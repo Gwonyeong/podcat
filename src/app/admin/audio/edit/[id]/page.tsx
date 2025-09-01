@@ -17,6 +17,9 @@ interface Audio {
   title: string;
   publishDate: string;
   filePath: string;
+  imageUrl: string | null;
+  script: string | null;
+  description: string | null;
   category: Category;
 }
 
@@ -30,6 +33,10 @@ export default function EditAudioPage({
   const [categoryId, setCategoryId] = useState<number | string>("");
   const [publishDate, setPublishDate] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [script, setScript] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -58,6 +65,11 @@ export default function EditAudioPage({
           setTitle(audioData.title);
           setCategoryId(audioData.categoryId);
           setPublishDate(audioData.publishDate.split("T")[0]); // YYYY-MM-DD 형식으로 변환
+          setDescription(audioData.description || "");
+          setScript(audioData.script || "");
+          if (audioData.imageUrl) {
+            setThumbnailPreview(audioData.imageUrl);
+          }
 
           const initialCategory = categoriesData.find(
             (cat: Category) => cat.id === audioData.categoryId
@@ -86,6 +98,18 @@ export default function EditAudioPage({
     setSelectedCategory(category || null);
   };
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -101,8 +125,13 @@ export default function EditAudioPage({
       formData.append("title", title);
       formData.append("categoryId", categoryId.toString());
       formData.append("publishDate", publishDate);
+      formData.append("description", description);
+      formData.append("script", script);
       if (audioFile) {
         formData.append("audioFile", audioFile);
+      }
+      if (thumbnailFile) {
+        formData.append("thumbnailFile", thumbnailFile);
       }
 
       const res = await fetch(`/api/admin/audio/${audioId}`, {
@@ -280,6 +309,79 @@ export default function EditAudioPage({
                 </a>
               </div>
             )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="thumbnailFile"
+              className="block text-sm font-medium text-gray-700"
+            >
+              썸네일 이미지
+            </label>
+            <input
+              type="file"
+              id="thumbnailFile"
+              name="thumbnailFile"
+              accept="image/*"
+              onChange={handleThumbnailChange}
+              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              새 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.
+            </p>
+            {thumbnailPreview && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  썸네일 미리보기
+                </p>
+                <div className="relative h-48 w-48 rounded-lg overflow-hidden">
+                  <Image
+                    src={thumbnailPreview}
+                    alt="썸네일 미리보기"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              오디오 설명 (100자 이내)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={100}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="오디오 설명을 100자 이내로 입력하세요..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label
+              htmlFor="script"
+              className="block text-sm font-medium text-gray-700"
+            >
+              대본 (마크다운 지원)
+            </label>
+            <textarea
+              id="script"
+              name="script"
+              rows={10}
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="대본을 마크다운 형식으로 입력하세요..."
+            ></textarea>
           </div>
 
           <div className="flex justify-end space-x-3">

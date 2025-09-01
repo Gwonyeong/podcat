@@ -98,6 +98,25 @@ export default function BottomSheet({
     }
   }, [isDragging, currentY, startY, handleMouseMove, handleMouseUp]);
 
+  // 바디 스크롤 잠금
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
+
   // 드래그 중일 때의 변환값 계산
   const getTransform = () => {
     if (!isDragging)
@@ -126,7 +145,7 @@ export default function BottomSheet({
       {/* 바텀시트 */}
       <div
         ref={sheetRef}
-        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 lg:hidden transition-transform duration-300 ease-out shadow-lg ${
+        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 lg:hidden transition-transform duration-300 ease-out shadow-lg flex flex-col ${
           isDragging ? "" : ""
         }`}
         style={{
@@ -137,7 +156,7 @@ export default function BottomSheet({
       >
         {/* 드래그 핸들 */}
         <div
-          className="flex items-center justify-center py-4 cursor-pointer"
+          className="flex items-center justify-center py-4 cursor-pointer flex-shrink-0"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -148,20 +167,22 @@ export default function BottomSheet({
         </div>
 
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 pb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          {isOpen && (
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X size={20} className="text-gray-500" />
-            </button>
-          )}
-        </div>
+        {title && (
+          <div className="flex items-center justify-between px-6 pb-4 flex-shrink-0">
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            {isOpen && (
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* 콘텐츠 */}
-        <div className="px-6 pb-6 overflow-y-auto flex-1">{children}</div>
+        <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ minHeight: 0 }}>{children}</div>
       </div>
     </>
   );

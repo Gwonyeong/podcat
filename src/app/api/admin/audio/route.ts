@@ -22,23 +22,38 @@ export async function POST(req: NextRequest) {
     const categoryId = formData.get('categoryId') as string;
     const publishDate = formData.get('publishDate') as string;
     const audioFile = formData.get('audioFile') as File;
+    const thumbnailFile = formData.get('thumbnailFile') as File | null;
+    const description = formData.get('description') as string;
+    const script = formData.get('script') as string;
 
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file uploaded' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await audioFile.arrayBuffer());
-    const filename = `${Date.now()}_${audioFile.name}`;
-    const filePath = path.join(uploadsDir, filename);
+    const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
+    const audioFilename = `${Date.now()}_${audioFile.name}`;
+    const audioFilePath = path.join(uploadsDir, audioFilename);
 
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(audioFilePath, audioBuffer);
+
+    let imageUrl = null;
+    if (thumbnailFile) {
+      const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
+      const imageFilename = `${Date.now()}_thumb_${thumbnailFile.name}`;
+      const imageFilePath = path.join(uploadsDir, imageFilename);
+      await fs.writeFile(imageFilePath, imageBuffer);
+      imageUrl = `/uploads/${imageFilename}`;
+    }
 
     const newAudio = await prisma.audio.create({
       data: {
         title,
         publishDate: new Date(publishDate),
-        filePath: `/uploads/${filename}`,
+        filePath: `/uploads/${audioFilename}`,
+        imageUrl,
         categoryId: parseInt(categoryId),
+        description,
+        script,
       },
     });
 

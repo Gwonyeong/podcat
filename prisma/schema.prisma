@@ -92,6 +92,9 @@ model Audio {
   title       String
   publishDate DateTime
   filePath    String
+  imageUrl    String?
+  script      String?
+  description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   categoryId  Int

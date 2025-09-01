@@ -18,6 +18,10 @@ export default function CreateAudioPage() {
   const [categoryId, setCategoryId] = useState<number | string>("");
   const [publishDate, setPublishDate] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [script, setScript] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -49,6 +53,18 @@ export default function CreateAudioPage() {
     setSelectedCategory(category || null);
   };
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -65,6 +81,11 @@ export default function CreateAudioPage() {
       formData.append("categoryId", categoryId.toString());
       formData.append("publishDate", publishDate);
       formData.append("audioFile", audioFile);
+      if (thumbnailFile) {
+        formData.append("thumbnailFile", thumbnailFile);
+      }
+      formData.append("description", description);
+      formData.append("script", script);
 
       const res = await fetch("/api/admin/audio", {
         method: "POST",
@@ -203,6 +224,79 @@ export default function CreateAudioPage() {
             <p className="mt-1 text-sm text-gray-500">
               MP3, WAV, M4A 등 오디오 파일 형식을 지원합니다.
             </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="thumbnailFile"
+              className="block text-sm font-medium text-gray-700"
+            >
+              썸네일 이미지
+            </label>
+            <input
+              type="file"
+              id="thumbnailFile"
+              name="thumbnailFile"
+              accept="image/*"
+              onChange={handleThumbnailChange}
+              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              JPG, PNG, GIF 등 이미지 파일 형식을 지원합니다.
+            </p>
+            {thumbnailPreview && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  썸네일 미리보기
+                </p>
+                <div className="relative h-48 w-48 rounded-lg overflow-hidden">
+                  <Image
+                    src={thumbnailPreview}
+                    alt="썸네일 미리보기"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              오디오 설명 (100자 이내)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={100}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="오디오 설명을 100자 이내로 입력하세요..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label
+              htmlFor="script"
+              className="block text-sm font-medium text-gray-700"
+            >
+              대본 (마크다운 지원)
+            </label>
+            <textarea
+              id="script"
+              name="script"
+              rows={10}
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="대본을 마크다운 형식으로 입력하세요..."
+            ></textarea>
           </div>
 
           <div className="flex justify-end space-x-3">
