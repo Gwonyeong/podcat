@@ -241,20 +241,27 @@ export default function PlaylistBottomSheet() {
                         }`}>
                           {audio.title}
                         </h4>
-                        <p className="text-xs text-gray-500 truncate">
-                          {audio.category.name} • {new Date(audio.publishDate).toLocaleDateString("ko-KR")}
-                        </p>
+                        <div className="flex items-center mt-1">
+                          {/* 카테고리 텍스트 */}
+                          <span className="text-xs text-gray-500 font-medium">
+                            {audio.category.name}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* 카테고리 배지 */}
-                      <div className="flex items-center space-x-2 mr-3">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          audio.category.isFree 
-                            ? "bg-green-100 text-green-800" 
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {audio.category.isFree ? 'FREE' : 'PRO'}
-                        </span>
+                      {/* 진행자 이미지 */}
+                      <div className="flex items-center mr-3">
+                        {audio.category.presenterImage && (
+                          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            <Image
+                              src={audio.category.presenterImage}
+                              alt={`${audio.category.name} 진행자`}
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
                       </div>
                   </div>
 

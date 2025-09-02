@@ -67,6 +67,21 @@ export default function BottomSheet({
         onClick={onClose}
       />
 
+      {/* 하단 닫기 버튼 */}
+      {variant === "audio-detail" && (
+        <div
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2"
+          style={{ zIndex: 51 }}
+        >
+          <button
+            onClick={onClose}
+            className="w-12 h-12 bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full flex items-center justify-center transition-all duration-300"
+          >
+            <X size={24} className="text-white" />
+          </button>
+        </div>
+      )}
+
       {/* 모달 */}
       <div
         ref={sheetRef}
@@ -80,8 +95,8 @@ export default function BottomSheet({
         style={{
           ...(variant === "audio-detail"
             ? {
-                top: "16px",
-                bottom: "80px", // BottomNav 공간 확보
+                top: "5vh",
+                bottom: "100px", // BottomNav 공간 확보
               }
             : {
                 top: "50%",
