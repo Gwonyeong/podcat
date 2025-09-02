@@ -74,7 +74,7 @@ export default function MainPage() {
   const [showAllContent, setShowAllContent] = useState<boolean>(true); // 무료 콘텐츠 모두 보기 토글
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 상태
   const [todayTracks, setTodayTracks] = useState<Audio[]>([]); // 오늘의 트랙들
-  const { addToPlaylist, setCurrentAudio, replacePlaylist } = usePlaylistStore();
+  const { addToPlaylist, setCurrentAudio, replacePlaylist, setPlaying } = usePlaylistStore();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -651,7 +651,14 @@ export default function MainPage() {
         >
           <div className="text-gray-800 -mx-6 -mb-6 ">
             {/* 앨범 커버 섹션 */}
-            <div className="relative">
+            <div className="relative group cursor-pointer"
+                 onClick={() => {
+                   if (selectedAudio) {
+                     setCurrentAudio(selectedAudio);
+                     setPlaying(true);
+                   }
+                   handleModalClose();
+                 }}>
               {selectedAudio.imageUrl ? (
                 <div className="relative w-full h-64 bg-gradient-to-b from-gray-900 to-gray-700">
                   <Image
@@ -662,18 +669,32 @@ export default function MainPage() {
                     className="opacity-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  {/* 재생 아이콘 오버레이 */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-xl transform transition-transform duration-300 group-hover:scale-110">
+                      <svg
+                        className="w-10 h-10 text-gray-800 ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="w-full h-64 bg-gradient-to-br from-indigo-500 to-purple-600 relative">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <svg
-                      className="w-24 h-24 text-white/50"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                    </svg>
+                    <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-xl transform transition-transform duration-300 group-hover:scale-110">
+                      <svg
+                        className="w-10 h-10 text-gray-800 ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               )}

@@ -1,18 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { RefObject } from "react";
 import { sampleTracks } from "@/data/sampleTracks";
 
 interface LandingAudioModalProps {
   trackIndex: number;
   isOpen: boolean;
   onClose: () => void;
+  isPlaying: boolean;
+  onPlayPause: () => void;
+  audioRef: RefObject<HTMLAudioElement | null>;
 }
 
 export default function LandingAudioModal({
   trackIndex,
   isOpen,
   onClose,
+  isPlaying,
+  onPlayPause,
+  audioRef,
 }: LandingAudioModalProps) {
   const track = sampleTracks[trackIndex];
 
@@ -51,12 +57,28 @@ export default function LandingAudioModal({
           <div className="flex flex-col">
             {/* 이미지 - 전체 가로축 사용, 중앙 정렬 */}
             <div className="w-full flex justify-center mb-6">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden">
+              <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden group cursor-pointer"
+                   onClick={() => {
+                     onPlayPause();
+                     onClose();
+                   }}>
                 <img
                   src={track.image}
                   alt={track.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                {/* 재생 아이콘 오버레이 */}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-300 group-hover:bg-black/50">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
+                    <svg
+                      className="w-8 h-8 md:w-10 md:h-10 text-gray-800 ml-1"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
