@@ -75,7 +75,7 @@ export default function BottomSheet({
         >
           <button
             onClick={onClose}
-            className="w-12 h-12 bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full flex items-center justify-center transition-all duration-300"
+            className="w-16 h-16 bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full flex items-center justify-center transition-all duration-300"
           >
             <X size={24} className="text-white" />
           </button>
