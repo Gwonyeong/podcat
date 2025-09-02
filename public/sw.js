@@ -1,18 +1,49 @@
 // Service Worker for background audio playback
-const CACHE_NAME = "podcat-audio-cache-v1";
+const CACHE_NAME = "podcat-audio-cache-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(["/", "/main", "/api/audio"]);
+      // 정적 리소스만 미리 캐시 (Next.js 동적 파일 제외)
+      return cache.addAll(["/"]);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
 });
 
 self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Next.js의 _next 정적 파일들은 캐싱하지 않음 (404 에러 방지)
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+  
+  // API 요청도 캐싱하지 않음
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+  
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(request).then((response) => {
+      return response || fetch(request);
     })
   );
 });

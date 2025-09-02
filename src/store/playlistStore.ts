@@ -28,6 +28,7 @@ interface PlaylistStore {
   addToPlaylist: (audio: Audio) => void;
   removeFromPlaylist: (audioId: number) => void;
   clearPlaylist: () => void;
+  replacePlaylist: (audios: Audio[]) => void;
   setCurrentIndex: (index: number) => void;
   nextTrack: () => void;
   previousTrack: () => void;
@@ -81,6 +82,15 @@ export const usePlaylistStore = create<PlaylistStore>()(
           currentIndex: 0, 
           currentAudio: null, 
           isPlaying: false 
+        });
+      },
+
+      replacePlaylist: (audios) => {
+        set({ 
+          playlist: audios, 
+          currentIndex: 0, 
+          currentAudio: audios.length > 0 ? audios[0] : null,
+          isPlaying: false
         });
       },
 

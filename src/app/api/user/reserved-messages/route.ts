@@ -10,7 +10,6 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("Session:", JSON.stringify(session, null, 2));
 
     const user = await prisma.user.findUnique({
       where: { email: session.user!.email },
@@ -58,7 +57,6 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("Session:", JSON.stringify(session, null, 2));
 
     const user = await prisma.user.findUnique({
       where: { email: session.user!.email },

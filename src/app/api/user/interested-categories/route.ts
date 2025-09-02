@@ -29,10 +29,17 @@ export async function GET() {
       (ic) => ic.category
     );
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       interestedCategories,
       plan: user.plan,
     });
+    
+    // 캐싱 방지 헤더 설정
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching interested categories:", error);
     return NextResponse.json(
@@ -109,10 +116,17 @@ export async function POST(request: Request) {
     const interestedCategories =
       updatedUser?.interestedCategories.map((ic) => ic.category) || [];
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       interestedCategories,
       plan: user.plan,
     });
+    
+    // 캐싱 방지 헤더 설정
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
   } catch (error) {
     console.error("Error updating interested categories:", error);
     return NextResponse.json(

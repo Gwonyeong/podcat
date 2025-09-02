@@ -81,7 +81,6 @@ export default function MiniAudioPlayer() {
   if (!currentAudio || playlist.length === 0) return null;
 
   const handlePlaylistClick = () => {
-    console.log("Playlist click triggered");
     openPlaylist();
   };
 
