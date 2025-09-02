@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { uploadToS3, generateS3Key } from "@/lib/s3";
 
 export async function GET(
   req: NextRequest,
@@ -104,19 +103,12 @@ export async function PUT(
       );
     }
 
-    let presenterImagePath: string | undefined | null = existingCategory.presenterImage;
+    let presenterImageUrl: string | undefined | null = existingCategory.presenterImage;
 
     if (presenterImageFile) {
-      const bytes = await presenterImageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const imagePath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        `${Date.now()}_${presenterImageFile.name}`
-      );
-      await writeFile(imagePath, buffer);
-      presenterImagePath = `/uploads/${path.basename(imagePath)}`;
+      const imageBuffer = Buffer.from(await presenterImageFile.arrayBuffer());
+      const imageKey = generateS3Key(presenterImageFile.name, 'presenter-images');
+      presenterImageUrl = await uploadToS3(imageBuffer, imageKey, presenterImageFile.type);
     }
 
     // 카테고리 업데이트
@@ -125,7 +117,7 @@ export async function PUT(
       data: {
         name: name.trim(),
         isFree: Boolean(isFree),
-        presenterImage: presenterImagePath,
+        presenterImage: presenterImageUrl,
       },
     });
 
@@ -133,7 +125,7 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating category:", error);
     return NextResponse.json(
-      { error: "Error updating category" },
+      { error: error instanceof Error ? error.message : "Error updating category" },
       { status: 500 }
     );
   }

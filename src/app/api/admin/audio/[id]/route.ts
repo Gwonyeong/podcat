@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import prisma from "@/lib/prisma";
+import { uploadToS3, generateS3Key } from "@/lib/s3";
 
 export async function GET(
   req: NextRequest,
@@ -50,14 +49,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Audio not found" }, { status: 404 });
     }
 
-    // 파일 삭제
-    const filePath = path.join(process.cwd(), "public", audio.filePath);
-    try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      console.warn("File not found for deletion:", filePath);
-    }
-
+    // S3 파일은 별도로 삭제하지 않음 (필요시 S3 삭제 함수 추가 가능)
     // 데이터베이스에서 삭제
     await prisma.audio.delete({
       where: { id },
@@ -102,52 +94,18 @@ export async function PUT(
     let filePath = existingAudio.filePath;
     let imageUrl = existingAudio.imageUrl;
 
-    // 새 파일이 업로드된 경우
+    // 새 오디오 파일이 업로드된 경우
     if (audioFile) {
-      // 기존 파일 삭제
-      const oldFilePath = path.join(
-        process.cwd(),
-        "public",
-        existingAudio.filePath
-      );
-      try {
-        await fs.unlink(oldFilePath);
-      } catch (error) {
-        console.warn("Old file not found for deletion:", oldFilePath);
-      }
-
-      // 새 파일 저장
-      const buffer = Buffer.from(await audioFile.arrayBuffer());
-      const filename = `${Date.now()}_${audioFile.name}`;
-      const newFilePath = path.join(process.cwd(), "public/uploads", filename);
-
-      await fs.writeFile(newFilePath, buffer);
-      filePath = `/uploads/${filename}`;
+      const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
+      const audioKey = generateS3Key(audioFile.name, 'audio');
+      filePath = await uploadToS3(audioBuffer, audioKey, audioFile.type);
     }
 
     // 새 썸네일이 업로드된 경우
     if (thumbnailFile) {
-      // 기존 썸네일 파일 삭제
-      if (existingAudio.imageUrl) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          "public",
-          existingAudio.imageUrl
-        );
-        try {
-          await fs.unlink(oldImagePath);
-        } catch (error) {
-          console.warn("Old thumbnail not found for deletion:", oldImagePath);
-        }
-      }
-
-      // 새 썸네일 파일 저장
       const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-      const imageFilename = `${Date.now()}_thumb_${thumbnailFile.name}`;
-      const newImagePath = path.join(process.cwd(), "public/uploads", imageFilename);
-
-      await fs.writeFile(newImagePath, imageBuffer);
-      imageUrl = `/uploads/${imageFilename}`;
+      const imageKey = generateS3Key(thumbnailFile.name, 'thumbnails');
+      imageUrl = await uploadToS3(imageBuffer, imageKey, thumbnailFile.type);
     }
 
     // 데이터베이스 업데이트
@@ -171,7 +129,7 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating audio:", error);
     return NextResponse.json(
-      { error: "Error updating audio" },
+      { error: error instanceof Error ? error.message : "Error updating audio" },
       { status: 500 }
     );
   }

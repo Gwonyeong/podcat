@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { uploadToS3, generateS3Key } from "@/lib/s3";
 
 export async function GET() {
   try {
@@ -23,26 +22,19 @@ export async function POST(req: NextRequest) {
     const isFree = data.get("isFree") === "true";
     const presenterImageFile = data.get("presenterImage") as File | null;
 
-    let presenterImagePath: string | undefined;
+    let presenterImageUrl: string | undefined;
 
     if (presenterImageFile) {
-      const bytes = await presenterImageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const imagePath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        `${Date.now()}_${presenterImageFile.name}`
-      );
-      await writeFile(imagePath, buffer);
-      presenterImagePath = `/uploads/${path.basename(imagePath)}`;
+      const imageBuffer = Buffer.from(await presenterImageFile.arrayBuffer());
+      const imageKey = generateS3Key(presenterImageFile.name, 'presenter-images');
+      presenterImageUrl = await uploadToS3(imageBuffer, imageKey, presenterImageFile.type);
     }
 
     const newCategory = await prisma.category.create({
       data: {
         name,
         isFree,
-        presenterImage: presenterImagePath,
+        presenterImage: presenterImageUrl,
       },
     });
 
@@ -50,7 +42,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Error creating category" },
+      { error: error instanceof Error ? error.message : "Error creating category" },
       { status: 500 }
     );
   }

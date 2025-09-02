@@ -540,13 +540,13 @@ export default function MainPage() {
                           </button>
                         </div>
                       )}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         {dailyTracks.map((audio) => {
                           const hasAccess = canAccessAudio(audio);
                           return (
                             <div
                               key={audio.id}
-                              className={`audio-card relative bg-gray-50 rounded-lg cursor-pointer hover:shadow-md transition-all duration-300 shadow-sm overflow-hidden ${
+                              className={`audio-card relative bg-white rounded-lg cursor-pointer hover:shadow-md transition-all duration-300 shadow-sm overflow-hidden flex ${
                                 !hasAccess
                                   ? "opacity-60 border-2 border-gray-300 border-dashed"
                                   : ""
@@ -557,7 +557,7 @@ export default function MainPage() {
                                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-10 rounded-lg">
                                   <div className="text-center text-white">
                                     <svg
-                                      className="w-8 h-8 mx-auto mb-2"
+                                      className="w-6 h-6 mx-auto mb-1"
                                       fill="currentColor"
                                       viewBox="0 0 24 24"
                                     >
@@ -567,52 +567,33 @@ export default function MainPage() {
                                   </div>
                                 </div>
                               )}
-                              {audio.imageUrl ? (
-                                <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
-                                  <Image
-                                    src={audio.imageUrl}
-                                    alt={audio.title}
-                                    layout="fill"
-                                    objectFit="cover"
-                                  />
-                                  {audio.category.presenterImage && (
-                                    <div className="absolute bottom-3 right-3 w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg">
-                                      <Image
-                                        src={audio.category.presenterImage}
-                                        alt={`${audio.category.name} 진행자`}
-                                        layout="fill"
-                                        objectFit="cover"
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="relative w-full h-40 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center rounded-t-lg">
-                                  <div className="text-center">
+                              
+                              {/* 썸네일 영역 - 1:1 비율 유지, 크기 확대 */}
+                              <div className="flex-shrink-0 w-28 h-28">
+                                {audio.imageUrl ? (
+                                  <div className="relative w-full h-full rounded-l-lg overflow-hidden">
+                                    <Image
+                                      src={audio.imageUrl}
+                                      alt={audio.title}
+                                      layout="fill"
+                                      objectFit="cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="relative w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center rounded-l-lg">
                                     <svg
-                                      className="w-12 h-12 mx-auto text-indigo-300"
+                                      className="w-12 h-12 text-indigo-300"
                                       fill="currentColor"
                                       viewBox="0 0 24 24"
                                     >
                                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
                                     </svg>
-                                    <p className="text-sm text-indigo-400 mt-2">
-                                      No Thumbnail
-                                    </p>
                                   </div>
-                                  {audio.category.presenterImage && (
-                                    <div className="absolute bottom-3 right-3 w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg">
-                                      <Image
-                                        src={audio.category.presenterImage}
-                                        alt={`${audio.category.name} 진행자`}
-                                        layout="fill"
-                                        objectFit="cover"
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              <div className="p-3">
+                                )}
+                              </div>
+                              
+                              {/* 콘텐츠 영역 */}
+                              <div className="flex-1 p-4 min-w-0">
                                 <div className="flex justify-between items-start mb-2">
                                   <h3 className="font-semibold text-base text-gray-800 flex-1 mr-2 line-clamp-2">
                                     {audio.title}
@@ -626,11 +607,23 @@ export default function MainPage() {
                                   </span>
                                 </div>
                                 {audio.description && (
-                                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                                  <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                     {audio.description}
                                   </p>
                                 )}
                               </div>
+                              
+                              {/* 진행자 이미지 */}
+                              {audio.category.presenterImage && (
+                                <div className="absolute bottom-3 right-3 w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg">
+                                  <Image
+                                    src={audio.category.presenterImage}
+                                    alt={`${audio.category.name} 진행자`}
+                                    layout="fill"
+                                    objectFit="cover"
+                                  />
+                                </div>
+                              )}
                             </div>
                           );
                         })}

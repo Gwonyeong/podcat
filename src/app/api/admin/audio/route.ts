@@ -1,21 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import prisma from '@/lib/prisma';
-
-const uploadsDir = path.join(process.cwd(), '/public/uploads');
-
-async function ensureUploadsDirExists() {
-  try {
-    await fs.access(uploadsDir);
-  } catch {
-    await fs.mkdir(uploadsDir, { recursive: true });
-  }
-}
+import { uploadToS3, generateS3Key } from '@/lib/s3';
 
 export async function POST(req: NextRequest) {
-  await ensureUploadsDirExists();
-
   try {
     const formData = await req.formData();
     const title = formData.get('title') as string;
@@ -30,26 +17,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No audio file uploaded' }, { status: 400 });
     }
 
+    // 오디오 파일 S3 업로드
     const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
-    const audioFilename = `${Date.now()}_${audioFile.name}`;
-    const audioFilePath = path.join(uploadsDir, audioFilename);
+    const audioKey = generateS3Key(audioFile.name, 'audio');
+    const audioUrl = await uploadToS3(audioBuffer, audioKey, audioFile.type);
 
-    await fs.writeFile(audioFilePath, audioBuffer);
-
+    // 썸네일 이미지 S3 업로드
     let imageUrl = null;
     if (thumbnailFile) {
       const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-      const imageFilename = `${Date.now()}_thumb_${thumbnailFile.name}`;
-      const imageFilePath = path.join(uploadsDir, imageFilename);
-      await fs.writeFile(imageFilePath, imageBuffer);
-      imageUrl = `/uploads/${imageFilename}`;
+      const imageKey = generateS3Key(thumbnailFile.name, 'thumbnails');
+      imageUrl = await uploadToS3(imageBuffer, imageKey, thumbnailFile.type);
     }
 
     const newAudio = await prisma.audio.create({
       data: {
         title,
         publishDate: new Date(publishDate),
-        filePath: `/uploads/${audioFilename}`,
+        filePath: audioUrl,
         imageUrl,
         categoryId: parseInt(categoryId),
         description,
@@ -60,7 +45,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(newAudio, { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Error uploading file' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : 'Error uploading file' 
+    }, { status: 500 });
   }
 }
 
