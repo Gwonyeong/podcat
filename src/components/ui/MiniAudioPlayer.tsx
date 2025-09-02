@@ -27,8 +27,20 @@ export default function MiniAudioPlayer() {
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration);
     const handleEnded = () => {
-      setPlaying(false);
-      nextTrack(); // 자동으로 다음 트랙 재생
+      // 플레이리스트에 다음 트랙이 있는지 확인
+      const { currentIndex, playlist } = usePlaylistStore.getState();
+      const hasNextTrack = currentIndex < playlist.length - 1;
+      
+      if (hasNextTrack) {
+        // 다음 트랙이 있으면 자동 재생
+        nextTrack();
+        setTimeout(() => {
+          setPlaying(true);
+        }, 100);
+      } else {
+        // 마지막 트랙이면 재생 종료
+        setPlaying(false);
+      }
     };
 
     audio.addEventListener("timeupdate", updateTime);

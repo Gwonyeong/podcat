@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { uploadToS3, generateS3Key } from "@/lib/s3";
+import { uploadToSupabase, generateStorageKey } from "@/lib/supabase";
 
 export async function GET(
   req: NextRequest,
@@ -107,8 +107,8 @@ export async function PUT(
 
     if (presenterImageFile) {
       const imageBuffer = Buffer.from(await presenterImageFile.arrayBuffer());
-      const imageKey = generateS3Key(presenterImageFile.name, 'presenter-images');
-      presenterImageUrl = await uploadToS3(imageBuffer, imageKey, presenterImageFile.type);
+      const imageKey = generateStorageKey(presenterImageFile.name);
+      presenterImageUrl = await uploadToSupabase(imageBuffer, 'presenter-images', imageKey, presenterImageFile.type);
     }
 
     // 카테고리 업데이트

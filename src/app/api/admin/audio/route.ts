@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { uploadToS3, generateS3Key } from '@/lib/s3';
+import { uploadToSupabase, generateStorageKey } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,17 +17,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No audio file uploaded' }, { status: 400 });
     }
 
-    // 오디오 파일 S3 업로드
+    // 오디오 파일 Supabase 업로드
     const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
-    const audioKey = generateS3Key(audioFile.name, 'audio');
-    const audioUrl = await uploadToS3(audioBuffer, audioKey, audioFile.type);
+    const audioKey = generateStorageKey(audioFile.name);
+    const audioUrl = await uploadToSupabase(audioBuffer, 'audio', audioKey, audioFile.type);
 
-    // 썸네일 이미지 S3 업로드
+    // 썸네일 이미지 Supabase 업로드
     let imageUrl = null;
     if (thumbnailFile) {
       const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-      const imageKey = generateS3Key(thumbnailFile.name, 'thumbnails');
-      imageUrl = await uploadToS3(imageBuffer, imageKey, thumbnailFile.type);
+      const imageKey = generateStorageKey(thumbnailFile.name);
+      imageUrl = await uploadToSupabase(imageBuffer, 'thumbnails', imageKey, thumbnailFile.type);
     }
 
     const newAudio = await prisma.audio.create({

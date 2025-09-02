@@ -295,8 +295,14 @@ export default function MainPage() {
 
   const handleAddToPlaylist = () => {
     if (selectedAudio) {
+      const { currentAudio, isPlaying } = usePlaylistStore.getState();
       addToPlaylist(selectedAudio);
-      setCurrentAudio(selectedAudio);
+      
+      // 현재 재생 중인 오디오가 없을 때만 자동 재생
+      if (!currentAudio || !isPlaying) {
+        setCurrentAudio(selectedAudio);
+        setPlaying(true);
+      }
     }
   };
 
@@ -648,6 +654,7 @@ export default function MainPage() {
             <div className="relative group cursor-pointer"
                  onClick={() => {
                    if (selectedAudio) {
+                     addToPlaylist(selectedAudio);
                      setCurrentAudio(selectedAudio);
                      setPlaying(true);
                    }

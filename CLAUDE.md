@@ -85,10 +85,10 @@ Zustand stores located in `/src/stores/`:
 - **Korean Localization**: Uses Pretendard and Inter fonts with Korean metadata
 - **PWA Support**: Service worker and manifest configured for installable app
 - **Mobile Optimization**: Bottom sheet UI patterns for mobile devices
-- **File Storage**: Uses AWS S3 for audio files, thumbnails, and presenter images
-  - Audio files stored in `audio/` prefix
-  - Thumbnails stored in `thumbnails/` prefix  
-  - Presenter images stored in `presenter-images/` prefix
+- **File Storage**: Uses Supabase Storage for audio files, thumbnails, and presenter images
+  - Audio files stored in `audio/` bucket
+  - Thumbnails stored in `thumbnails/` bucket  
+  - Presenter images stored in `presenter-images/` bucket
 
 ### Environment Variables Required
 ```
@@ -98,11 +98,11 @@ NEXTAUTH_SECRET      # NextAuth secret key
 KAKAO_CLIENT_ID      # Kakao OAuth client ID
 KAKAO_CLIENT_SECRET  # Kakao OAuth client secret
 
-# AWS S3 Configuration (for file uploads)
-AWS_REGION           # AWS region (e.g., us-east-1)
-AWS_ACCESS_KEY_ID    # AWS IAM access key
-AWS_SECRET_ACCESS_KEY # AWS IAM secret key
-AWS_S3_BUCKET_NAME   # S3 bucket name for file storage
+# Supabase Configuration (for file uploads)
+NEXT_PUBLIC_SUPABASE_URL    # Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase public anon key
+SUPABASE_SERVICE_ROLE_KEY   # Supabase service role key for server operations
+SUPABASE_STORAGE_BUCKET     # Supabase storage bucket name (default: podcat-files)
 ```
 
 ### Common Development Tasks

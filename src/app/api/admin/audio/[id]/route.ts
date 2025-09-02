@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { uploadToS3, generateS3Key } from "@/lib/s3";
+import { uploadToSupabase, generateStorageKey } from "@/lib/supabase";
 
 export async function GET(
   req: NextRequest,
@@ -49,7 +49,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Audio not found" }, { status: 404 });
     }
 
-    // S3 파일은 별도로 삭제하지 않음 (필요시 S3 삭제 함수 추가 가능)
+    // Supabase Storage 파일은 별도로 삭제하지 않음 (필요시 Supabase 삭제 함수 추가 가능)
     // 데이터베이스에서 삭제
     await prisma.audio.delete({
       where: { id },
@@ -97,15 +97,15 @@ export async function PUT(
     // 새 오디오 파일이 업로드된 경우
     if (audioFile) {
       const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
-      const audioKey = generateS3Key(audioFile.name, 'audio');
-      filePath = await uploadToS3(audioBuffer, audioKey, audioFile.type);
+      const audioKey = generateStorageKey(audioFile.name);
+      filePath = await uploadToSupabase(audioBuffer, 'audio', audioKey, audioFile.type);
     }
 
     // 새 썸네일이 업로드된 경우
     if (thumbnailFile) {
       const imageBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-      const imageKey = generateS3Key(thumbnailFile.name, 'thumbnails');
-      imageUrl = await uploadToS3(imageBuffer, imageKey, thumbnailFile.type);
+      const imageKey = generateStorageKey(thumbnailFile.name);
+      imageUrl = await uploadToSupabase(imageBuffer, 'thumbnails', imageKey, thumbnailFile.type);
     }
 
     // 데이터베이스 업데이트
