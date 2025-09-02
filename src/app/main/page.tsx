@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./main.css";
-import AdvancedAudioPlayer from "@/components/AdvancedAudioPlayer";
 import BottomSheet from "@/components/ui/BottomSheet"; // Import BottomSheet
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";

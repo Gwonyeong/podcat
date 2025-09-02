@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 
 export default function LoginPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

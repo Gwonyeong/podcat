@@ -52,25 +52,28 @@ export async function GET(req: NextRequest) {
       }
     };
 
-    let whereClause: any = {
-      publishDate: {
-        lte: new Date(), // 오늘 날짜 이하만 (미래 오디오 제외)
-      },
-      ...categoryFilter
-    };
-
-    // 특정 날짜가 요청된 경우
+    // 날짜 조건 설정
+    let publishDateFilter;
     if (date) {
       const selectedDate = new Date(date);
       const nextDay = new Date(selectedDate);
       nextDay.setDate(nextDay.getDate() + 1);
 
-      whereClause.publishDate = {
+      publishDateFilter = {
         gte: selectedDate,
         lt: nextDay,
         lte: new Date(), // 여전히 오늘 이하만
       };
+    } else {
+      publishDateFilter = {
+        lte: new Date(), // 오늘 날짜 이하만 (미래 오디오 제외)
+      };
     }
+
+    const whereClause = {
+      publishDate: publishDateFilter,
+      ...categoryFilter
+    };
 
     const audios = await prisma.audio.findMany({
       where: whereClause,
