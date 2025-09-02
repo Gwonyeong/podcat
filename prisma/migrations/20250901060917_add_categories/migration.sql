@@ -21,4 +21,4 @@ CREATE TABLE "categories" (
 CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- AddForeignKey
-ALTER TABLE "audios" ADD CONSTRAINT "audios_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES ""categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "audios" ADD CONSTRAINT "audios_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

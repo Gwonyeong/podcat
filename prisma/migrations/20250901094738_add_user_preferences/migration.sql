@@ -28,10 +28,10 @@ CREATE TABLE "reserved_messages" (
 CREATE UNIQUE INDEX "user_interested_categories_userId_categoryId_key" ON "user_interested_categories"("userId", "categoryId");
 
 -- AddForeignKey
-ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_userId_fkey" FOREIGN KEY ("userId") REFERENCES ""User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES ""categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "reserved_messages" ADD CONSTRAINT "reserved_messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES ""User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "reserved_messages" ADD CONSTRAINT "reserved_messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
