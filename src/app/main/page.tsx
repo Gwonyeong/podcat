@@ -70,7 +70,9 @@ export default function MainPage() {
   const [interestedCategoryIds, setInterestedCategoryIds] = useState<number[]>(
     []
   );
-  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // 토글 상태 관리
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(
+    new Set([new Date().toDateString()])
+  ); // 토글 상태 관리 - 오늘 날짜 기본 열림
   const [showAllContent, setShowAllContent] = useState<boolean>(true); // 무료 콘텐츠 모두 보기 토글
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 상태
   const [todayTracks, setTodayTracks] = useState<Audio[]>([]); // 오늘의 트랙들
@@ -405,7 +407,7 @@ export default function MainPage() {
           <span className={`text-sm font-medium transition-colors ${
             showAllContent ? 'text-indigo-600' : 'text-gray-500'
           }`}>
-            무료 콘텐츠 모두 보기
+            {showAllContent ? '무료 콘텐츠 모두 보기' : '관심있는 카테고리 콘텐츠만 보기'}
           </span>
           <button
             onClick={() => setShowAllContent(!showAllContent)}
