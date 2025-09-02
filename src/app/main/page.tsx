@@ -35,6 +35,13 @@ const getWeekRange = (date: Date): [Date, Date] => {
   return [getStartOfWeek(date), getEndOfWeek(date)];
 };
 
+// 해당 연도의 주차 계산 함수
+const getWeekNumber = (date: Date): number => {
+  const startOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date.getTime() - startOfYear.getTime()) / 86400000;
+  return Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+};
+
 interface Audio {
   id: number;
   title: string;
@@ -64,17 +71,19 @@ export default function MainPage() {
     []
   );
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // 토글 상태 관리
-  const { addToPlaylist, setCurrentAudio } = usePlaylistStore();
+  const [showAllContent, setShowAllContent] = useState<boolean>(true); // 무료 콘텐츠 모두 보기 토글
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 상태
+  const [todayTracks, setTodayTracks] = useState<Audio[]>([]); // 오늘의 트랙들
+  const { addToPlaylist, setCurrentAudio, replacePlaylist } = usePlaylistStore();
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated") {
-      console.log("세션 정보:", session);
     }
   }, [status, router, session]);
 
-  // 선택된 주에 해당하는 오디오 트랙 필터링
+  // 선택된 주에 해당하는 오디오 트랙 필터링 및 관심 카테고리 필터링
   const getTracksForWeek = (week: WeekRange) => {
     const [startOfWeek, endOfWeek] = week;
     return audios.filter((audio) => {
@@ -87,7 +96,14 @@ export default function MainPage() {
       const end = new Date(endOfWeek);
       end.setHours(23, 59, 59, 999); // 종료일은 23:59:59로 설정
       
-      return audioDate >= start && audioDate <= end;
+      const isInWeekRange = audioDate >= start && audioDate <= end;
+      
+      // 무료 콘텐츠 모두 보기가 꺼져있으면 관심 카테고리 필터링 적용
+      if (!showAllContent && audio.category.isFree) {
+        return isInWeekRange && interestedCategoryIds.includes(audio.category.id);
+      }
+      
+      return isInWeekRange;
     });
   };
 
@@ -182,7 +198,15 @@ export default function MainPage() {
   // 사용자 데이터 가져오기
   const fetchUserData = async () => {
     try {
-      const response = await fetch("/api/user/interested-categories");
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/user/interested-categories?_t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setUserPlan(data.plan);
@@ -199,15 +223,26 @@ export default function MainPage() {
   const fetchAudios = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/audio");
+      // 타임스탬프를 추가하여 브라우저 캐싱 완전 방지
+      const timestamp = new Date().getTime();
+      const res = await fetch(`/api/audio?_t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
       if (res.ok) {
         const data = await res.json();
         setAudios(data);
       } else {
         console.error("오디오 목록을 불러오는데 실패했습니다.");
+        setAudios([]); // 실패 시 빈 배열 설정
       }
     } catch (error) {
       console.error("오디오 목록을 불러오는 중 오류가 발생했습니다:", error);
+      setAudios([]); // 에러 시 빈 배열 설정
     } finally {
       setLoading(false);
     }
@@ -215,11 +250,17 @@ export default function MainPage() {
 
   // 컴포넌트 마운트 시 데이터 가져오기
   useEffect(() => {
-    if (status === "authenticated") {
+    let isSubscribed = true; // cleanup을 위한 플래그
+    
+    if (status === "authenticated" && session?.user?.id && isSubscribed) {
       fetchUserData();
       fetchAudios();
     }
-  }, [status]);
+    
+    return () => {
+      isSubscribed = false; // cleanup 시 플래그 해제
+    };
+  }, [status, session?.user?.id]);
 
   // 오디오 접근 권한 확인
   const canAccessAudio = (audio: Audio) => {
@@ -258,6 +299,25 @@ export default function MainPage() {
     }
   };
 
+  // 오늘의 콘텐츠로 플레이리스트 변경 버튼 클릭
+  const handleReplaceWithTodayContent = (tracks: Audio[]) => {
+    setTodayTracks(tracks);
+    setShowConfirmModal(true);
+  };
+
+  // 플레이리스트 변경 확인
+  const confirmReplacePlaylist = () => {
+    replacePlaylist(todayTracks);
+    setShowConfirmModal(false);
+    setTodayTracks([]);
+  };
+
+  // 플레이리스트 변경 취소
+  const cancelReplacePlaylist = () => {
+    setShowConfirmModal(false);
+    setTodayTracks([]);
+  };
+
   if (status === "loading" || !session) {
     return (
       <div className="main-container">
@@ -272,17 +332,26 @@ export default function MainPage() {
   const selectedTracks = getTracksForWeek(selectedWeek);
   const fullWeekDays = getFullWeekDays(selectedWeek, selectedTracks);
 
-  // 디버깅용 로그
-  console.log('Selected week:', selectedWeek);
-  console.log('All audios:', audios.length);
-  console.log('Selected tracks for week:', selectedTracks.length);
-  console.log('Full week days:', fullWeekDays);
 
   return (
     <div className="main-container pb-20">
-      <header style={{ marginBottom: "2rem", textAlign: "center" }}>
-        <h1>{session.user?.name}님, 환영합니다!</h1>
-        <p>듣고 싶은 주를 선택하세요.</p>
+      <header className="flex justify-between items-center mb-2 px-4">
+        <div className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="Podcat Logo"
+            width={56}
+            height={56}
+            className="rounded-lg"
+          />
+        </div>
+        <div className="flex items-center">
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* 주 단위 네비게이션 */}
@@ -302,7 +371,7 @@ export default function MainPage() {
               {selectedWeek[0].toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} ~ {selectedWeek[1].toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
             </div>
             <div className="text-sm text-gray-500">
-              {selectedWeek[0].getFullYear()}년 {Math.ceil((selectedWeek[0].getDate() + selectedWeek[0].getDay()) / 7)}주차
+              {selectedWeek[0].getFullYear()}년 {getWeekNumber(selectedWeek[0])}주차
             </div>
           </div>
         </div>
@@ -317,14 +386,40 @@ export default function MainPage() {
         </button>
       </div>
 
-      {/* 오늘 주로 이동 버튼 */}
-      <div className="text-center mb-8">
-        <button
-          onClick={goToCurrentWeek}
-          className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium hover:bg-indigo-200 transition-colors"
-        >
-          이번 주로 이동
-        </button>
+      {/* 오늘 주로 이동 버튼 - 현재 주가 아닐 때만 표시 */}
+      {(selectedWeek[0].toDateString() !== getStartOfWeek(new Date()).toDateString() || 
+        selectedWeek[1].toDateString() !== getEndOfWeek(new Date()).toDateString()) && (
+        <div className="text-center mb-8">
+          <button
+            onClick={goToCurrentWeek}
+            className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium hover:bg-indigo-200 transition-colors"
+          >
+            이번 주로 이동
+          </button>
+        </div>
+      )}
+
+      {/* 무료 콘텐츠 모두 보기 토글 */}
+      <div className="flex justify-end mb-4">
+        <div className="flex items-center space-x-2">
+          <span className={`text-sm font-medium transition-colors ${
+            showAllContent ? 'text-indigo-600' : 'text-gray-500'
+          }`}>
+            무료 콘텐츠 모두 보기
+          </span>
+          <button
+            onClick={() => setShowAllContent(!showAllContent)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+              showAllContent ? 'bg-indigo-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                showAllContent ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="mt-8">
@@ -429,6 +524,20 @@ export default function MainPage() {
                   {/* 토글 컨텐츠 */}
                   {isExpanded && !isEmpty && (
                     <div className="px-4 pb-4">
+                      {/* 오늘의 콘텐츠로 플레이리스트 변경 버튼 (오늘일 경우에만 표시) */}
+                      {isToday && dailyTracks.length > 0 && (
+                        <div className="mb-4">
+                          <button
+                            onClick={() => handleReplaceWithTodayContent(dailyTracks)}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span>오늘의 콘텐츠로 플레이리스트 변경</span>
+                          </button>
+                        </div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {dailyTracks.map((audio) => {
                           const hasAccess = canAccessAudio(audio);
@@ -696,6 +805,43 @@ export default function MainPage() {
 
       {/* 플레이리스트 바텀시트 */}
       <PlaylistBottomSheet />
+
+      {/* 확인 모달 */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 mx-4 max-w-sm w-full">
+            <div className="text-center">
+              <div className="mb-4">
+                <svg className="w-12 h-12 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                플레이리스트 변경 확인
+              </h3>
+              <p className="text-gray-600 mb-6">
+                현재 플레이리스트를 오늘의 콘텐츠({todayTracks.length}개)로 변경하시겠습니까?
+                <br />
+                <span className="text-sm text-gray-500">기존 플레이리스트는 삭제됩니다.</span>
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={cancelReplacePlaylist}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={confirmReplacePlaylist}
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  변경하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 하단 네비게이션 바 */}
       <BottomNav />
