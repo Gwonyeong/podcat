@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "podcat"."audios" (
+CREATE TABLE "audios" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "category" TEXT NOT NULL,

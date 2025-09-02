@@ -1,8 +1,8 @@
 -- AlterTable
-ALTER TABLE "podcat"."User" ADD COLUMN     "plan" TEXT NOT NULL DEFAULT 'free';
+ALTER TABLE "User" ADD COLUMN     "plan" TEXT NOT NULL DEFAULT 'free';
 
 -- CreateTable
-CREATE TABLE "podcat"."user_interested_categories" (
+CREATE TABLE "user_interested_categories" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
     "categoryId" INTEGER NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "podcat"."user_interested_categories" (
 );
 
 -- CreateTable
-CREATE TABLE "podcat"."reserved_messages" (
+CREATE TABLE "reserved_messages" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
     "message" TEXT NOT NULL,
@@ -25,13 +25,13 @@ CREATE TABLE "podcat"."reserved_messages" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "user_interested_categories_userId_categoryId_key" ON "podcat"."user_interested_categories"("userId", "categoryId");
+CREATE UNIQUE INDEX "user_interested_categories_userId_categoryId_key" ON "user_interested_categories"("userId", "categoryId");
 
 -- AddForeignKey
-ALTER TABLE "podcat"."user_interested_categories" ADD CONSTRAINT "user_interested_categories_userId_fkey" FOREIGN KEY ("userId") REFERENCES "podcat"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_userId_fkey" FOREIGN KEY ("userId") REFERENCES ""User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "podcat"."user_interested_categories" ADD CONSTRAINT "user_interested_categories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "podcat"."categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_interested_categories" ADD CONSTRAINT "user_interested_categories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES ""categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "podcat"."reserved_messages" ADD CONSTRAINT "reserved_messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "podcat"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "reserved_messages" ADD CONSTRAINT "reserved_messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES ""User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

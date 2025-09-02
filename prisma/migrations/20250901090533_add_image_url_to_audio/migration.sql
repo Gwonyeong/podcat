@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "podcat"."audios" ADD COLUMN     "imageUrl" TEXT;
+ALTER TABLE "audios" ADD COLUMN     "imageUrl" TEXT;

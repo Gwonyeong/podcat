@@ -5,4 +5,4 @@
 
 */
 -- CreateIndex
-CREATE UNIQUE INDEX "user_applications_phoneNumber_key" ON "podcat"."user_applications"("phoneNumber");
+CREATE UNIQUE INDEX "user_applications_phoneNumber_key" ON "user_applications"("phoneNumber");

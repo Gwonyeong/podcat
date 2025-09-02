@@ -6,11 +6,11 @@
 
 */
 -- AlterTable
-ALTER TABLE "podcat"."audios" DROP COLUMN "category",
+ALTER TABLE "audios" DROP COLUMN "category",
 ADD COLUMN     "categoryId" INTEGER NOT NULL;
 
 -- CreateTable
-CREATE TABLE "podcat"."categories" (
+CREATE TABLE "categories" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
 
@@ -18,7 +18,7 @@ CREATE TABLE "podcat"."categories" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "categories_name_key" ON "podcat"."categories"("name");
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- AddForeignKey
-ALTER TABLE "podcat"."audios" ADD CONSTRAINT "audios_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "podcat"."categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "audios" ADD CONSTRAINT "audios_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES ""categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
