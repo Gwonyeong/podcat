@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -14,13 +11,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Next-Auth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  refresh_token_expires_in Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  plan          String    @default("free") // free, pro
+  accounts      Account[]
+  sessions      Session[]
+  interestedCategories UserInterestedCategory[]
+  reservedMessages     ReservedMessage[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Existing Models
 model UserApplication {
   id               Int      @id @default(autoincrement())
   name             String
-  phoneNumber      String   @unique // 전화번호 중복 방지
-  interestedTopics String[] // 최대 3개의 관심 주제 (PostgreSQL에서 배열 지원)
-  privacyConsent   Boolean  @default(false) // 개인정보 처리방침 동의
-  marketingConsent Boolean  @default(false) // 마케팅 수신 동의
+  phoneNumber      String   @unique
+  interestedTopics String[]
+  privacyConsent   Boolean  @default(false)
+  marketingConsent Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -29,15 +77,69 @@ model UserApplication {
 
 model UserActivity {
   id         Int      @id @default(autoincrement())
-  sessionId  String // 사용자 세션 식별자
-  action     String // 수행한 액션 (예: "newsletter_signup", "sample_play")
-  trackId    Int? // 재생한 트랙 ID (샘플 재생 시)
-  trackTitle String? // 재생한 트랙 제목
-  category   String? // 트랙 카테고리
-  duration   Int? // 재생 시간 (초)
-  userAgent  String? // 사용자 브라우저 정보
-  ipAddress  String? // IP 주소 (선택적)
+  sessionId  String
+  action     String
+  trackId    Int?
+  trackTitle String?
+  category   String?
+  duration   Int?
+  userAgent  String?
+  ipAddress  String?
   createdAt  DateTime @default(now())
 
   @@map("user_activities")
+}
+
+model Audio {
+  id          Int      @id @default(autoincrement())
+  title       String
+  publishDate DateTime
+  filePath    String
+  imageUrl    String?
+  script      String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  @@map("audios")
+}
+
+model Category {
+  id             Int     @id @default(autoincrement())
+  name           String  @unique
+  isFree         Boolean @default(false)
+  presenterImage String?
+  audios         Audio[]
+  interestedUsers UserInterestedCategory[]
+
+  @@map("categories")
+}
+
+model UserInterestedCategory {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  categoryId Int
+  createdAt  DateTime @default(now())
+  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId])
+  @@map("user_interested_categories")
+}
+
+model ReservedMessage {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  message   String
+  reservedTime DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reserved_messages")
 }

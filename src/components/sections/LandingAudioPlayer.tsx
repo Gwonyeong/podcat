@@ -510,7 +510,6 @@ export default function LandingAudioPlayer({
       <BottomSheet
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
-        onOpen={() => setIsBottomSheetOpen(true)}
         title="재생 컨트롤"
       >
         {bottomSheetContent}

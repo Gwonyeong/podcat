@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "podcat"."user_applications" (
+CREATE TABLE "user_applications" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,

@@ -1,0 +1,36 @@
+{
+  "name": "Podcat - AI 오디오 뉴스레터 플랫폼",
+  "short_name": "Podcat",
+  "description": "쌓여만 가는 뉴스레터, 팟켓이 오디오로 만들어드릴게요.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/black-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/black-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news", "productivity", "education"],
+  "lang": "ko",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "features": [
+    "오디오 뉴스레터",
+    "AI 큐레이션",
+    "맞춤형 콘텐츠",
+    "일일 업데이트"
+  ]
+}

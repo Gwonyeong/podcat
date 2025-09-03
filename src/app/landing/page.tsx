@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import LandingAudioPlayer from "@/components/sections/LandingAudioPlayer";
 import LandingAudioModal from "@/components/ui/LandingAudioModal";
 import { useModalStore } from "@/store/modalStore";

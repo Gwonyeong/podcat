@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { RefObject } from "react";
 import { sampleTracks } from "@/data/sampleTracks";
 
 interface LandingAudioModalProps {
@@ -9,7 +9,7 @@ interface LandingAudioModalProps {
   onClose: () => void;
   isPlaying: boolean;
   onPlayPause: () => void;
-  audioRef: React.RefObject<HTMLAudioElement | null>;
+  audioRef: RefObject<HTMLAudioElement | null>;
 }
 
 export default function LandingAudioModal({
@@ -20,47 +20,13 @@ export default function LandingAudioModal({
   onPlayPause,
   audioRef,
 }: LandingAudioModalProps) {
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
   const track = sampleTracks[trackIndex];
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-
-    audio.addEventListener("timeupdate", updateTime);
-    audio.addEventListener("loadedmetadata", updateDuration);
-
-    return () => {
-      audio.removeEventListener("timeupdate", updateTime);
-      audio.removeEventListener("loadedmetadata", updateDuration);
-    };
-  }, [audioRef]);
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    if (audio) {
-      const newTime = (parseFloat(e.target.value) / 100) * duration;
-      audio.currentTime = newTime;
-      setCurrentTime(newTime);
-    }
-  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal-fade-in">
+      <div className="bg-white rounded-t-3xl rounded-b-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal-fade-in">
         {/* 헤더 */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -91,12 +57,28 @@ export default function LandingAudioModal({
           <div className="flex flex-col">
             {/* 이미지 - 전체 가로축 사용, 중앙 정렬 */}
             <div className="w-full flex justify-center mb-6">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden">
+              <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden group cursor-pointer"
+                   onClick={() => {
+                     onPlayPause();
+                     onClose();
+                   }}>
                 <img
                   src={track.image}
                   alt={track.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                {/* 재생 아이콘 오버레이 */}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-300 group-hover:bg-black/50">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
+                    <svg
+                      className="w-8 h-8 md:w-10 md:h-10 text-gray-800 ml-1"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -160,68 +142,6 @@ export default function LandingAudioModal({
             </div>
           </div>
 
-          {/* 재생 컨트롤 */}
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">
-              재생 컨트롤
-            </h4>
-
-            {/* 진행 바 */}
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={duration ? (currentTime / duration) * 100 : 0}
-                onChange={handleSeek}
-                className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-
-            {/* 재생/일시정지 버튼 */}
-            <div className="flex justify-center">
-              <button
-                onClick={onPlayPause}
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold transition-colors flex items-center space-x-2"
-              >
-                {isPlaying ? (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V9a1 1 0 00-1-1H7z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>일시정지</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>재생</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
 
           {/* 추가 정보 */}
           <div className="mt-6 text-center">
