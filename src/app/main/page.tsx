@@ -611,12 +611,13 @@ export default function MainPage() {
                               
                               {/* 콘텐츠 영역 */}
                               <div className="flex-1 p-4 min-w-0">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h3 className="font-semibold text-base text-gray-800 flex-1 mr-2 line-clamp-2">
+                                {/* 데스크톱: 제목과 카테고리 같은 줄 / 모바일: 제목 전체 너비 사용 */}
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                                  <h3 className="font-semibold text-base text-gray-800 flex-1 line-clamp-2">
                                     {audio.title}
                                   </h3>
                                   <span
-                                    className={`category-badge flex-shrink-0 text-xs ${
+                                    className={`category-badge inline-block sm:flex-shrink-0 text-xs self-start ${
                                       audio.category.isFree ? "free" : "paid"
                                     }`}
                                   >
