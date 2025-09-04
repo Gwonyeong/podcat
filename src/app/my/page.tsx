@@ -26,6 +26,7 @@ export default function MyPage() {
   const [interestedCategories, setInterestedCategories] = useState<InterestedCategory[]>([]);
   const [reservedMessages, setReservedMessages] = useState<ReservedMessage[]>([]);
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showPreparingModal, setShowPreparingModal] = useState(false);
   const [newMessageTime, setNewMessageTime] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -235,7 +236,9 @@ export default function MyPage() {
                   checked={reservedMessages.length > 0}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setShowMessageModal(true);
+                      // 준비중 모달 표시 (기존 코드는 주석으로 보존)
+                      setShowPreparingModal(true);
+                      // setShowMessageModal(true);  // 추후 기능 구현시 사용
                     } else {
                       handleToggleNotification(false);
                     }
@@ -300,7 +303,34 @@ export default function MyPage() {
       </div>
 
 
-      {/* 알림 시간 설정 모달 */}
+      {/* 준비중 모달 */}
+      {showPreparingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.54 0 3.01-.37 4.31-1.02l3.59 1.01c.27.08.55-.11.55-.4v-3.03C21.78 16.72 22 14.4 22 12c0-5.52-4.48-10-10-10zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">준비중입니다</h3>
+              <p className="text-sm text-gray-500 break-keep leading-relaxed">
+                카카오톡 알림 기능이 곧 제공될 예정입니다.<br />
+                관심을 가져주셔서 감사합니다!
+              </p>
+            </div>
+            
+            <button 
+              onClick={() => setShowPreparingModal(false)}
+              className="w-full px-4 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 font-medium"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 알림 시간 설정 모달 (추후 기능 구현시 사용) */}
       {showMessageModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 m-4 max-w-md w-full">
