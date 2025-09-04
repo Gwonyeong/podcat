@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function AdminLayout({
   children,
@@ -9,6 +11,37 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+    
+    if (session && !session.user?.isAdmin) {
+      router.push("/unauthorized");
+      return;
+    }
+  }, [status, session, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p>로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated" || !session?.user?.isAdmin) {
+    return null;
+  }
 
   const tabs = [
     { name: "오디오 콘텐츠", href: "/admin" },
