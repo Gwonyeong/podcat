@@ -33,7 +33,7 @@ export default function CategorySelectionPage() {
     try {
       const [userRes, categoriesRes] = await Promise.all([
         fetch('/api/user/interested-categories'),
-        fetch('/api/admin/categories')
+        fetch('/api/categories')
       ]);
 
       if (userRes.ok) {
