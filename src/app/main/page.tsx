@@ -574,7 +574,7 @@ export default function MainPage() {
                               )}
                               
                               {/* 썸네일 영역 - 1:1 비율 유지, 크기 확대 */}
-                              <div className="flex-shrink-0 w-28 h-28">
+                              <div className="flex-shrink-0 w-28 h-28 relative">
                                 {audio.imageUrl ? (
                                   <div className="relative w-full h-full rounded-l-lg overflow-hidden">
                                     <Image
@@ -593,6 +593,18 @@ export default function MainPage() {
                                     >
                                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
                                     </svg>
+                                  </div>
+                                )}
+                                
+                                {/* 진행자 이미지 - 썸네일 우측 아래 */}
+                                {audio.category.presenterImage && (
+                                  <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-lg bg-white">
+                                    <Image
+                                      src={audio.category.presenterImage}
+                                      alt={`${audio.category.name} 진행자`}
+                                      layout="fill"
+                                      objectFit="cover"
+                                    />
                                   </div>
                                 )}
                               </div>
@@ -617,18 +629,6 @@ export default function MainPage() {
                                   </p>
                                 )}
                               </div>
-                              
-                              {/* 진행자 이미지 */}
-                              {audio.category.presenterImage && (
-                                <div className="absolute bottom-3 right-3 w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-lg">
-                                  <Image
-                                    src={audio.category.presenterImage}
-                                    alt={`${audio.category.name} 진행자`}
-                                    layout="fill"
-                                    objectFit="cover"
-                                  />
-                                </div>
-                              )}
                             </div>
                           );
                         })}
