@@ -15,20 +15,18 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
-      }
-      
-      // DB에서 사용자의 isAdmin 값 가져오기
-      if (token.id) {
+        // 초기 로그인 시에만 DB에서 isAdmin 값 가져오기
         const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
+          where: { id: user.id },
           select: { isAdmin: true },
         });
         token.isAdmin = dbUser?.isAdmin || false;
       }
       
+      // 토큰 갱신 시에는 기존 값 유지 (DB 쿼리 없음)
       return token;
     },
     async session({ session, token }) {
