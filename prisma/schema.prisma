@@ -47,6 +47,7 @@ model User {
   emailVerified DateTime?
   image         String?
   plan          String    @default("free") // free, pro
+  isAdmin       Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
   interestedCategories UserInterestedCategory[]

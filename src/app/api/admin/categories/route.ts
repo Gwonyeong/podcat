@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { uploadToSupabase, generateStorageKey } from "@/lib/supabase";
+import { checkAdminAuth } from "@/lib/auth-helpers";
 
 export async function GET() {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const categories = await prisma.category.findMany();
     return NextResponse.json(categories);
@@ -16,6 +23,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const data = await req.formData();
     const name = data.get("name") as string;

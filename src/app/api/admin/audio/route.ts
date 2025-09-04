@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { uploadToSupabase, generateStorageKey } from '@/lib/supabase';
+import { checkAdminAuth } from '@/lib/auth-helpers';
 
 export async function POST(req: NextRequest) {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const formData = await req.formData();
     const title = formData.get('title') as string;
@@ -52,6 +59,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const audios = await prisma.audio.findMany({
       include: {

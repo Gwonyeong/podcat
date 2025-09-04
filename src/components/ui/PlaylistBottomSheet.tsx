@@ -235,11 +235,11 @@ export default function PlaylistBottomSheet() {
                       </div>
 
                       {/* 트랙 정보 */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className={`text-sm font-medium truncate ${
+                      <div className="flex-1 min-w-0 mr-3">
+                        <h4 className={`text-sm font-medium ${
                           index === currentIndex ? 'text-indigo-600' : 'text-gray-900'
                         }`}>
-                          {audio.title}
+                          {audio.title.length > 30 ? `${audio.title.slice(0, 30)}...` : audio.title}
                         </h4>
                         <div className="flex items-center mt-1">
                           {/* 카테고리 텍스트 */}
@@ -250,8 +250,8 @@ export default function PlaylistBottomSheet() {
                       </div>
 
                       {/* 진행자 이미지 */}
-                      <div className="flex items-center mr-3">
-                        {audio.category.presenterImage && (
+                      {audio.category.presenterImage && (
+                        <div className="flex items-center mr-3">
                           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                             <Image
                               src={audio.category.presenterImage}
@@ -261,8 +261,8 @@ export default function PlaylistBottomSheet() {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                   </div>
 
                   {/* 삭제 버튼 */}

@@ -19,11 +19,22 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
       }
+      
+      // DB에서 사용자의 isAdmin 값 가져오기
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { isAdmin: true },
+        });
+        token.isAdmin = dbUser?.isAdmin || false;
+      }
+      
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },

@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { uploadToSupabase, generateStorageKey } from "@/lib/supabase";
+import { checkAdminAuth } from "@/lib/auth-helpers";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const resolvedParams = await params;
     const id = parseInt(resolvedParams.id);
@@ -35,6 +42,12 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const resolvedParams = await params;
     const id = parseInt(resolvedParams.id);
@@ -84,6 +97,12 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Admin 권한 체크
+  const authResult = await checkAdminAuth();
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
     const resolvedParams = await params;
     const id = parseInt(resolvedParams.id);
