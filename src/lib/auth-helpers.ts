@@ -1,8 +1,13 @@
 import { getServerSession } from "next-auth";
+import { Session } from "next-auth";
 import { authOptions } from "./auth";
 import { NextResponse } from "next/server";
 
-export async function checkAdminAuth() {
+export async function checkAdminAuth(): Promise<{
+  authorized: boolean;
+  response?: NextResponse;
+  session?: Session | null;
+}> {
   const session = await getServerSession(authOptions);
   
   if (!session) {

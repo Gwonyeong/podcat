@@ -9,7 +9,7 @@ export async function GET(
 ) {
   // Admin 권한 체크
   const authResult = await checkAdminAuth();
-  if (!authResult.authorized) {
+  if (!authResult.authorized && authResult.response) {
     return authResult.response;
   }
 
@@ -44,7 +44,7 @@ export async function DELETE(
 ) {
   // Admin 권한 체크
   const authResult = await checkAdminAuth();
-  if (!authResult.authorized) {
+  if (!authResult.authorized && authResult.response) {
     return authResult.response;
   }
 
@@ -84,7 +84,7 @@ export async function PUT(
 ) {
   // Admin 권한 체크
   const authResult = await checkAdminAuth();
-  if (!authResult.authorized) {
+  if (!authResult.authorized && authResult.response) {
     return authResult.response;
   }
 
