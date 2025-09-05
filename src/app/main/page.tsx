@@ -11,6 +11,7 @@ import BottomNav from "@/components/ui/BottomNav";
 import MiniAudioPlayer from "@/components/ui/MiniAudioPlayer";
 import PlaylistBottomSheet from "@/components/ui/PlaylistBottomSheet";
 import { usePlaylistStore } from "@/store/playlistStore";
+import InquiryModal from "@/components/InquiryModal";
 
 // 주 단위 날짜 타입 정의
 type WeekRange = [Date, Date];
@@ -49,6 +50,7 @@ interface Audio {
   publishDate: string;
   filePath: string;
   imageUrl: string | null;
+  duration: number | null;
   category: {
     id: number;
     name: string;
@@ -75,6 +77,7 @@ export default function MainPage() {
   const [showAllContent, setShowAllContent] = useState<boolean>(true); // 무료 콘텐츠 모두 보기 토글
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 상태
   const [todayTracks, setTodayTracks] = useState<Audio[]>([]); // 오늘의 트랙들
+  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false); // 문의 모달 상태
   const { addToPlaylist, setCurrentAudio, replacePlaylist, setPlaying } = usePlaylistStore();
 
   useEffect(() => {
@@ -353,9 +356,13 @@ export default function MainPage() {
           />
         </div>
         <div className="flex items-center">
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button 
+            onClick={() => setShowInquiryModal(true)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="문의하기"
+          >
             <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </button>
         </div>
@@ -593,6 +600,13 @@ export default function MainPage() {
                                     >
                                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
                                     </svg>
+                                  </div>
+                                )}
+                                
+                                {/* 재생 시간 - 썸네일 좌측 하단 */}
+                                {audio.duration && (
+                                  <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                                    {Math.floor(audio.duration / 60)}:{(audio.duration % 60).toString().padStart(2, '0')}
                                   </div>
                                 )}
                                 
@@ -865,6 +879,12 @@ export default function MainPage() {
           </div>
         </div>
       )}
+
+      {/* 문의 모달 */}
+      <InquiryModal 
+        isOpen={showInquiryModal} 
+        onClose={() => setShowInquiryModal(false)} 
+      />
 
       {/* 하단 네비게이션 바 */}
       <BottomNav />

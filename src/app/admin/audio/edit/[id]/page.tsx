@@ -20,6 +20,7 @@ interface Audio {
   imageUrl: string | null;
   script: string | null;
   description: string | null;
+  duration: number | null;
   category: Category;
 }
 
@@ -37,6 +38,7 @@ export default function EditAudioPage({
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [script, setScript] = useState("");
+  const [duration, setDuration] = useState<number>(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -67,6 +69,7 @@ export default function EditAudioPage({
           setPublishDate(audioData.publishDate.split("T")[0]); // YYYY-MM-DD 형식으로 변환
           setDescription(audioData.description || "");
           setScript(audioData.script || "");
+          setDuration(audioData.duration || 0);
           if (audioData.imageUrl) {
             setThumbnailPreview(audioData.imageUrl);
           }
@@ -127,6 +130,7 @@ export default function EditAudioPage({
       formData.append("publishDate", publishDate);
       formData.append("description", description);
       formData.append("script", script);
+      formData.append("duration", duration.toString());
       if (audioFile) {
         formData.append("audioFile", audioFile);
       }
@@ -345,6 +349,28 @@ export default function EditAudioPage({
                 </div>
               </div>
             )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="duration"
+              className="block text-sm font-medium text-gray-700"
+            >
+              재생 시간 (초)
+            </label>
+            <input
+              type="number"
+              id="duration"
+              name="duration"
+              value={duration}
+              onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
+              min="0"
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="예: 180 (3분)"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              {duration > 0 && `${Math.floor(duration / 60)}분 ${duration % 60}초`}
+            </p>
           </div>
 
           <div>
