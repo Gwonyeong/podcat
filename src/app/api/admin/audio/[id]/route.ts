@@ -100,6 +100,7 @@ export async function PUT(
     const thumbnailFile = formData.get("thumbnailFile") as File | null;
     const description = formData.get("description") as string;
     const script = formData.get("script") as string;
+    const duration = formData.get("duration") as string;
 
     // 기존 오디오 정보 조회
     const existingAudio = await prisma.audio.findUnique({
@@ -138,6 +139,7 @@ export async function PUT(
         categoryId: parseInt(categoryId),
         description,
         script,
+        duration: duration ? parseInt(duration) : null,
       },
       include: {
         category: true,

@@ -22,6 +22,7 @@ export default function CreateAudioPage() {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [script, setScript] = useState("");
+  const [duration, setDuration] = useState<number>(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -86,6 +87,7 @@ export default function CreateAudioPage() {
       }
       formData.append("description", description);
       formData.append("script", script);
+      formData.append("duration", duration.toString());
 
       const res = await fetch("/api/admin/audio", {
         method: "POST",
@@ -260,6 +262,28 @@ export default function CreateAudioPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="duration"
+              className="block text-sm font-medium text-gray-700"
+            >
+              재생 시간 (초)
+            </label>
+            <input
+              type="number"
+              id="duration"
+              name="duration"
+              value={duration}
+              onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
+              min="0"
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="예: 180 (3분)"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              {duration > 0 && `${Math.floor(duration / 60)}분 ${duration % 60}초`}
+            </p>
           </div>
 
           <div>

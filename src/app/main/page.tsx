@@ -49,6 +49,7 @@ interface Audio {
   publishDate: string;
   filePath: string;
   imageUrl: string | null;
+  duration: number | null;
   category: {
     id: number;
     name: string;
@@ -593,6 +594,13 @@ export default function MainPage() {
                                     >
                                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
                                     </svg>
+                                  </div>
+                                )}
+                                
+                                {/* 재생 시간 - 썸네일 좌측 하단 */}
+                                {audio.duration && (
+                                  <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                                    {Math.floor(audio.duration / 60)}:{(audio.duration % 60).toString().padStart(2, '0')}
                                   </div>
                                 )}
                                 

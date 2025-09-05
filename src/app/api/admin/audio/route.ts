@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const thumbnailFile = formData.get('thumbnailFile') as File | null;
     const description = formData.get('description') as string;
     const script = formData.get('script') as string;
+    const duration = formData.get('duration') as string;
 
     if (!audioFile) {
       return NextResponse.json({ error: 'No audio file uploaded' }, { status: 400 });
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest) {
         categoryId: parseInt(categoryId),
         description,
         script,
+        duration: duration ? parseInt(duration) : null,
       },
     });
 
