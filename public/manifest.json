@@ -2,7 +2,7 @@
   "name": "Podcat - AI 오디오 뉴스레터 플랫폼",
   "short_name": "Podcat",
   "description": "쌓여만 가는 뉴스레터, 팟켓이 오디오로 만들어드릴게요.",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",

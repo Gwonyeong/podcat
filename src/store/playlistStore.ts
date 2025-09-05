@@ -23,6 +23,7 @@ interface PlaylistStore {
   isPlaying: boolean;
   isPlaylistOpen: boolean;
   currentAudio: Audio | null;
+  playbackRate: number;
   
   // Actions
   addToPlaylist: (audio: Audio) => void;
@@ -37,6 +38,8 @@ interface PlaylistStore {
   openPlaylist: () => void;
   closePlaylist: () => void;
   reorderPlaylist: (startIndex: number, endIndex: number) => void;
+  setPlaybackRate: (rate: number) => void;
+  cyclePlaybackRate: () => void;
 }
 
 export const usePlaylistStore = create<PlaylistStore>()(
@@ -47,6 +50,7 @@ export const usePlaylistStore = create<PlaylistStore>()(
       isPlaying: false,
       isPlaylistOpen: false,
       currentAudio: null,
+      playbackRate: 1,
 
       addToPlaylist: (audio) => {
         const { playlist } = get();
@@ -177,6 +181,18 @@ export const usePlaylistStore = create<PlaylistStore>()(
           currentIndex: newCurrentIndex,
           currentAudio: result[newCurrentIndex] || null
         });
+      },
+
+      setPlaybackRate: (rate) => {
+        set({ playbackRate: rate });
+      },
+
+      cyclePlaybackRate: () => {
+        const { playbackRate } = get();
+        const rates = [1, 1.2, 1.5, 2, 0.8];
+        const currentIndex = rates.indexOf(playbackRate);
+        const nextIndex = (currentIndex + 1) % rates.length;
+        set({ playbackRate: rates[nextIndex] });
       },
     }),
     {

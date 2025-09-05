@@ -13,6 +13,8 @@ export default function MiniAudioPlayer() {
     previousTrack,
     openPlaylist,
     playlist,
+    playbackRate,
+    cyclePlaybackRate,
   } = usePlaylistStore();
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -89,6 +91,13 @@ export default function MiniAudioPlayer() {
       audio.pause();
     }
   }, [isPlaying]);
+
+  // 배속 설정
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.playbackRate = playbackRate;
+  }, [playbackRate, currentAudio]);
 
   if (!currentAudio || playlist.length === 0) return null;
 
@@ -244,6 +253,16 @@ export default function MiniAudioPlayer() {
               >
                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
               </svg>
+            </button>
+
+            <button
+              onClick={cyclePlaybackRate}
+              className="w-10 h-10 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center"
+              title="배속 변경"
+            >
+              <span className="text-xs font-bold text-gray-700 min-w-[24px] text-center">
+                {playbackRate}x
+              </span>
             </button>
 
             <button
