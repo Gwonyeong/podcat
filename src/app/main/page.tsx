@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./main.css";
 import BottomSheet from "@/components/ui/BottomSheet"; // Import BottomSheet
 import ReactMarkdown from "react-markdown";
@@ -199,17 +199,12 @@ export default function MainPage() {
     setSelectedWeek(getWeekRange(new Date()));
   };
 
-  // 사용자 데이터 가져오기
-  const fetchUserData = async () => {
+  // 사용자 데이터 가져오기 (디바운싱 적용)
+  const fetchUserData = useCallback(async () => {
     try {
-      const timestamp = new Date().getTime();
-      const response = await fetch(`/api/user/interested-categories?_t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
+      const response = await fetch(`/api/user/interested-categories`, {
+        cache: 'force-cache', // 캐시 활용
+        next: { revalidate: 60 } // 60초마다 재검증
       });
       if (response.ok) {
         const data = await response.json();
@@ -221,21 +216,15 @@ export default function MainPage() {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-  };
+  }, []);
 
-  // 오디오 목록 가져오기
-  const fetchAudios = async () => {
+  // 오디오 목록 가져오기 (디바운싱 적용)
+  const fetchAudios = useCallback(async () => {
     setLoading(true);
     try {
-      // 타임스탬프를 추가하여 브라우저 캐싱 완전 방지
-      const timestamp = new Date().getTime();
-      const res = await fetch(`/api/audio?_t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
+      const res = await fetch(`/api/audio`, {
+        cache: 'force-cache', // 캐시 활용
+        next: { revalidate: 30 } // 30초마다 재검증
       });
       if (res.ok) {
         const data = await res.json();
@@ -250,21 +239,26 @@ export default function MainPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // 컴포넌트 마운트 시 데이터 가져오기
+  // 컴포넌트 마운트 시 데이터 가져오기 (한 번만 실행)
   useEffect(() => {
     let isSubscribed = true; // cleanup을 위한 플래그
+    let hasFetched = false; // 중복 호출 방지 플래그
     
-    if (status === "authenticated" && session?.user?.id && isSubscribed) {
-      fetchUserData();
-      fetchAudios();
+    if (status === "authenticated" && session?.user?.id && isSubscribed && !hasFetched) {
+      hasFetched = true;
+      // 초기 로드 시 한 번만 호출
+      Promise.all([
+        fetchUserData(),
+        fetchAudios()
+      ]);
     }
     
     return () => {
       isSubscribed = false; // cleanup 시 플래그 해제
     };
-  }, [status, session?.user?.id]);
+  }, [status, fetchUserData, fetchAudios]); // session?.user?.id 제거하여 재호출 방지
 
   // 오디오 접근 권한 확인
   const canAccessAudio = (audio: Audio) => {
