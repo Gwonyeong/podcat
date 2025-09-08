@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/generated/prisma';
+import { PrismaClient } from "@/generated/prisma";
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
@@ -7,7 +7,7 @@ import { PrismaClient } from '@/generated/prisma';
 
 declare global {
   // allow global `var` declarations
-   
+
   var prisma: PrismaClient | undefined;
 }
 
@@ -19,12 +19,10 @@ const prisma =
         url: process.env.DATABASE_URL,
       },
     },
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
 }
 
 export default prisma;
-

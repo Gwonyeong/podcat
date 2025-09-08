@@ -89,30 +89,35 @@ model UserActivity {
 }
 
 model Audio {
-  id          Int           @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   publishDate DateTime
   filePath    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   categoryId  Int
   script      String?
   description String?
   imageUrl    String?
   duration    Int?
   audio_plays audio_plays[]
-  category    Category      @relation(fields: [categoryId], references: [id])
+  category    Category        @relation(fields: [categoryId], references: [id])
+  generated   GeneratedAudio?
 
   @@map("audios")
 }
 
 model Category {
-  id              Int                      @id @default(autoincrement())
-  name            String                   @unique
-  isFree          Boolean                  @default(false)
-  presenterImage  String?
-  audios          Audio[]
-  interestedUsers UserInterestedCategory[]
+  id                    Int                      @id @default(autoincrement())
+  name                  String                   @unique
+  isFree                Boolean                  @default(false)
+  presenterImage        String?
+  presenterName         String?
+  presenterPersona      String?
+  presenterVoiceId      String?
+  audios                Audio[]
+  interestedUsers       UserInterestedCategory[]
+  schedulers            AudioScheduler[]
 
   @@map("categories")
 }
@@ -172,4 +177,40 @@ model Inquiry {
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("inquiries")
+}
+
+model AudioScheduler {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  categoryId            Int
+  prompt                String
+  elevenLabsVoiceId     String
+  cronExpression        String
+  isActive              Boolean  @default(true)
+  lastRunAt             DateTime?
+  nextRunAt             DateTime?
+  totalGenerated        Int      @default(0)
+  promptMode            String   @default("single") // single, perplexity, list
+  topicList             Json?    // Array of topics for list mode
+  currentTopicIndex     Int      @default(0)
+  usePerplexity         Boolean  @default(false)
+  perplexitySystemPrompt String?  // System prompt for Perplexity searches
+  publishDateOffset     Int      @default(0) // Days to offset publish date from execution date (0 = same day)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  category              Category @relation(fields: [categoryId], references: [id])
+  generatedAudios       GeneratedAudio[]
+
+  @@map("audio_schedulers")
+}
+
+model GeneratedAudio {
+  id          Int            @id @default(autoincrement())
+  schedulerId Int
+  audioId     Int            @unique
+  createdAt   DateTime       @default(now())
+  scheduler   AudioScheduler @relation(fields: [schedulerId], references: [id], onDelete: Cascade)
+  audio       Audio          @relation(fields: [audioId], references: [id], onDelete: Cascade)
+
+  @@map("generated_audios")
 }
