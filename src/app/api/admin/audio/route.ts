@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { uploadToSupabase, generateStorageKey } from '@/lib/supabase';
 import { checkAdminAuth } from '@/lib/auth-helpers';
 import { generateAudioFromScheduler } from '@/lib/audio-generator';
+import { sendSlackNotification } from '@/lib/slack-notifications';
 
 async function handleFileUpload(req: NextRequest) {
   try {
@@ -144,7 +145,35 @@ async function handleSchedulerExecution(body: SchedulerExecutionBody) {
         return NextResponse.json({ error: 'Scheduler not found' }, { status: 404 });
       }
 
+      const executionTime = new Date();
       const result = await generateAudioFromScheduler(scheduler);
+
+      // Get audio details for notification
+      let audioTitle: string | undefined;
+      if (result.success && result.audioId) {
+        try {
+          const audio = await prisma.audio.findUnique({
+            where: { id: result.audioId },
+            select: { title: true }
+          });
+          audioTitle = audio?.title;
+        } catch (e) {
+          console.warn('Failed to fetch audio title for notification:', e);
+        }
+      }
+
+      // Send Slack notification for manual execution
+      await sendSlackNotification({
+        success: result.success,
+        schedulerName: `${scheduler.name} (수동 실행)`,
+        categoryName: scheduler.category.name,
+        audioTitle,
+        audioId: result.audioId,
+        error: result.error,
+        executionTime,
+        promptMode: scheduler.promptMode,
+        usedTopic: result.usedTopic?.title
+      });
 
       if (result.success) {
         return NextResponse.json({ 

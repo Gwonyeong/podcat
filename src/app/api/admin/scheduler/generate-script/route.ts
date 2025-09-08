@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkAdminAuth } from '@/lib/auth-helpers';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { checkAdminAuth } from "@/lib/auth-helpers";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import prisma from "@/lib/prisma";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 async function validateScript(script: string): Promise<string> {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    
+
     const validationPrompt = `다음 팟캐스트 대본에서 진행자가 실제로 말하지 않는 부분을 모두 제거해주세요.
 
 제거 대상:
@@ -18,32 +18,32 @@ async function validateScript(script: string): Promise<string> {
 - 무대 지시문, 해설, 설명
 - 이모지나 특수문자 장식
 
-오직 진행자가 실제로 발화하는 텍스트만 남겨주세요.
+답변에는 오직 진행자가 직접 말하는 대사만 포함해주세요.
 
 원본 대본:
 ${script}
 
-검수된 대본:`;
+`;
 
     const result = await model.generateContent(validationPrompt);
     const response = result.response;
     let cleanedScript = response.text();
-    
+
     // 추가 정리
     cleanedScript = cleanedScript
-      .replace(/\([^)]*\)/g, '')
-      .replace(/\[[^\]]*\]/g, '')
-      .replace(/\{[^}]*\}/g, '')
-      .replace(/\s+/g, ' ')
+      .replace(/\([^)]*\)/g, "")
+      .replace(/\[[^\]]*\]/g, "")
+      .replace(/\{[^}]*\}/g, "")
+      .replace(/\s+/g, " ")
       .trim();
-    
+
     return cleanedScript;
   } catch (error) {
-    console.error('대본 검수 실패:', error);
+    console.error("대본 검수 실패:", error);
     // 검수 실패 시 최소한의 정리만 수행
     return script
-      .replace(/\([^)]*\)/g, '')
-      .replace(/\[[^\]]*\]/g, '')
+      .replace(/\([^)]*\)/g, "")
+      .replace(/\[[^\]]*\]/g, "")
       .trim();
   }
 }
@@ -56,10 +56,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { categoryId, contentPrompt, promptMode = 'single', usePerplexity = false, perplexitySystemPrompt } = body;
+    const {
+      categoryId,
+      contentPrompt,
+      promptMode = "single",
+      usePerplexity = false,
+      perplexitySystemPrompt,
+    } = body;
 
     if (!categoryId || !contentPrompt) {
-      return NextResponse.json({ error: '카테고리와 콘텐츠 프롬프트가 필요합니다.' }, { status: 400 });
+      return NextResponse.json(
+        { error: "카테고리와 콘텐츠 프롬프트가 필요합니다." },
+        { status: 400 }
+      );
     }
 
     // 카테고리와 진행자 정보 조회
@@ -68,13 +77,20 @@ export async function POST(req: NextRequest) {
     });
 
     if (!category) {
-      return NextResponse.json({ error: '카테고리를 찾을 수 없습니다.' }, { status: 404 });
+      return NextResponse.json(
+        { error: "카테고리를 찾을 수 없습니다." },
+        { status: 404 }
+      );
     }
 
     if (!category.presenterVoiceId) {
-      return NextResponse.json({ 
-        error: '이 카테고리에 진행자 음성 ID가 설정되어 있지 않습니다. 카테고리 관리에서 진행자 정보를 먼저 등록해주세요.' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            "이 카테고리에 진행자 음성 ID가 설정되어 있지 않습니다. 카테고리 관리에서 진행자 정보를 먼저 등록해주세요.",
+        },
+        { status: 400 }
+      );
     }
 
     // Gemini를 이용한 대본 생성
@@ -83,8 +99,8 @@ export async function POST(req: NextRequest) {
     const systemPrompt = `당신은 한국 팟캐스트 진행자입니다. 주어진 정보를 바탕으로 진행자가 직접 말할 대본만을 작성해주세요.
 
 카테고리: ${category.name}
-진행자 정보: ${category.presenterName || '정보 없음'}
-진행자 페르소나: ${category.presenterPersona || '일반적인 진행자'}
+진행자 정보: ${category.presenterName || "정보 없음"}
+진행자 페르소나: ${category.presenterPersona || "일반적인 진행자"}
 
 중요한 규칙:
 - 진행자가 직접 말하는 대사만 작성하세요
@@ -103,11 +119,11 @@ ${contentPrompt}
     const result = await model.generateContent(systemPrompt);
     const response = await result.response;
     let script = response.text();
-    
+
     // 대본 검수 - 지시문 및 불필요한 요소 제거
-    console.log('대본 검수 시작...');
+    console.log("대본 검수 시작...");
     script = await validateScript(script);
-    console.log('대본 검수 완료');
+    console.log("대본 검수 완료");
 
     return NextResponse.json({
       success: true,
@@ -116,25 +132,34 @@ ${contentPrompt}
       presenterName: category.presenterName,
       voiceId: category.presenterVoiceId,
     });
-
   } catch (error) {
-    console.error('Error generating script:', error);
-    
+    console.error("Error generating script:", error);
+
     // Handle specific Gemini API errors
     if (error instanceof Error) {
-      if (error.message.includes('API key')) {
-        return NextResponse.json({ 
-          error: 'Gemini API 키가 설정되지 않았습니다. 환경변수를 확인해주세요.' 
-        }, { status: 500 });
+      if (error.message.includes("API key")) {
+        return NextResponse.json(
+          {
+            error:
+              "Gemini API 키가 설정되지 않았습니다. 환경변수를 확인해주세요.",
+          },
+          { status: 500 }
+        );
       }
-      
-      return NextResponse.json({ 
-        error: `대본 생성 실패: ${error.message}` 
-      }, { status: 500 });
+
+      return NextResponse.json(
+        {
+          error: `대본 생성 실패: ${error.message}`,
+        },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ 
-      error: '알 수 없는 오류가 발생했습니다.' 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "알 수 없는 오류가 발생했습니다.",
+      },
+      { status: 500 }
+    );
   }
 }

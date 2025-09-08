@@ -114,6 +114,9 @@ ELEVENLABS_API_KEY    # ElevenLabs API key for TTS generation
 UNSPLASH_ACCESS_KEY   # Unsplash API access key for thumbnail images
 PERPLEXITY_API_KEY    # Perplexity API key for web search (optional)
 CRON_SECRET          # Secret key for cron job API authentication
+
+# Slack Notifications
+SLACK_WEBHOOK_URL     # Slack webhook URL for audio generation notifications
 ```
 
 ### Common Development Tasks

@@ -38,6 +38,7 @@ interface AudioScheduler {
 export default function SchedulerPage() {
   const [schedulers, setSchedulers] = useState<AudioScheduler[]>([]);
   const [loading, setLoading] = useState(true);
+  const [executingSchedulers, setExecutingSchedulers] = useState<Set<number>>(new Set());
 
   const fetchSchedulers = async () => {
     try {
@@ -81,6 +82,9 @@ export default function SchedulerPage() {
       return;
     }
 
+    // 실행 중 상태로 설정
+    setExecutingSchedulers(prev => new Set(prev).add(id));
+
     try {
       const res = await fetch("/api/admin/audio", {
         method: "POST",
@@ -94,7 +98,8 @@ export default function SchedulerPage() {
       });
 
       if (res.ok) {
-        alert("스케줄러가 성공적으로 실행되었습니다.");
+        const data = await res.json();
+        alert(`스케줄러가 성공적으로 실행되었습니다.\n오디오 제목: ${data.audio?.title || '제목 없음'}`);
         fetchSchedulers();
       } else {
         const data = await res.json();
@@ -103,6 +108,13 @@ export default function SchedulerPage() {
     } catch (error) {
       console.error("실행 중 오류가 발생했습니다:", error);
       alert("실행 중 오류가 발생했습니다.");
+    } finally {
+      // 실행 완료 후 상태 제거
+      setExecutingSchedulers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
     }
   };
 
@@ -184,13 +196,25 @@ export default function SchedulerPage() {
           {schedulers.map((scheduler) => (
             <div
               key={scheduler.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              className={`bg-white rounded-lg shadow-sm border p-6 ${
+                executingSchedulers.has(scheduler.id)
+                  ? "border-blue-300 bg-blue-50"
+                  : "border-gray-200"
+              }`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {scheduler.name}
-                  </h3>
+                  <div className="flex items-center">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {scheduler.name}
+                    </h3>
+                    {executingSchedulers.has(scheduler.id) && (
+                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <div className="animate-spin rounded-full h-2 w-2 border-b-2 border-blue-600 mr-1"></div>
+                        실행 중
+                      </span>
+                    )}
+                  </div>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
                       scheduler.category?.isFree
@@ -239,8 +263,11 @@ export default function SchedulerPage() {
               <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-2">
                 <button
                   onClick={() => handleToggle(scheduler.id, scheduler.isActive)}
+                  disabled={executingSchedulers.has(scheduler.id)}
                   className={`flex-1 text-xs px-3 py-1 rounded-md font-medium ${
-                    scheduler.isActive
+                    executingSchedulers.has(scheduler.id)
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : scheduler.isActive
                       ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       : "bg-green-100 text-green-700 hover:bg-green-200"
                   }`}
@@ -249,19 +276,40 @@ export default function SchedulerPage() {
                 </button>
                 <button
                   onClick={() => handleExecute(scheduler.id)}
-                  className="flex-1 text-xs px-3 py-1 rounded-md font-medium bg-blue-100 text-blue-700 hover:bg-blue-200"
+                  disabled={executingSchedulers.has(scheduler.id)}
+                  className={`flex-1 text-xs px-3 py-1 rounded-md font-medium ${
+                    executingSchedulers.has(scheduler.id)
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                  }`}
                 >
-                  지금 실행
+                  {executingSchedulers.has(scheduler.id) ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                      실행 중...
+                    </div>
+                  ) : (
+                    "지금 실행"
+                  )}
                 </button>
                 <Link
                   href={`/admin/scheduler/edit/${scheduler.id}`}
-                  className="flex-1 text-xs px-3 py-1 rounded-md font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-center"
+                  className={`flex-1 text-xs px-3 py-1 rounded-md font-medium text-center ${
+                    executingSchedulers.has(scheduler.id)
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none"
+                      : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
+                  }`}
                 >
                   수정
                 </Link>
                 <button
                   onClick={() => handleDelete(scheduler.id)}
-                  className="flex-1 text-xs px-3 py-1 rounded-md font-medium bg-red-100 text-red-700 hover:bg-red-200"
+                  disabled={executingSchedulers.has(scheduler.id)}
+                  className={`flex-1 text-xs px-3 py-1 rounded-md font-medium ${
+                    executingSchedulers.has(scheduler.id)
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-100 text-red-700 hover:bg-red-200"
+                  }`}
                 >
                   삭제
                 </button>

@@ -104,7 +104,10 @@ async function getNextTopicFromList(
     } else if (Array.isArray(scheduler.topicList)) {
       topics = scheduler.topicList;
     } else {
-      console.error("주제 리스트 형식이 올바르지 않습니다:", scheduler.topicList);
+      console.error(
+        "주제 리스트 형식이 올바르지 않습니다:",
+        scheduler.topicList
+      );
       return null;
     }
   } catch (error) {
@@ -137,9 +140,9 @@ async function validateAndCleanScript(
 ): Promise<string> {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    
-    const validationPrompt = `다음 팟캐스트 대본을 검수해주세요. 
-    
+
+    const validationPrompt = `다음 팟캐스트 대본을 검수해주세요.
+
 아래 대본에서 진행자가 실제로 말하지 않는 부분을 모두 제거하고, 오직 진행자가 직접 발화하는 텍스트만 남겨주세요.
 
 제거해야 할 요소들:
@@ -165,29 +168,29 @@ ${script}
     const result = await model.generateContent(validationPrompt);
     const response = result.response;
     let cleanedScript = response.text();
-    
+
     // 추가 정리: 혹시 남아있을 수 있는 괄호 내용 제거
     cleanedScript = cleanedScript
-      .replace(/\([^)]*\)/g, '') // 소괄호 내용 제거
-      .replace(/\[[^\]]*\]/g, '') // 대괄호 내용 제거
-      .replace(/<[^>]*>/g, '') // 꺾쇠괄호 내용 제거
-      .replace(/\{[^}]*\}/g, '') // 중괄호 내용 제거
-      .replace(/\s+/g, ' ') // 연속된 공백을 하나로
-      .replace(/^\s+|\s+$/gm, '') // 각 줄의 앞뒤 공백 제거
-      .split('\n')
-      .filter(line => line.trim().length > 0) // 빈 줄 제거
-      .join('\n\n'); // 문단 간격 재설정
-    
-    console.log('대본 검수 완료: 지시문 및 불필요한 요소 제거');
+      .replace(/\([^)]*\)/g, "") // 소괄호 내용 제거
+      .replace(/\[[^\]]*\]/g, "") // 대괄호 내용 제거
+      .replace(/<[^>]*>/g, "") // 꺾쇠괄호 내용 제거
+      .replace(/\{[^}]*\}/g, "") // 중괄호 내용 제거
+      .replace(/\s+/g, " ") // 연속된 공백을 하나로
+      .replace(/^\s+|\s+$/gm, "") // 각 줄의 앞뒤 공백 제거
+      .split("\n")
+      .filter((line) => line.trim().length > 0) // 빈 줄 제거
+      .join("\n\n"); // 문단 간격 재설정
+
+    console.log("대본 검수 완료: 지시문 및 불필요한 요소 제거");
     return cleanedScript;
   } catch (error) {
-    console.error('대본 검수 실패:', error);
+    console.error("대본 검수 실패:", error);
     // 검수 실패 시 원본 반환 (최소한의 정리만 수행)
     return script
-      .replace(/\([^)]*\)/g, '')
-      .replace(/\[[^\]]*\]/g, '')
-      .replace(/<[^>]*>/g, '')
-      .replace(/\{[^}]*\}/g, '')
+      .replace(/\([^)]*\)/g, "")
+      .replace(/\[[^\]]*\]/g, "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/\{[^}]*\}/g, "")
       .trim();
   }
 }
@@ -249,8 +252,8 @@ async function generateScript(
 - 이름: ${scheduler.category.presenterName || "정보 없음"}
 - 특성: ${scheduler.category.presenterPersona || "일반적인 전문가"}
 
-다음 주제로 5-7분 분량의 한국어 팟캐스트 대본을 작성해주세요:
-
+다음 주제로 3-5분 분량의 한국어 팟캐스트 대본을 작성해주세요:
+1500자 이내
 ${finalPrompt}
 
 중요한 규칙:
@@ -266,7 +269,7 @@ ${finalPrompt}
     const result = await model.generateContent(fullPrompt);
     const response = result.response;
     let script = response.text();
-    
+
     // 대본 검수 - 지시문 및 불필요한 요소 제거
     console.log("대본 검수 시작...");
     script = await validateAndCleanScript(script, scheduler.category.name);
@@ -350,19 +353,45 @@ async function generateImageSearchQuery(
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `다음 팟캐스트 대본의 주제와 분위기를 나타낼 수 있는 영문 이미지 검색 키워드 3-4개를 생성해주세요.
-키워드만 공백으로 구분하여 답변해주세요 (예: technology innovation future digital):
+    const prompt = `다음 팟캐스트 대본의 핵심 주제와 내용을 분석하여, 해당 주제를 시각적으로 잘 표현할 수 있는 영문 이미지 검색 키워드를 생성해주세요.
 
-${script.substring(0, 800)}`;
+요구사항:
+1. 팟캐스트나 마이크 관련 키워드는 사용하지 마세요
+2. 대본의 실제 주제와 내용에 집중하세요
+3. 구체적이고 시각적으로 표현 가능한 키워드 3-5개를 선택하세요
+4. 키워드만 공백으로 구분하여 답변해주세요
+
+예시:
+- 경제 관련 내용 → "business finance growth economy charts"
+- 건강 관련 내용 → "health wellness exercise nutrition lifestyle"
+- 기술 관련 내용 → "technology innovation digital modern workspace"
+- 자연 관련 내용 → "nature landscape forest mountains peaceful"
+
+분석할 대본 내용:
+${script.substring(0, 1000)}
+
+키워드 (영문만):`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const keywords = response.text().trim();
+    let keywords = response.text().trim();
 
-    return `${keywords} podcast studio microphone`;
+    // 혹시 한국어나 불필요한 내용이 포함되어 있다면 정리
+    keywords = keywords
+      .replace(/[가-힣]/g, "") // 한글 제거
+      .replace(/[^\w\s]/g, " ") // 특수문자를 공백으로 변경
+      .replace(/\s+/g, " ") // 연속된 공백 정리
+      .trim();
+
+    // 키워드가 너무 짧거나 없는 경우 기본값 사용
+    if (keywords.length < 5) {
+      return `${categoryName.toLowerCase()} content modern professional`;
+    }
+
+    return keywords;
   } catch (error) {
     console.error("이미지 검색어 생성 실패:", error);
-    return `${categoryName} podcast microphone`;
+    return `${categoryName.toLowerCase()} content professional modern`;
   }
 }
 
@@ -504,27 +533,99 @@ async function generateTTSAudio(
 
 async function getUnsplashThumbnail(query: string): Promise<string | null> {
   try {
+    console.log(`이미지 검색어: "${query}"`);
+
+    // 더 많은 결과를 가져와서 랜덤하게 선택
+    const perPage = 10;
     const result = await unsplash.search.getPhotos({
-      query: query, // 이미 처리된 검색어 사용
+      query: query,
       page: 1,
-      perPage: 1,
+      perPage: perPage,
       orientation: "landscape",
+      orderBy: "relevant", // 관련성 순으로 정렬
     });
 
     if (result.errors) {
       console.error("Unsplash API errors:", result.errors);
+
+      // 검색 실패 시 더 일반적인 키워드로 재시도
+      console.log("일반적인 키워드로 재검색 시도...");
+      const fallbackQuery = "modern professional workspace";
+      const fallbackResult = await unsplash.search.getPhotos({
+        query: fallbackQuery,
+        page: 1,
+        perPage: perPage,
+        orientation: "landscape",
+      });
+
+      if (
+        !fallbackResult.errors &&
+        fallbackResult.response?.results.length > 0
+      ) {
+        const randomIndex = Math.floor(
+          Math.random() * fallbackResult.response.results.length
+        );
+        return fallbackResult.response.results[randomIndex].urls.regular;
+      }
+
       return null;
     }
 
-    const photo = result.response?.results[0];
-    if (photo) {
-      // Use medium size image
-      return photo.urls.regular;
+    const photos = result.response?.results;
+    if (photos && photos.length > 0) {
+      // 여러 결과 중 랜덤하게 선택 (다양성 확보)
+      const randomIndex = Math.floor(Math.random() * photos.length);
+      const selectedPhoto = photos[randomIndex];
+
+      console.log(
+        `이미지 선택: ${selectedPhoto.alt_description || "No description"}`
+      );
+      return selectedPhoto.urls.regular;
+    }
+
+    // 검색 결과가 없는 경우 키워드를 단순화해서 재시도
+    console.log("검색 결과가 없어 단순화된 키워드로 재검색...");
+    const simplifiedKeywords = query.split(" ").slice(0, 2).join(" "); // 처음 2개 키워드만 사용
+
+    if (simplifiedKeywords !== query && simplifiedKeywords.length > 0) {
+      const retryResult = await unsplash.search.getPhotos({
+        query: simplifiedKeywords,
+        page: 1,
+        perPage: perPage,
+        orientation: "landscape",
+      });
+
+      if (!retryResult.errors && retryResult.response?.results.length > 0) {
+        const randomIndex = Math.floor(
+          Math.random() * retryResult.response.results.length
+        );
+        return retryResult.response.results[randomIndex].urls.regular;
+      }
     }
 
     return null;
   } catch (error) {
     console.error("Error fetching Unsplash image:", error);
+
+    // 최종 fallback - 아주 일반적인 이미지
+    try {
+      const finalFallback = await unsplash.search.getPhotos({
+        query: "abstract modern design",
+        page: 1,
+        perPage: 5,
+        orientation: "landscape",
+      });
+
+      if (!finalFallback.errors && finalFallback.response?.results.length > 0) {
+        const randomIndex = Math.floor(
+          Math.random() * finalFallback.response.results.length
+        );
+        return finalFallback.response.results[randomIndex].urls.regular;
+      }
+    } catch (finalError) {
+      console.error("Final fallback also failed:", finalError);
+    }
+
     return null;
   }
 }

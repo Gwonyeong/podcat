@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { generateAudioFromScheduler } from '@/lib/audio-generator';
+import { sendSlackNotification } from '@/lib/slack-notifications';
 
 export async function POST(req: NextRequest) {
   // Simple API key authentication for cron jobs
@@ -30,8 +31,37 @@ export async function POST(req: NextRequest) {
     const results = [];
     
     for (const scheduler of schedulers) {
+      const executionTime = new Date();
       try {
         const result = await generateAudioFromScheduler(scheduler);
+        
+        // Get audio details for success notification
+        let audioTitle: string | undefined;
+        if (result.success && result.audioId) {
+          try {
+            const audio = await prisma.audio.findUnique({
+              where: { id: result.audioId },
+              select: { title: true }
+            });
+            audioTitle = audio?.title;
+          } catch (e) {
+            console.warn('Failed to fetch audio title for notification:', e);
+          }
+        }
+
+        // Send Slack notification
+        await sendSlackNotification({
+          success: result.success,
+          schedulerName: scheduler.name,
+          categoryName: scheduler.category.name,
+          audioTitle,
+          audioId: result.audioId,
+          error: result.error,
+          executionTime,
+          promptMode: scheduler.promptMode,
+          usedTopic: result.usedTopic?.title
+        });
+
         results.push({
           schedulerId: scheduler.id,
           success: result.success,
@@ -39,10 +69,22 @@ export async function POST(req: NextRequest) {
           error: result.error,
         });
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        
+        // Send Slack error notification
+        await sendSlackNotification({
+          success: false,
+          schedulerName: scheduler.name,
+          categoryName: scheduler.category.name,
+          error: errorMessage,
+          executionTime,
+          promptMode: scheduler.promptMode
+        });
+
         results.push({
           schedulerId: scheduler.id,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: errorMessage,
         });
       }
     }
