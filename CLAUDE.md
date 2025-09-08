@@ -45,6 +45,8 @@ yarn prisma studio  # Open Prisma Studio
 - Audio model with Category relationship (free/paid tiers)
 - Application model for user submissions with consent tracking
 - UserActivity for detailed analytics
+- AudioScheduler model for automated content generation with cron scheduling
+- GeneratedAudio model for tracking AI-generated content
 
 ### Project Structure
 ```
@@ -65,6 +67,8 @@ All API routes follow RESTful conventions:
 - `/api/admin/audio` - Audio CRUD operations
 - `/api/admin/category` - Category management
 - `/api/admin/application` - User application handling
+- `/api/admin/scheduler` - Audio auto-generator scheduler management
+- `/api/cron/generate-audio` - Cron job endpoint for scheduled audio generation
 - `/api/track` - User activity tracking
 
 ### Authentication Flow
@@ -103,6 +107,13 @@ NEXT_PUBLIC_SUPABASE_URL    # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase public anon key
 SUPABASE_SERVICE_ROLE_KEY   # Supabase service role key for server operations
 SUPABASE_STORAGE_BUCKET     # Supabase storage bucket name (default: podcat-files)
+
+# Audio Auto-Generator Configuration
+GEMINI_API_KEY        # Google Gemini API key for script generation
+ELEVENLABS_API_KEY    # ElevenLabs API key for TTS generation
+UNSPLASH_ACCESS_KEY   # Unsplash API access key for thumbnail images
+PERPLEXITY_API_KEY    # Perplexity API key for web search (optional)
+CRON_SECRET          # Secret key for cron job API authentication
 ```
 
 ### Common Development Tasks
@@ -121,3 +132,51 @@ When working with audio features:
 - Audio model includes title, audioUrl, imageUrl, category, script, description
 - Categories determine access level (free/paid)
 - Admin interface uses tab-based navigation
+
+### Audio Auto-Generator Features
+
+The audio auto-generator allows admins to schedule automated content creation:
+
+**Components:**
+- `AudioScheduler` model with cron scheduling capabilities
+- ElevenLabs TTS integration for voice synthesis
+- Unsplash API integration for automatic thumbnail generation
+- Admin UI for scheduler management (`/admin/scheduler`)
+
+**Key Features:**
+1. **Scheduler Management**: Create, edit, delete, and toggle schedulers
+2. **Multiple Content Modes**: 
+   - **Single**: Traditional single prompt mode
+   - **Perplexity**: Web search-based content generation using Perplexity API
+   - **Topic List**: Sequential processing of pre-defined topic lists
+3. **Cron Scheduling**: Flexible scheduling using cron expressions
+4. **Voice Synthesis**: ElevenLabs API integration with configurable voice IDs
+5. **Auto Thumbnails**: Unsplash integration for contextual images
+6. **Manual Execution**: Ability to trigger schedulers manually
+7. **Activity Tracking**: Track generated content and execution history
+
+**Content Generation Modes:**
+
+1. **Single Mode (Default)**: Uses a single prompt for content generation
+2. **Perplexity Mode**: 
+   - Searches web using Perplexity API for up-to-date information
+   - Combines search results with system prompt for contextual content
+   - Ideal for topics requiring current information
+3. **Topic List Mode**:
+   - Pre-defines a list of topics with optional descriptions
+   - Processes topics sequentially (one per scheduled execution)
+   - Prevents topic duplication by tracking current index
+   - Automatically stops when all topics are processed
+
+**Workflow:**
+1. Admin creates scheduler with category, content mode, and schedule
+2. Based on mode:
+   - **Single**: Uses direct prompt with Gemini AI
+   - **Perplexity**: Searches web, then generates script using search results
+   - **List**: Picks next topic from list, then generates script
+3. Content prompt is processed with Gemini AI to generate podcast script based on category presenter persona
+4. Cron service runs schedulers at specified times
+5. Generated script is converted to speech using ElevenLabs TTS with category's voice ID
+6. Thumbnail is fetched from Unsplash based on script content
+7. Audio file is uploaded to Supabase Storage
+8. Audio record is created in database with generated content flag

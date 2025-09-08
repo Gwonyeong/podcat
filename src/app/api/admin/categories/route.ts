@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
     const name = data.get("name") as string;
     const isFree = data.get("isFree") === "true";
     const presenterImageFile = data.get("presenterImage") as File | null;
+    const presenterName = data.get("presenterName") as string | null;
+    const presenterPersona = data.get("presenterPersona") as string | null;
+    const presenterVoiceId = data.get("presenterVoiceId") as string | null;
 
     let presenterImageUrl: string | undefined;
 
@@ -48,6 +51,9 @@ export async function POST(req: NextRequest) {
         name,
         isFree,
         presenterImage: presenterImageUrl,
+        presenterName: presenterName || null,
+        presenterPersona: presenterPersona || null,
+        presenterVoiceId: presenterVoiceId || null,
       },
     });
 

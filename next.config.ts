@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   // CSS 및 정적 파일 처리 최적화
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   trailingSlash: false,
-  // Supabase Storage 이미지 호스트 설정
+  // Supabase Storage 및 Unsplash 이미지 호스트 설정
   images: {
     remotePatterns: [
       {
@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },

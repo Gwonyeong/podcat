@@ -13,6 +13,7 @@ export default function AdminLayout({
   const tabs = [
     { name: "오디오 콘텐츠", href: "/admin" },
     { name: "카테고리 관리", href: "/admin/categories" },
+    { name: "자동 생성기", href: "/admin/scheduler" },
   ];
 
   return (

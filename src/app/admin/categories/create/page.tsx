@@ -9,6 +9,9 @@ export default function CreateCategoryPage() {
   const [name, setName] = useState("");
   const [isFree, setIsFree] = useState(false);
   const [presenterImage, setPresenterImage] = useState<File | null>(null);
+  const [presenterName, setPresenterName] = useState("");
+  const [presenterPersona, setPresenterPersona] = useState("");
+  const [presenterVoiceId, setPresenterVoiceId] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -27,6 +30,15 @@ export default function CreateCategoryPage() {
       formData.append("isFree", String(isFree));
       if (presenterImage) {
         formData.append("presenterImage", presenterImage);
+      }
+      if (presenterName) {
+        formData.append("presenterName", presenterName.trim());
+      }
+      if (presenterPersona) {
+        formData.append("presenterPersona", presenterPersona.trim());
+      }
+      if (presenterVoiceId) {
+        formData.append("presenterVoiceId", presenterVoiceId.trim());
       }
 
       const res = await fetch("/api/admin/categories", {
@@ -88,23 +100,90 @@ export default function CreateCategoryPage() {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="presenterImage"
-              className="block text-sm font-medium text-gray-700"
-            >
-              진행자 이미지
-            </label>
-            <input
-              type="file"
-              id="presenterImage"
-              name="presenterImage"
-              accept="image/*"
-              onChange={(e) =>
-                setPresenterImage(e.target.files ? e.target.files[0] : null)
-              }
-              className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-            />
+          {/* 진행자 정보 섹션 */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">진행자 정보 (선택사항)</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="presenterName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  진행자 이름
+                </label>
+                <input
+                  type="text"
+                  id="presenterName"
+                  name="presenterName"
+                  value={presenterName}
+                  onChange={(e) => setPresenterName(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="예: AI 아나운서 서연"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="presenterPersona"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  진행자 페르소나
+                </label>
+                <textarea
+                  id="presenterPersona"
+                  name="presenterPersona"
+                  rows={3}
+                  value={presenterPersona}
+                  onChange={(e) => setPresenterPersona(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="예: 20대 여성, 밝고 친근한 말투, 트렌디한 어휘 사용, 이모티콘과 같은 감정 표현을 자주 사용"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  AI 대본 생성 시 진행자의 특성을 반영합니다.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="presenterVoiceId"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  ElevenLabs 음성 ID
+                </label>
+                <input
+                  type="text"
+                  id="presenterVoiceId"
+                  name="presenterVoiceId"
+                  value={presenterVoiceId}
+                  onChange={(e) => setPresenterVoiceId(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="예: 21m00Tcm4TlvDq8ikWAM"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  자동 생성기에서 기본으로 사용할 음성 ID입니다.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="presenterImage"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  진행자 이미지
+                </label>
+                <input
+                  type="file"
+                  id="presenterImage"
+                  name="presenterImage"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setPresenterImage(e.target.files ? e.target.files[0] : null)
+                  }
+                  className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center">
