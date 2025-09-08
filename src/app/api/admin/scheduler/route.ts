@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       topicList,
       elevenLabsVoiceId, 
       cronExpression, 
+      publishDateOffset = 0,
       isActive 
     } = body;
 
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
         currentTopicIndex: 0,
         elevenLabsVoiceId,
         cronExpression,
+        publishDateOffset: parseInt(publishDateOffset) || 0,
         isActive: isActive ?? true,
         nextRunAt: nextRunAt,
       },

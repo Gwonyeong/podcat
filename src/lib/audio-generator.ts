@@ -19,6 +19,7 @@ export interface AudioSchedulerWithCategory {
   currentTopicIndex: number;
   usePerplexity: boolean;
   perplexitySystemPrompt: string | null;
+  publishDateOffset: number;
   elevenLabsVoiceId: string;
   cronExpression: string;
   isActive: boolean;
@@ -447,10 +448,14 @@ export async function generateAudioFromScheduler(
       finalTitle = `${usedTopic.title} (${dateStr})`;
     }
 
+    // 게시 일자 계산 (실행 시점 + 오프셋)
+    const publishDate = new Date();
+    publishDate.setDate(publishDate.getDate() + scheduler.publishDateOffset);
+
     const audio = await prisma.audio.create({
       data: {
         title: finalTitle,
-        publishDate: new Date(),
+        publishDate,
         filePath: audioUrl,
         imageUrl,
         categoryId: scheduler.categoryId,

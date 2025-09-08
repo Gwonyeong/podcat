@@ -58,6 +58,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       currentTopicIndex,
       elevenLabsVoiceId, 
       cronExpression, 
+      publishDateOffset,
       isActive 
     } = body;
 
@@ -83,6 +84,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       ...(currentTopicIndex !== undefined && { currentTopicIndex }),
       ...(elevenLabsVoiceId && { elevenLabsVoiceId }),
       ...(cronExpression && { cronExpression }),
+      ...(publishDateOffset !== undefined && { publishDateOffset: parseInt(publishDateOffset) || 0 }),
       ...(isActive !== undefined && { isActive }),
       ...(nextRunAt !== undefined && { nextRunAt }),
     };

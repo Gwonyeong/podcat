@@ -30,6 +30,7 @@ export default function CreateSchedulerPage() {
   const [perplexitySystemPrompt, setPerplexitySystemPrompt] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>(["*"]); // 매일이 기본값
   const [scheduleTimes, setScheduleTimes] = useState<string[]>(["09:00"]); // 오전 9시가 기본값
+  const [publishDateOffset, setPublishDateOffset] = useState(0); // 게시 일자 오프셋 (0 = 가동 당일)
   const [isActive, setIsActive] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -246,6 +247,7 @@ export default function CreateSchedulerPage() {
           topicList: promptMode === 'list' ? topicList.filter(t => t.title.trim()) : null,
           elevenLabsVoiceId: selectedCategory.presenterVoiceId,
           cronExpression: generateCronExpression(),
+          publishDateOffset,
           isActive,
         }),
       });
@@ -745,6 +747,29 @@ export default function CreateSchedulerPage() {
                 {scheduleTimes.length > 1 && "여러 시간 설정 시 별도의 스케줄러가 생성됩니다."}
               </p>
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="publishDateOffset" className="block text-sm font-medium text-gray-700">
+              게시 일자 설정
+            </label>
+            <div className="mt-1 flex items-center space-x-3">
+              <input
+                type="number"
+                id="publishDateOffset"
+                name="publishDateOffset"
+                min="0"
+                max="30"
+                value={publishDateOffset}
+                onChange={(e) => setPublishDateOffset(parseInt(e.target.value) || 0)}
+                className="block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+              <span className="text-sm text-gray-700">일 후 게시</span>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">
+              스케줄러 실행 시점을 기준으로 며칠 후에 게시할지 설정합니다. 
+              (0: 실행 당일, 1: 실행일 다음날, 2: 실행일 이틀 후 등)
+            </p>
           </div>
 
           <div className="flex items-center">

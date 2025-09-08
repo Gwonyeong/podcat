@@ -195,6 +195,7 @@ model AudioScheduler {
   currentTopicIndex     Int      @default(0)
   usePerplexity         Boolean  @default(false)
   perplexitySystemPrompt String?  // System prompt for Perplexity searches
+  publishDateOffset     Int      @default(0) // Days to offset publish date from execution date (0 = same day)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   category              Category @relation(fields: [categoryId], references: [id])
