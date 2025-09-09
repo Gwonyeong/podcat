@@ -22,7 +22,7 @@ export default function PWAInstallButton() {
       }
       
       // iOS Safari의 경우
-      if ("standalone" in window.navigator && (window.navigator as any).standalone) {
+      if ("standalone" in window.navigator && (window.navigator as unknown as { standalone: boolean }).standalone) {
         setIsInstalled(true);
         return true;
       }
