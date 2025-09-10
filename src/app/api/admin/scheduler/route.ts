@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { checkAdminAuth } from '@/lib/auth-helpers';
 import * as cron from 'node-cron';
-import { scheduleTask } from '@/lib/cron-scheduler';
+import { calculateNextRunTime } from '@/lib/cron-utils';
 
 export async function GET() {
   const authResult = await checkAdminAuth();
@@ -59,8 +59,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid cron expression' }, { status: 400 });
     }
 
-    // For now, set nextRunAt to null - it will be calculated by the cron scheduler
-    const nextRunAt = null;
+    // Calculate next run time if scheduler is active
+    const nextRunAt = isActive ? calculateNextRunTime(cronExpression) : null;
+    
+    if (isActive && !nextRunAt) {
+      console.error('Failed to calculate next run time for cron expression:', cronExpression);
+      return NextResponse.json({ 
+        error: 'Invalid cron expression - could not calculate next run time' 
+      }, { status: 400 });
+    }
 
     const scheduler = await prisma.audioScheduler.create({
       data: {
@@ -83,10 +90,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Schedule the task if it's active
-    if (scheduler.isActive) {
-      scheduleTask(scheduler);
-    }
+    // Log scheduler creation
+    console.log(`Scheduler created: ${scheduler.name} (ID: ${scheduler.id}), Next run: ${scheduler.nextRunAt}`);
 
     return NextResponse.json(scheduler, { status: 201 });
   } catch (error) {

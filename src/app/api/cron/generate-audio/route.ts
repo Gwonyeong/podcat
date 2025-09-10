@@ -2,18 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { generateAudioFromScheduler } from '@/lib/audio-generator';
 import { sendSlackNotification } from '@/lib/slack-notifications';
+import { calculateNextRunTime } from '@/lib/cron-utils';
 
-export async function POST(req: NextRequest) {
-  // Simple API key authentication for cron jobs
+export async function GET(req: NextRequest) {
+  // Vercel Cron authentication
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
   
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  // Check if it's from Vercel Cron (has specific header) or manual trigger with secret
+  const isVercelCron = req.headers.get('x-vercel-cron') === '1';
+  const isAuthorized = isVercelCron || (cronSecret && authHeader === `Bearer ${cronSecret}`);
+  
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const now = new Date();
+    
+    // Log cron job execution
+    console.log(`[CRON] Checking for schedulers to run at ${now.toISOString()}`);
     
     // Find schedulers that should run now
     const schedulers = await prisma.audioScheduler.findMany({
@@ -27,13 +35,30 @@ export async function POST(req: NextRequest) {
         category: true,
       },
     });
+    
+    console.log(`[CRON] Found ${schedulers.length} schedulers to execute`);
 
     const results = [];
     
     for (const scheduler of schedulers) {
       const executionTime = new Date();
+      console.log(`[CRON] Executing scheduler: ${scheduler.name} (ID: ${scheduler.id})`);
+      
       try {
         const result = await generateAudioFromScheduler(scheduler);
+        
+        // Calculate and update next run time
+        const nextRunAt = calculateNextRunTime(scheduler.cronExpression, executionTime);
+        await prisma.audioScheduler.update({
+          where: { id: scheduler.id },
+          data: { 
+            lastRunAt: executionTime,
+            nextRunAt: nextRunAt,
+            totalGenerated: scheduler.totalGenerated + (result.success ? 1 : 0)
+          },
+        });
+        
+        console.log(`[CRON] Scheduler ${scheduler.id} executed. Next run: ${nextRunAt}`);
         
         // Get audio details for success notification
         let audioTitle: string | undefined;
@@ -70,6 +95,21 @@ export async function POST(req: NextRequest) {
         });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`[CRON] Error executing scheduler ${scheduler.id}:`, error);
+        
+        // Even on error, update next run time to prevent infinite retries
+        try {
+          const nextRunAt = calculateNextRunTime(scheduler.cronExpression, executionTime);
+          await prisma.audioScheduler.update({
+            where: { id: scheduler.id },
+            data: { 
+              lastRunAt: executionTime,
+              nextRunAt: nextRunAt
+            },
+          });
+        } catch (updateError) {
+          console.error(`[CRON] Failed to update next run time for scheduler ${scheduler.id}:`, updateError);
+        }
         
         // Send Slack error notification
         await sendSlackNotification({
@@ -89,6 +129,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    console.log(`[CRON] Completed processing ${schedulers.length} schedulers`);
+    
     return NextResponse.json({
       message: `Processed ${schedulers.length} schedulers`,
       results,

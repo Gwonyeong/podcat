@@ -246,12 +246,16 @@ export default function SchedulerPage() {
                   <span className="font-medium">총 생성:</span>{" "}
                   {scheduler.totalGenerated}개
                 </div>
-                {scheduler.nextRunAt && (
+                {scheduler.nextRunAt ? (
                   <div>
                     <span className="font-medium">다음 실행:</span>{" "}
                     {new Date(scheduler.nextRunAt).toLocaleString("ko-KR")}
                   </div>
-                )}
+                ) : scheduler.isActive ? (
+                  <div className="text-red-600">
+                    <span className="font-medium">⚠️ 다음 실행 시간이 설정되지 않음</span>
+                  </div>
+                ) : null}
                 {scheduler.lastRunAt && (
                   <div>
                     <span className="font-medium">마지막 실행:</span>{" "}

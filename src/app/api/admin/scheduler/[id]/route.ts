@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { checkAdminAuth } from '@/lib/auth-helpers';
 import * as cron from 'node-cron';
-import { refreshScheduler, stopTask } from '@/lib/cron-scheduler';
+import { calculateNextRunTime } from '@/lib/cron-utils';
 
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const params = await context.params;
@@ -67,9 +67,18 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Invalid cron expression' }, { status: 400 });
     }
 
-    // For now, set nextRunAt to null if cron expression is provided
+    // Calculate next run time if scheduler is active and cron expression is changed
     let nextRunAt = undefined;
-    if (cronExpression) {
+    if (cronExpression && isActive !== false) {
+      const calculatedNextRun = calculateNextRunTime(cronExpression);
+      if (!calculatedNextRun) {
+        console.error('Failed to calculate next run time for cron expression:', cronExpression);
+        return NextResponse.json({ 
+          error: 'Invalid cron expression - could not calculate next run time' 
+        }, { status: 400 });
+      }
+      nextRunAt = calculatedNextRun;
+    } else if (isActive === false) {
       nextRunAt = null;
     }
 
@@ -97,8 +106,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       },
     });
 
-    // Refresh the scheduler in cron
-    await refreshScheduler(parseInt(params.id));
+    // Log scheduler update
+    console.log(`Scheduler updated: ${scheduler.name} (ID: ${scheduler.id}), Next run: ${scheduler.nextRunAt}`);
 
     return NextResponse.json(scheduler);
   } catch (error) {
@@ -117,9 +126,6 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
   }
 
   try {
-    // Stop the cron task before deleting
-    stopTask(parseInt(params.id));
-    
     await prisma.audioScheduler.delete({
       where: { id: parseInt(params.id) },
     });

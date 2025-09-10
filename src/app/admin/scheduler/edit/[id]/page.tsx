@@ -456,14 +456,23 @@ export default function EditSchedulerPage() {
               </span>
             </div>
           )}
-          {scheduler.nextRunAt && (
+          {scheduler.nextRunAt ? (
             <div>
               <span className="font-medium text-gray-700">다음 실행:</span>{" "}
               <span className="text-gray-900">
                 {new Date(scheduler.nextRunAt).toLocaleString("ko-KR")}
               </span>
             </div>
-          )}
+          ) : scheduler.isActive ? (
+            <div>
+              <span className="font-medium text-red-600">
+                ⚠️ 다음 실행 시간이 설정되지 않음
+              </span>
+              <p className="text-sm text-gray-600 mt-1">
+                크론 표현식을 확인하고 저장해주세요.
+              </p>
+            </div>
+          ) : null}
           <div>
             <span className="font-medium text-gray-700">생성일:</span>{" "}
             <span className="text-gray-900">
