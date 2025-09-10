@@ -12,6 +12,7 @@ import MiniAudioPlayer from "@/components/ui/MiniAudioPlayer";
 import PlaylistBottomSheet from "@/components/ui/PlaylistBottomSheet";
 import { usePlaylistStore } from "@/store/playlistStore";
 import InquiryModal from "@/components/InquiryModal";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 // 주 단위 날짜 타입 정의
 type WeekRange = [Date, Date];
@@ -349,7 +350,8 @@ export default function MainPage() {
             className="rounded-lg"
           />
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2">
+          <PWAInstallButton />
           <button 
             onClick={() => setShowInquiryModal(true)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

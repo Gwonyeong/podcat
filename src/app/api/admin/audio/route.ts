@@ -4,6 +4,7 @@ import { uploadToSupabase, generateStorageKey } from '@/lib/supabase';
 import { checkAdminAuth } from '@/lib/auth-helpers';
 import { generateAudioFromScheduler } from '@/lib/audio-generator';
 import { sendSlackNotification } from '@/lib/slack-notifications';
+import { calculateNextRunTime } from '@/lib/cron-utils';
 
 async function handleFileUpload(req: NextRequest) {
   try {
@@ -115,15 +116,24 @@ async function handleSchedulerExecution(body: SchedulerExecutionBody) {
           },
         });
 
-        await prisma.audioScheduler.update({
+        const scheduler = await prisma.audioScheduler.findUnique({
           where: { id: schedulerId },
-          data: {
-            lastRunAt: new Date(),
-            totalGenerated: {
-              increment: 1,
-            },
-          },
+          select: { cronExpression: true },
         });
+        
+        if (scheduler) {
+          const nextRunAt = calculateNextRunTime(scheduler.cronExpression);
+          await prisma.audioScheduler.update({
+            where: { id: schedulerId },
+            data: {
+              lastRunAt: new Date(),
+              nextRunAt: nextRunAt,
+              totalGenerated: {
+                increment: 1,
+              },
+            },
+          });
+        }
       }
 
       return NextResponse.json({ 
@@ -147,6 +157,19 @@ async function handleSchedulerExecution(body: SchedulerExecutionBody) {
 
       const executionTime = new Date();
       const result = await generateAudioFromScheduler(scheduler);
+      
+      // Update scheduler's nextRunAt after manual execution
+      const nextRunAt = calculateNextRunTime(scheduler.cronExpression, executionTime);
+      await prisma.audioScheduler.update({
+        where: { id: schedulerId },
+        data: {
+          lastRunAt: executionTime,
+          nextRunAt: nextRunAt,
+          totalGenerated: scheduler.totalGenerated + (result.success ? 1 : 0),
+        },
+      });
+      
+      console.log(`[MANUAL] Scheduler ${schedulerId} executed manually. Next run: ${nextRunAt}`);
 
       // Get audio details for notification
       let audioTitle: string | undefined;
