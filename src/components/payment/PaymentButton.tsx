@@ -7,7 +7,7 @@ import { useSession, signIn } from 'next-auth/react';
 interface PaymentButtonProps {
   itemName: string;
   amount: number;
-  plan?: 'basic' | 'premium';
+  plan?: 'free' | 'premium';
   className?: string;
   children: React.ReactNode;
 }
@@ -15,7 +15,7 @@ interface PaymentButtonProps {
 export default function PaymentButton({
   itemName,
   amount,
-  plan = 'basic',
+  plan = 'free',
   className = '',
   children,
 }: PaymentButtonProps) {

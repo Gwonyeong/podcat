@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const userPlan = payment.itemName.includes('프리미엄') ? 'premium' : 'basic';
+    const userPlan = payment.itemName.includes('프리미엄') ? 'pro' : 'free';
     await prisma.user.update({
       where: { id: payment.userId },
       data: { plan: userPlan },
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const userPlan = payment.itemName.includes('프리미엄') ? 'premium' : 'basic';
+    const userPlan = payment.itemName.includes('프리미엄') ? 'pro' : 'free';
     await prisma.user.update({
       where: { id: session.user.id },
       data: { plan: userPlan },
