@@ -54,6 +54,14 @@ export default function CategorySelectionPage() {
   };
 
   const toggleCategory = (categoryId: number) => {
+    const category = availableCategories.find(cat => cat.id === categoryId);
+
+    // 무료 사용자가 유료 카테고리를 선택하려고 하는 경우 방지
+    if (userPlan === 'free' && category && !category.isFree) {
+      alert('프리미엄 요금제에서만 이용 가능한 카테고리입니다.');
+      return;
+    }
+
     if (selectedCategories.includes(categoryId)) {
       setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
     } else {
@@ -135,21 +143,33 @@ export default function CategorySelectionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {availableCategories.map((category) => {
             const isSelected = selectedCategories.includes(category.id);
+            const isDisabled = userPlan === 'free' && !category.isFree;
             return (
               <div
                 key={category.id}
-                onClick={() => toggleCategory(category.id)}
-                className={`relative bg-white rounded-lg shadow-sm border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  isSelected 
-                    ? 'border-green-500 bg-green-50' 
-                    : 'border-gray-200 hover:border-gray-300'
+                onClick={() => !isDisabled && toggleCategory(category.id)}
+                className={`relative bg-white rounded-lg shadow-sm border-2 transition-all duration-200 ${
+                  isDisabled
+                    ? 'cursor-not-allowed opacity-50 bg-gray-100 border-gray-200'
+                    : `cursor-pointer hover:shadow-md ${
+                        isSelected
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`
                 }`}
               >
-                {/* 선택 표시 */}
-                {isSelected && (
+                {/* 선택 표시 또는 프리미엄 잠금 표시 */}
+                {isSelected && !isDisabled && (
                   <div className="absolute top-3 right-3 bg-green-500 text-white rounded-full p-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                  </div>
+                )}
+                {isDisabled && (
+                  <div className="absolute top-3 right-3 bg-gray-400 text-white rounded-full p-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
                     </svg>
                   </div>
                 )}
@@ -179,16 +199,20 @@ export default function CategorySelectionPage() {
 
                   {/* 카테고리 정보 */}
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className={`text-lg font-semibold mb-2 ${
+                      isDisabled ? 'text-gray-400' : 'text-gray-900'
+                    }`}>
                       {category.name}
                     </h3>
-                    
+
                     {/* 요금제 표시 */}
                     <div className="flex justify-center">
                       <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
-                        category.isFree 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-yellow-100 text-yellow-800'
+                        category.isFree
+                          ? 'bg-blue-100 text-blue-800'
+                          : isDisabled
+                            ? 'bg-gray-100 text-gray-500'
+                            : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {category.isFree ? '무료' : '유료'}
                       </span>
