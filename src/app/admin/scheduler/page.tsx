@@ -39,6 +39,7 @@ export default function SchedulerPage() {
   const [schedulers, setSchedulers] = useState<AudioScheduler[]>([]);
   const [loading, setLoading] = useState(true);
   const [executingSchedulers, setExecutingSchedulers] = useState<Set<number>>(new Set());
+  const [bulkCreating, setBulkCreating] = useState(false);
 
   const fetchSchedulers = async () => {
     try {
@@ -139,6 +140,47 @@ export default function SchedulerPage() {
     }
   };
 
+  const handleBulkCreate = async (overwrite = false) => {
+    if (!confirm(
+      overwrite
+        ? "기존 스케줄러를 덮어쓰고 모든 카테고리의 스케줄러를 생성하시겠습니까?"
+        : "모든 카테고리에 대해 스케줄러를 자동 생성하시겠습니까? (기존 스케줄러는 건너뜁니다)"
+    )) {
+      return;
+    }
+
+    setBulkCreating(true);
+    try {
+      const res = await fetch("/api/admin/scheduler/bulk-create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ overwrite }),
+      });
+
+      const result = await res.json();
+      
+      if (res.ok) {
+        alert(
+          `스케줄러 생성 완료!\n` +
+          `생성: ${result.summary.created}개\n` +
+          `업데이트: ${result.summary.updated}개\n` +
+          `건너뜀: ${result.summary.skipped}개\n` +
+          `실패: ${result.summary.failed}개`
+        );
+        fetchSchedulers();
+      } else {
+        alert(`스케줄러 생성 실패: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("스케줄러 일괄 생성 중 오류:", error);
+      alert("스케줄러 일괄 생성 중 오류가 발생했습니다.");
+    } finally {
+      setBulkCreating(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -155,12 +197,39 @@ export default function SchedulerPage() {
         <h2 className="text-xl font-semibold text-gray-900">
           오디오 자동 생성기
         </h2>
-        <Link
-          href="/admin/scheduler/create"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          새 스케줄러 생성
-        </Link>
+        <div className="flex space-x-3">
+          <div className="relative">
+            <button
+              onClick={() => handleBulkCreate(false)}
+              disabled={bulkCreating}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            >
+              {bulkCreating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                  생성 중...
+                </>
+              ) : (
+                '스케줄러 자동 생성'
+              )}
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg rounded-md border border-gray-200 z-10 hidden group-hover:block">
+              <button
+                onClick={() => handleBulkCreate(true)}
+                disabled={bulkCreating}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                덮어쓰기로 생성
+              </button>
+            </div>
+          </div>
+          <Link
+            href="/admin/scheduler/create"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            새 스케줄러 생성
+          </Link>
+        </div>
       </div>
 
       {schedulers.length === 0 ? (

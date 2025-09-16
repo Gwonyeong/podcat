@@ -50,6 +50,8 @@ model User {
   reservedMessages       ReservedMessage[]
   interestedCategories   UserInterestedCategory[]
   inquiries              Inquiry[]
+  payments               Payment[]
+  paymentHistories       PaymentHistory[]
 }
 
 model VerificationToken {
@@ -213,4 +215,44 @@ model GeneratedAudio {
   audio       Audio          @relation(fields: [audioId], references: [id], onDelete: Cascade)
 
   @@map("generated_audios")
+}
+
+model Payment {
+  id               String   @id @default(cuid())
+  userId           String
+  tid              String   @unique
+  cid              String
+  partnerOrderId   String
+  partnerUserId    String
+  itemName         String
+  quantity         Int
+  totalAmount      Int
+  taxFreeAmount    Int      @default(0)
+  vatAmount        Int      @default(0)
+  status           String   @default("ready") // ready, approved, failed, cancelled
+  paymentMethodType String?
+  approvedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentHistory   PaymentHistory[]
+
+  @@map("payments")
+}
+
+model PaymentHistory {
+  id               String   @id @default(cuid())
+  paymentId        String
+  userId           String
+  action           String   // ready, approve, cancel, fail
+  amount           Int?
+  paymentMethodType String?
+  cardInfo         Json?
+  errorCode        String?
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  payment          Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_histories")
 }
