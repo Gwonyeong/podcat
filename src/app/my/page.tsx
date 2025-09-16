@@ -12,6 +12,13 @@ interface InterestedCategory {
   isFree: boolean;
 }
 
+interface UserData {
+  interestedCategories: InterestedCategory[];
+  plan: "free" | "pro";
+  subscriptionEndDate?: string;
+  subscriptionCanceled?: boolean;
+}
+
 interface ReservedMessage {
   id: number;
   message: string;
@@ -23,6 +30,8 @@ export default function MyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [userPlan, setUserPlan] = useState<"free" | "pro">("free");
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState<Date | null>(null);
+  const [subscriptionCanceled, setSubscriptionCanceled] = useState(false);
   const [interestedCategories, setInterestedCategories] = useState<
     InterestedCategory[]
   >([]);
@@ -54,9 +63,11 @@ export default function MyPage() {
       ]);
 
       if (categoriesRes.ok) {
-        const categoriesData = await categoriesRes.json();
+        const categoriesData: UserData = await categoriesRes.json();
         setInterestedCategories(categoriesData.interestedCategories);
         setUserPlan(categoriesData.plan);
+        setSubscriptionEndDate(categoriesData.subscriptionEndDate ? new Date(categoriesData.subscriptionEndDate) : null);
+        setSubscriptionCanceled(categoriesData.subscriptionCanceled || false);
       }
 
       if (messagesRes.ok) {
@@ -181,15 +192,30 @@ export default function MyPage() {
               </h2>
               <p className="text-sm text-gray-500">{session.user?.email}</p>
               <div className="mt-2">
-                <span
-                  className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                    userPlan === "free"
-                      ? "bg-gray-100 text-gray-800"
-                      : "bg-indigo-100 text-indigo-800"
-                  }`}
-                >
-                  {userPlan === "free" ? "무료 요금제" : "프로 요금제"}
-                </span>
+                <div className="space-y-1">
+                  <span
+                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                      userPlan === "free"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-indigo-100 text-indigo-800"
+                    }`}
+                  >
+                    {userPlan === "free" ? "무료 요금제" : "프로 요금제"}
+                  </span>
+                  {userPlan === "pro" && subscriptionEndDate && (
+                    <div className="text-xs text-gray-500">
+                      {subscriptionCanceled ? (
+                        <span className="text-orange-600">
+                          {subscriptionEndDate.toLocaleDateString("ko-KR")}까지 이용 가능 (취소됨)
+                        </span>
+                      ) : (
+                        <span>
+                          {subscriptionEndDate.toLocaleDateString("ko-KR")}까지 이용 가능
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -404,8 +430,8 @@ export default function MyPage() {
           )}
         </div>
 
-        {/* 요금제 취소 버튼 - 프로 사용자에게만 표시 */}
-        {userPlan === "pro" && (
+        {/* 요금제 취소 버튼 - 프로 사용자이면서 아직 취소하지 않은 경우에만 표시 */}
+        {userPlan === "pro" && !subscriptionCanceled && (
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <button
               onClick={async () => {
@@ -420,8 +446,12 @@ export default function MyPage() {
                     });
 
                     if (response.ok) {
+                      const result = await response.json();
+                      const endDate = result.subscriptionEndDate
+                        ? new Date(result.subscriptionEndDate).toLocaleDateString("ko-KR")
+                        : "";
                       alert(
-                        "요금제가 취소되었습니다. 무료 요금제로 전환되었습니다."
+                        `요금제 취소가 완료되었습니다.\n${endDate}까지 프로 요금제를 계속 이용하실 수 있습니다.`
                       );
                       fetchUserData(); // 사용자 데이터 새로고침
                     } else {

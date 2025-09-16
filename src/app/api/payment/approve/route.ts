@@ -63,9 +63,17 @@ export async function GET(request: NextRequest) {
     });
 
     const userPlan = payment.itemName.includes('프리미엄') ? 'pro' : 'free';
+    const subscriptionEndDate = userPlan === 'pro'
+      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30일 후
+      : null;
+
     await prisma.user.update({
       where: { id: payment.userId },
-      data: { plan: userPlan },
+      data: {
+        plan: userPlan,
+        subscriptionEndDate: subscriptionEndDate,
+        subscriptionCanceled: false, // 새 구독 시 취소 상태 리셋
+      },
     });
 
     await prisma.paymentHistory.create({
@@ -161,9 +169,17 @@ export async function POST(request: NextRequest) {
     });
 
     const userPlan = payment.itemName.includes('프리미엄') ? 'pro' : 'free';
+    const subscriptionEndDate = userPlan === 'pro'
+      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30일 후
+      : null;
+
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { plan: userPlan },
+      data: {
+        plan: userPlan,
+        subscriptionEndDate: subscriptionEndDate,
+        subscriptionCanceled: false, // 새 구독 시 취소 상태 리셋
+      },
     });
 
     await prisma.paymentHistory.create({

@@ -22,17 +22,8 @@ export async function POST() {
       select: {
         id: true,
         plan: true,
-        interestedCategories: {
-          select: {
-            id: true,
-            categoryId: true,
-            category: {
-              select: {
-                isFree: true,
-              },
-            },
-          },
-        },
+        subscriptionEndDate: true,
+        subscriptionCanceled: true,
       },
     });
 
@@ -43,65 +34,39 @@ export async function POST() {
       );
     }
 
-    if (user.plan !== 'pro') {
+    // 현재 구독 상태 확인
+    const now = new Date();
+    const isSubscriptionActive = user.plan === 'pro' &&
+      (!user.subscriptionEndDate || user.subscriptionEndDate > now);
+
+    if (!isSubscriptionActive) {
       return NextResponse.json(
-        { error: "User is not on pro plan" },
+        { error: "User does not have an active pro subscription" },
         { status: 400 }
       );
     }
 
-    // 트랜잭션으로 요금제 취소 처리
-    await prisma.$transaction(async (tx) => {
-      // 1. 사용자 요금제를 무료로 변경
-      await tx.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          plan: 'free',
-        },
-      });
-
-      // 2. 프리미엄 카테고리 관심 목록 제거
-      const premiumCategories = user.interestedCategories.filter(
-        (ic) => !ic.category.isFree
+    if (user.subscriptionCanceled) {
+      return NextResponse.json(
+        { error: "Subscription is already canceled" },
+        { status: 400 }
       );
+    }
 
-      if (premiumCategories.length > 0) {
-        await tx.userInterestedCategory.deleteMany({
-          where: {
-            userId: user.id,
-            categoryId: {
-              in: premiumCategories.map((ic) => ic.categoryId),
-            },
-          },
-        });
-      }
-
-      // 3. 무료 카테고리가 3개를 초과하는 경우, 최신 3개만 유지
-      const freeCategories = user.interestedCategories.filter(
-        (ic) => ic.category.isFree
-      ).sort((a, b) => b.id - a.id); // ID 기준으로 최신순 정렬
-
-      if (freeCategories.length > 3) {
-        const categoriesToKeep = freeCategories.slice(0, 3).map(ic => ic.id);
-        await tx.userInterestedCategory.deleteMany({
-          where: {
-            userId: user.id,
-            id: {
-              notIn: categoriesToKeep,
-            },
-            category: {
-              isFree: true,
-            },
-          },
-        });
-      }
+    // 구독 취소 표시 (즉시 해지하지 않고 종료일까지 유지)
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        subscriptionCanceled: true,
+      },
     });
 
     return NextResponse.json({
       success: true,
       message: "Subscription canceled successfully",
+      subscriptionEndDate: user.subscriptionEndDate,
     });
   } catch (error) {
     console.error("Error canceling subscription:", error);
