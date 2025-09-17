@@ -64,7 +64,7 @@ export default function PricingCard({
         <SubscriptionButton
           itemName={`${title} 월간 구독`}
           amount={price}
-          plan={plan}
+          plan={plan === 'basic' ? 'premium' : plan}
           className={`w-full py-3 px-4 rounded-md font-semibold transition-colors ${
             highlighted
               ? 'bg-white text-purple-600 hover:bg-gray-100'

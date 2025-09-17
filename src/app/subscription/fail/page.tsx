@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function SubscriptionFailPage() {
+function SubscriptionFailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const error = searchParams?.get('error');
@@ -104,5 +104,17 @@ export default function SubscriptionFailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SubscriptionFailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <SubscriptionFailContent />
+    </Suspense>
   );
 }

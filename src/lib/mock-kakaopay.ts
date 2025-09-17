@@ -91,9 +91,9 @@ export class MockKakaoPayAPI {
         greenDeposit: 0
       },
       canceledAmount: {
-        total: params.cancelAmount,
+        total: params.cancelAmount as number,
         taxFree: 0,
-        vat: Math.floor(params.cancelAmount / 11),
+        vat: Math.floor((params.cancelAmount as number) / 11),
         point: 0,
         discount: 0,
         greenDeposit: 0

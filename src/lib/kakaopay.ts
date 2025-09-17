@@ -99,7 +99,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.ready(params);
+      return await mockKakaoPayAPI.ready(params as unknown as Record<string, unknown>);
     }
 
     try {
@@ -150,7 +150,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.approve(params);
+      return await mockKakaoPayAPI.approve(params as unknown as Record<string, unknown>);
     }
 
     try {
@@ -300,7 +300,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.subscriptionReady(params);
+      return await mockKakaoPayAPI.subscriptionReady(params as unknown as Record<string, unknown>);
     }
 
     try {
@@ -353,7 +353,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.subscriptionApprove(params);
+      return await mockKakaoPayAPI.subscriptionApprove(params as unknown as Record<string, unknown>);
     }
 
     try {
@@ -411,7 +411,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.subscriptionStatus(params);
+      return await mockKakaoPayAPI.subscriptionStatus(params as unknown as Record<string, unknown>);
     }
 
     try {
@@ -460,7 +460,7 @@ export class KakaoPayAPI {
     // Mock 모드인 경우 가짜 응답 반환
     if (this.isMockMode()) {
       const { mockKakaoPayAPI } = await import('./mock-kakaopay');
-      return await mockKakaoPayAPI.subscriptionInactive(params);
+      return await mockKakaoPayAPI.subscriptionInactive(params as unknown as Record<string, unknown>);
     }
 
     try {

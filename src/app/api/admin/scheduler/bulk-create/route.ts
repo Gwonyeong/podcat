@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
           promptMode: template.promptMode,
           usePerplexity: template.promptMode === 'perplexity',
           perplexitySystemPrompt: template.perplexitySystemPrompt || null,
-          topicList: template.topicList || null,
+          topicList: template.topicList ? template.topicList : undefined,
           currentTopicIndex: 0,
           publishDateOffset: template.publishDateOffset || 0
         };

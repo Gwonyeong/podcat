@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     if (!paymentResult.success || !paymentResult.tid) {
       return NextResponse.json(
-        { error: paymentResult.error || 'Payment initialization failed' },
+        { error: 'error' in paymentResult ? paymentResult.error : 'Payment initialization failed' },
         { status: 500 }
       );
     }

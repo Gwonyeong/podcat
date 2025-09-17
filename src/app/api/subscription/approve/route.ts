@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
           action: 'subscription_approve',
           amount: subscription.amount,
           paymentMethodType: approveResult.paymentMethodType,
-          cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : null,
+          cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : undefined,
         },
       });
     }

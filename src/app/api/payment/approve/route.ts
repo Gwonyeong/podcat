@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         action: 'approve',
         amount: payment.totalAmount,
         paymentMethodType: approveResult.paymentMethodType,
-        cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : null,
+        cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : undefined,
       },
     });
 
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
         action: 'approve',
         amount: payment.totalAmount,
         paymentMethodType: approveResult.paymentMethodType,
-        cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : null,
+        cardInfo: approveResult.cardInfo ? JSON.stringify(approveResult.cardInfo) : undefined,
       },
     });
 
