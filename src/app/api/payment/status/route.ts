@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: any = { userId: session.user.id };
+    const where: Record<string, unknown> = { userId: session.user.id };
     if (paymentId) {
       where.id = paymentId;
     } else if (tid) {

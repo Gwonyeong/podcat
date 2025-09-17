@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation'; // 현재 사용하지 않음
 import { useSession, signIn } from 'next-auth/react';
 
 interface PaymentButtonProps {
   itemName: string;
   amount: number;
   plan?: 'free' | 'premium';
+  paymentType?: 'onetime' | 'subscription'; // 결제 유형 추가
   className?: string;
   children: React.ReactNode;
 }
@@ -16,10 +17,11 @@ export default function PaymentButton({
   itemName,
   amount,
   plan = 'free',
+  paymentType = 'onetime',
   className = '',
   children,
 }: PaymentButtonProps) {
-  const router = useRouter();
+  // const router = useRouter(); // 현재 사용하지 않음
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,8 @@ export default function PaymentButton({
 
     // 개발 환경에서 Mock 모드임을 알림
     const isDev = process.env.NODE_ENV !== 'production';
-    if (isDev && !confirm('🧪 테스트 모드입니다.\n실제 결제가 이루어지지 않습니다.\n\n계속 진행하시겠습니까?')) {
+    const paymentTypeText = paymentType === 'subscription' ? '정기결제' : '일회성 결제';
+    if (isDev && !confirm(`🧪 테스트 모드입니다.\n실제 ${paymentTypeText}가 이루어지지 않습니다.\n\n계속 진행하시겠습니까?`)) {
       return;
     }
 
@@ -40,7 +43,10 @@ export default function PaymentButton({
     setError(null);
 
     try {
-      const response = await fetch('/api/payment/ready', {
+      // 결제 유형에 따라 다른 API 엔드포인트 사용
+      const apiEndpoint = paymentType === 'subscription' ? '/api/subscription/ready' : '/api/payment/ready';
+
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

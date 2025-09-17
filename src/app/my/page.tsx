@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/ui/BottomNav";
-import PaymentButton from "@/components/payment/PaymentButton";
+import SubscriptionButton from "@/components/payment/SubscriptionButton";
 
 interface InterestedCategory {
   id: number;
@@ -280,14 +280,56 @@ export default function MyPage() {
                 <span className="text-sm opacity-75">/월</span>
               </div>
             </div>
-            <PaymentButton
+            <SubscriptionButton
               itemName="프리미엄 월간 구독"
               amount={2900}
               plan="premium"
               className="w-full py-3 px-4 bg-white text-purple-600 rounded-lg font-bold hover:bg-gray-50 transition-colors"
             >
-              지금 시작하기
-            </PaymentButton>
+              정기 구독하기
+            </SubscriptionButton>
+          </div>
+        )}
+
+        {/* 프리미엄 구독 관리 섹션 - 프로 사용자에게만 표시 */}
+        {userPlan === "pro" && (
+          <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                구독 관리
+              </h3>
+              <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                프리미엄 이용 중
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">구독 상태</p>
+                  <p className="text-sm text-gray-500">
+                    {subscriptionCanceled ? (
+                      <span className="text-orange-600">
+                        {subscriptionEndDate?.toLocaleDateString("ko-KR")}까지 이용 가능 (취소됨)
+                      </span>
+                    ) : (
+                      <span>
+                        다음 결제일: {subscriptionEndDate?.toLocaleDateString("ko-KR")}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => router.push('/subscription/manage')}
+                  className="w-full py-2 px-4 text-sm text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                >
+                  구독 상세 관리
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

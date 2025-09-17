@@ -1,77 +1,105 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { kakaoPayAPI } from '@/lib/kakaopay';
+import prisma from '@/lib/prisma';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    // 사용자의 현재 요금제 확인
-    const user = await prisma.user.findUnique({
+    const body = await request.json();
+    const { reason } = body;
+
+    // 사용자의 활성 구독 찾기
+    const subscription = await prisma.subscription.findFirst({
       where: {
-        email: session.user.email,
-      },
-      select: {
-        id: true,
-        plan: true,
-        subscriptionEndDate: true,
-        subscriptionCanceled: true,
-      },
+        userId: session.user.id,
+        status: 'active'
+      }
     });
 
-    if (!user) {
+    if (!subscription) {
       return NextResponse.json(
-        { error: "User not found" },
+        { error: '활성화된 구독이 없습니다.' },
         { status: 404 }
       );
     }
 
-    // 현재 구독 상태 확인
-    const now = new Date();
-    const isSubscriptionActive = user.plan === 'pro' &&
-      (!user.subscriptionEndDate || user.subscriptionEndDate > now);
+    // 카카오페이 정기결제 비활성화
+    const inactiveResult = await kakaoPayAPI.subscriptionInactive({
+      sid: subscription.sid,
+      inactiveReason: reason || 'USER_CANCEL'
+    });
 
-    if (!isSubscriptionActive) {
+    if (!inactiveResult.success) {
       return NextResponse.json(
-        { error: "User does not have an active pro subscription" },
-        { status: 400 }
+        { error: inactiveResult.error || 'Failed to cancel subscription' },
+        { status: 500 }
       );
     }
 
-    if (user.subscriptionCanceled) {
-      return NextResponse.json(
-        { error: "Subscription is already canceled" },
-        { status: 400 }
-      );
-    }
-
-    // 구독 취소 표시 (즉시 해지하지 않고 종료일까지 유지)
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
+    // 구독 상태 업데이트
+    await prisma.subscription.update({
+      where: { id: subscription.id },
       data: {
-        subscriptionCanceled: true,
-      },
+        status: 'inactive',
+        inactiveReason: reason || 'USER_CANCEL',
+        inactiveAt: new Date()
+      }
+    });
+
+    // 사용자 구독 취소 상태 업데이트
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        subscriptionCanceled: true
+      }
+    });
+
+    // 취소 이력 저장
+    const cancelPayment = await prisma.payment.create({
+      data: {
+        userId: session.user.id,
+        tid: `CANCEL_${subscription.sid}_${Date.now()}`,
+        cid: subscription.cid,
+        partnerOrderId: `CANCEL_ORDER_${Date.now()}`,
+        partnerUserId: session.user.id,
+        itemName: `${subscription.itemName} - 구독 취소`,
+        quantity: 1,
+        totalAmount: 0,
+        status: 'cancelled',
+        paymentType: 'subscription',
+        subscriptionId: subscription.id,
+      }
+    });
+
+    await prisma.paymentHistory.create({
+      data: {
+        paymentId: cancelPayment.id,
+        userId: session.user.id,
+        action: 'subscription_cancel',
+        errorMessage: reason || 'USER_CANCEL'
+      }
     });
 
     return NextResponse.json({
       success: true,
-      message: "Subscription canceled successfully",
-      subscriptionEndDate: user.subscriptionEndDate,
+      message: '구독이 성공적으로 취소되었습니다.',
+      canceledAt: inactiveResult.inactiveAt,
+      lastPaymentAt: inactiveResult.lastPaymentAt
     });
   } catch (error) {
-    console.error("Error canceling subscription:", error);
+    console.error('Subscription cancel error:', error);
     return NextResponse.json(
-      { error: "Error canceling subscription" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

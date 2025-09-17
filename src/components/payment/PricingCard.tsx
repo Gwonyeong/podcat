@@ -1,6 +1,6 @@
 'use client';
 
-import PaymentButton from './PaymentButton';
+import SubscriptionButton from './SubscriptionButton';
 
 interface PricingCardProps {
   title: string;
@@ -61,8 +61,8 @@ export default function PricingCard({
         ))}
       </ul>
       {price > 0 && (
-        <PaymentButton
-          itemName={`${title} 플랜`}
+        <SubscriptionButton
+          itemName={`${title} 월간 구독`}
           amount={price}
           plan={plan}
           className={`w-full py-3 px-4 rounded-md font-semibold transition-colors ${
@@ -71,8 +71,8 @@ export default function PricingCard({
               : 'bg-purple-600 text-white hover:bg-purple-700'
           }`}
         >
-          구독하기
-        </PaymentButton>
+          정기 구독하기
+        </SubscriptionButton>
       )}
       {price === 0 && (
         <div className="w-full py-3 px-4 rounded-md font-semibold text-center bg-gray-100 text-gray-500">
