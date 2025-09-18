@@ -202,7 +202,7 @@ async function generateScript(
   contentPrompt?: string
 ): Promise<{ script: string; title: string; usedTopic?: Topic }> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     let finalPrompt = contentPrompt || scheduler.prompt;
     let usedTopic: Topic | undefined;
 
