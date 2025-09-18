@@ -63,7 +63,9 @@ interface Audio {
 export default function MainPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [selectedWeek, setSelectedWeek] = useState<WeekRange>(getWeekRange(new Date()));
+  const [selectedWeek, setSelectedWeek] = useState<WeekRange>(
+    getWeekRange(new Date())
+  );
   const [audios, setAudios] = useState<Audio[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
@@ -79,7 +81,8 @@ export default function MainPage() {
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 상태
   const [todayTracks, setTodayTracks] = useState<Audio[]>([]); // 오늘의 트랙들
   const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false); // 문의 모달 상태
-  const { addToPlaylist, setCurrentAudio, replacePlaylist, setPlaying } = usePlaylistStore();
+  const { addToPlaylist, setCurrentAudio, replacePlaylist, setPlaying } =
+    usePlaylistStore();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -94,20 +97,22 @@ export default function MainPage() {
     return audios.filter((audio) => {
       const audioDate = new Date(audio.publishDate);
       audioDate.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 정규화
-      
+
       const start = new Date(startOfWeek);
       start.setHours(0, 0, 0, 0);
-      
+
       const end = new Date(endOfWeek);
       end.setHours(23, 59, 59, 999); // 종료일은 23:59:59로 설정
-      
+
       const isInWeekRange = audioDate >= start && audioDate <= end;
-      
+
       // 무료 콘텐츠 모두 보기가 꺼져있으면 관심 카테고리 필터링 적용
       if (!showAllContent && audio.category.isFree) {
-        return isInWeekRange && interestedCategoryIds.includes(audio.category.id);
+        return (
+          isInWeekRange && interestedCategoryIds.includes(audio.category.id)
+        );
       }
-      
+
       return isInWeekRange;
     });
   };
@@ -117,7 +122,7 @@ export default function MainPage() {
     const [startDate] = weekRange;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // 오디오 데이터를 날짜별로 그룹핑
     const grouped: { [date: string]: Audio[] } = {};
     tracks.forEach((track) => {
@@ -131,41 +136,42 @@ export default function MainPage() {
     });
 
     // 한 주의 날짜 생성 (일요일부터 오늘까지만)
-    const weekDays: Array<{ date: Date; tracks: Audio[]; isEmpty: boolean }> = [];
-    
+    const weekDays: Array<{ date: Date; tracks: Audio[]; isEmpty: boolean }> =
+      [];
+
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
       currentDate.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 설정
-      
+
       // 미래 날짜는 제외 (오늘은 포함)
       if (currentDate.getTime() > today.getTime()) {
         break;
       }
-      
+
       const dateKey = currentDate.toDateString();
-      
+
       weekDays.push({
         date: new Date(currentDate),
         tracks: grouped[dateKey] || [],
-        isEmpty: !grouped[dateKey] || grouped[dateKey].length === 0
+        isEmpty: !grouped[dateKey] || grouped[dateKey].length === 0,
       });
     }
 
     // 정렬: 오늘을 첫 번째로, 나머지는 역순으로
-    const todayIndex = weekDays.findIndex(day => 
-      day.date.toDateString() === today.toDateString()
+    const todayIndex = weekDays.findIndex(
+      (day) => day.date.toDateString() === today.toDateString()
     );
-    
+
     if (todayIndex !== -1) {
       const todayEntry = weekDays[todayIndex];
       const otherEntries = weekDays
         .filter((_, index) => index !== todayIndex)
         .reverse(); // 역순으로 정렬
-      
+
       return [todayEntry, ...otherEntries];
     }
-    
+
     return weekDays.reverse(); // 오늘이 없으면 전체를 역순으로
   };
 
@@ -179,7 +185,6 @@ export default function MainPage() {
     }
     setExpandedDays(newExpanded);
   };
-
 
   // 이전/다음 주로 이동하는 함수들
   const goToPreviousWeek = () => {
@@ -204,8 +209,8 @@ export default function MainPage() {
   const fetchUserData = useCallback(async () => {
     try {
       const response = await fetch(`/api/user/interested-categories`, {
-        cache: 'force-cache', // 캐시 활용
-        next: { revalidate: 60 } // 60초마다 재검증
+        cache: "force-cache", // 캐시 활용
+        next: { revalidate: 60 }, // 60초마다 재검증
       });
       if (response.ok) {
         const data = await response.json();
@@ -224,8 +229,8 @@ export default function MainPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/audio`, {
-        cache: 'force-cache', // 캐시 활용
-        next: { revalidate: 30 } // 30초마다 재검증
+        cache: "force-cache", // 캐시 활용
+        next: { revalidate: 30 }, // 30초마다 재검증
       });
       if (res.ok) {
         const data = await res.json();
@@ -246,16 +251,18 @@ export default function MainPage() {
   useEffect(() => {
     let isSubscribed = true; // cleanup을 위한 플래그
     let hasFetched = false; // 중복 호출 방지 플래그
-    
-    if (status === "authenticated" && session?.user?.id && isSubscribed && !hasFetched) {
+
+    if (
+      status === "authenticated" &&
+      session?.user?.id &&
+      isSubscribed &&
+      !hasFetched
+    ) {
       hasFetched = true;
       // 초기 로드 시 한 번만 호출
-      Promise.all([
-        fetchUserData(),
-        fetchAudios()
-      ]);
+      Promise.all([fetchUserData(), fetchAudios()]);
     }
-    
+
     return () => {
       isSubscribed = false; // cleanup 시 플래그 해제
     };
@@ -295,7 +302,7 @@ export default function MainPage() {
     if (selectedAudio) {
       const { currentAudio, isPlaying } = usePlaylistStore.getState();
       addToPlaylist(selectedAudio);
-      
+
       // 현재 재생 중인 오디오가 없을 때만 자동 재생
       if (!currentAudio || !isPlaying) {
         setCurrentAudio(selectedAudio);
@@ -337,7 +344,6 @@ export default function MainPage() {
   const selectedTracks = getTracksForWeek(selectedWeek);
   const fullWeekDays = getFullWeekDays(selectedWeek, selectedTracks);
 
-
   return (
     <div className="main-container pb-20">
       <header className="flex justify-between items-center mb-2 px-4">
@@ -352,13 +358,23 @@ export default function MainPage() {
         </div>
         <div className="flex items-center space-x-2">
           <PWAInstallButton />
-          <button 
+          <button
             onClick={() => setShowInquiryModal(true)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="문의하기"
           >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg
+              className="w-6 h-6 text-gray-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
             </svg>
           </button>
         </div>
@@ -370,35 +386,66 @@ export default function MainPage() {
           onClick={goToPreviousWeek}
           className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
         >
-          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
-        
+
         <div className="text-center flex-1 mx-4">
           <div>
             <div className="text-lg font-semibold text-gray-800">
-              {selectedWeek[0].toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} ~ {selectedWeek[1].toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
+              {selectedWeek[0].toLocaleDateString("ko-KR", {
+                month: "long",
+                day: "numeric",
+              })}{" "}
+              ~{" "}
+              {selectedWeek[1].toLocaleDateString("ko-KR", {
+                month: "long",
+                day: "numeric",
+              })}
             </div>
             <div className="text-sm text-gray-500">
-              {selectedWeek[0].getFullYear()}년 {getWeekNumber(selectedWeek[0])}주차
+              {selectedWeek[0].getFullYear()}년 {getWeekNumber(selectedWeek[0])}
+              주차
             </div>
           </div>
         </div>
-        
+
         <button
           onClick={goToNextWeek}
           className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
         >
-          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       </div>
 
       {/* 오늘 주로 이동 버튼 - 현재 주가 아닐 때만 표시 */}
-      {(selectedWeek[0].toDateString() !== getStartOfWeek(new Date()).toDateString() || 
-        selectedWeek[1].toDateString() !== getEndOfWeek(new Date()).toDateString()) && (
+      {(selectedWeek[0].toDateString() !==
+        getStartOfWeek(new Date()).toDateString() ||
+        selectedWeek[1].toDateString() !==
+          getEndOfWeek(new Date()).toDateString()) && (
         <div className="text-center mb-8">
           <button
             onClick={goToCurrentWeek}
@@ -412,20 +459,24 @@ export default function MainPage() {
       {/* 무료 콘텐츠 모두 보기 토글 */}
       <div className="flex justify-end mb-4">
         <div className="flex items-center space-x-2">
-          <span className={`text-sm font-medium transition-colors ${
-            showAllContent ? 'text-indigo-600' : 'text-gray-500'
-          }`}>
-            {showAllContent ? '무료 콘텐츠 모두 보기' : '관심있는 카테고리 콘텐츠만 보기'}
+          <span
+            className={`text-sm font-medium transition-colors ${
+              showAllContent ? "text-indigo-600" : "text-gray-500"
+            }`}
+          >
+            {showAllContent
+              ? "무료 콘텐츠 모두 보기"
+              : "관심있는 카테고리 콘텐츠만 보기"}
           </span>
           <button
             onClick={() => setShowAllContent(!showAllContent)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-              showAllContent ? 'bg-indigo-600' : 'bg-gray-200'
+              showAllContent ? "bg-indigo-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                showAllContent ? 'translate-x-6' : 'translate-x-1'
+                showAllContent ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -441,39 +492,53 @@ export default function MainPage() {
         ) : (
           <div className="space-y-4 mb-40">
             {fullWeekDays.map((dayData) => {
-              const { date: displayDate, tracks: dailyTracks, isEmpty } = dayData;
+              const {
+                date: displayDate,
+                tracks: dailyTracks,
+                isEmpty,
+              } = dayData;
               const dateKey = displayDate.toDateString();
               const isExpanded = expandedDays.has(dateKey);
-              const isToday = displayDate.toDateString() === new Date().toDateString();
-              
+              const isToday =
+                displayDate.toDateString() === new Date().toDateString();
+
               return (
-                <div key={dateKey} className={`rounded-lg shadow-sm border transition-all duration-200 ${
-                  isEmpty 
-                    ? 'bg-gray-50 border-gray-200' 
-                    : 'bg-white border-gray-100'
-                }`}>
+                <div
+                  key={dateKey}
+                  className={`rounded-lg shadow-sm border transition-all duration-200 ${
+                    isEmpty
+                      ? "bg-gray-50 border-gray-200"
+                      : "bg-white border-gray-100"
+                  }`}
+                >
                   {/* 토글 헤더 */}
                   <button
                     onClick={() => !isEmpty && toggleDayExpansion(dateKey)}
                     className={`w-full p-4 flex items-center justify-between transition-colors rounded-lg ${
-                      isEmpty 
-                        ? 'cursor-default' 
-                        : 'hover:bg-gray-50 cursor-pointer'
+                      isEmpty
+                        ? "cursor-default"
+                        : "hover:bg-gray-50 cursor-pointer"
                     }`}
                     disabled={isEmpty}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className={`text-left ${isEmpty ? 'opacity-50' : ''}`}>
-                        <h3 className={`text-lg font-bold ${
-                          isEmpty 
-                            ? 'text-gray-400' 
-                            : isToday 
-                              ? 'text-indigo-600' 
-                              : 'text-gray-800'
-                        }`}>
-                          {isToday ? '오늘' : displayDate.toLocaleDateString("ko-KR", {
-                            weekday: "long",
-                          })}
+                      <div
+                        className={`text-left ${isEmpty ? "opacity-50" : ""}`}
+                      >
+                        <h3
+                          className={`text-lg font-bold ${
+                            isEmpty
+                              ? "text-gray-400"
+                              : isToday
+                              ? "text-indigo-600"
+                              : "text-gray-800"
+                          }`}
+                        >
+                          {isToday
+                            ? "오늘"
+                            : displayDate.toLocaleDateString("ko-KR", {
+                                weekday: "long",
+                              })}
                           {!isToday && (
                             <span className="ml-2 text-sm font-medium">
                               {displayDate.toLocaleDateString("ko-KR", {
@@ -493,39 +558,52 @@ export default function MainPage() {
                           </p>
                         )}
                       </div>
-                      <div className={`flex-1 h-px ${
-                        isEmpty ? 'bg-gray-200' : 'bg-gray-200'
-                      }`}></div>
-                      
+                      <div
+                        className={`flex-1 h-px ${
+                          isEmpty ? "bg-gray-200" : "bg-gray-200"
+                        }`}
+                      ></div>
+
                       {isEmpty ? (
                         <span className="text-sm px-3 py-1 rounded-full text-gray-400 bg-gray-200 flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                           </svg>
                           준비중
                         </span>
                       ) : (
-                        <span className={`text-sm px-3 py-1 rounded-full ${
-                          isToday 
-                            ? 'text-indigo-700 bg-indigo-100' 
-                            : 'text-gray-500 bg-gray-100'
-                        }`}>
+                        <span
+                          className={`text-sm px-3 py-1 rounded-full ${
+                            isToday
+                              ? "text-indigo-700 bg-indigo-100"
+                              : "text-gray-500 bg-gray-100"
+                          }`}
+                        >
                           {dailyTracks.length}개 에피소드
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center ml-4">
                       {!isEmpty && (
                         <svg
                           className={`w-5 h-5 transition-transform ${
-                            isExpanded ? 'rotate-180' : ''
+                            isExpanded ? "rotate-180" : ""
                           } text-gray-500`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
                         </svg>
                       )}
                     </div>
@@ -538,11 +616,23 @@ export default function MainPage() {
                       {isToday && dailyTracks.length > 0 && (
                         <div className="mb-4">
                           <button
-                            onClick={() => handleReplaceWithTodayContent(dailyTracks)}
+                            onClick={() =>
+                              handleReplaceWithTodayContent(dailyTracks)
+                            }
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                              />
                             </svg>
                             <span>오늘의 콘텐츠로 플레이리스트 변경</span>
                           </button>
@@ -571,11 +661,13 @@ export default function MainPage() {
                                     >
                                       <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                     </svg>
-                                    <p className="text-xs font-medium">제한된 콘텐츠</p>
+                                    <p className="text-xs font-medium">
+                                      제한된 콘텐츠
+                                    </p>
                                   </div>
                                 </div>
                               )}
-                              
+
                               {/* 썸네일 영역 - 1:1 비율 유지, 크기 확대 */}
                               <div className="flex-shrink-0 w-28 h-28 relative">
                                 {audio.imageUrl ? (
@@ -598,14 +690,17 @@ export default function MainPage() {
                                     </svg>
                                   </div>
                                 )}
-                                
+
                                 {/* 재생 시간 - 썸네일 좌측 하단 */}
                                 {audio.duration && (
                                   <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                                    {Math.floor(audio.duration / 60)}:{(audio.duration % 60).toString().padStart(2, '0')}
+                                    {Math.floor(audio.duration / 60)}:
+                                    {(audio.duration % 60)
+                                      .toString()
+                                      .padStart(2, "0")}
                                   </div>
                                 )}
-                                
+
                                 {/* 진행자 이미지 - 썸네일 우측 아래 */}
                                 {audio.category.presenterImage && (
                                   <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-lg bg-white">
@@ -618,7 +713,7 @@ export default function MainPage() {
                                   </div>
                                 )}
                               </div>
-                              
+
                               {/* 콘텐츠 영역 */}
                               <div className="flex-1 p-4 min-w-0">
                                 {/* 데스크톱: 제목과 카테고리 같은 줄 / 모바일: 제목 전체 너비 사용 */}
@@ -662,15 +757,17 @@ export default function MainPage() {
         >
           <div className="text-gray-800 -mx-6 -mb-6 ">
             {/* 앨범 커버 섹션 */}
-            <div className="relative group cursor-pointer"
-                 onClick={() => {
-                   if (selectedAudio) {
-                     addToPlaylist(selectedAudio);
-                     setCurrentAudio(selectedAudio);
-                     setPlaying(true);
-                   }
-                   handleModalClose();
-                 }}>
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => {
+                if (selectedAudio) {
+                  addToPlaylist(selectedAudio);
+                  setCurrentAudio(selectedAudio);
+                  setPlaying(true);
+                }
+                handleModalClose();
+              }}
+            >
               {selectedAudio.imageUrl ? (
                 <div className="relative w-full h-64 bg-gradient-to-b from-gray-900 to-gray-700">
                   <Image
@@ -845,17 +942,30 @@ export default function MainPage() {
           <div className="bg-white rounded-lg p-6 mx-4 max-w-sm w-full">
             <div className="text-center">
               <div className="mb-4">
-                <svg className="w-12 h-12 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                <svg
+                  className="w-12 h-12 mx-auto text-orange-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 플레이리스트 변경 확인
               </h3>
               <p className="text-gray-600 mb-6">
-                현재 플레이리스트를 오늘의 콘텐츠({todayTracks.length}개)로 변경하시겠습니까?
+                현재 플레이리스트를 오늘의 콘텐츠({todayTracks.length}개)로
+                변경하시겠습니까?
                 <br />
-                <span className="text-sm text-gray-500">기존 플레이리스트는 삭제됩니다.</span>
+                <span className="text-sm text-gray-500">
+                  기존 플레이리스트는 삭제됩니다.
+                </span>
               </p>
               <div className="flex space-x-3">
                 <button
@@ -877,10 +987,33 @@ export default function MainPage() {
       )}
 
       {/* 문의 모달 */}
-      <InquiryModal 
-        isOpen={showInquiryModal} 
-        onClose={() => setShowInquiryModal(false)} 
+      <InquiryModal
+        isOpen={showInquiryModal}
+        onClose={() => setShowInquiryModal(false)}
       />
+
+      {/* 사업자 정보 */}
+      <div className="bg-gray-50 border-t border-gray-200 px-4 py-6 pb-20">
+        <div className="max-w-lg mx-auto text-center">
+          <p className="text-xs text-gray-500 mb-2">
+            사업자등록번호: 467-15-02791
+          </p>
+          <p className="text-xs text-gray-500 mb-2">
+            상호명: 파드켓 | 대표자명: 조권영
+          </p>
+          <p className="text-xs text-gray-500 mb-4">전화번호: 010-5418-3486</p>
+
+          {/* 이용약관 링크 */}
+          <div className="border-t border-gray-200 pt-4">
+            <button
+              onClick={() => router.push('/terms')}
+              className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors"
+            >
+              이용약관
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* 하단 네비게이션 바 */}
       <BottomNav />

@@ -42,6 +42,8 @@ model User {
   emailVerified          DateTime?
   image                  String?
   plan                   String                   @default("free")
+  subscriptionEndDate    DateTime?                // 구독 종료 예정일
+  subscriptionCanceled   Boolean                  @default(false) // 구독 취소 여부
   isAdmin                Boolean                  @default(false)
   accounts               Account[]
   sessions               Session[]
@@ -50,6 +52,9 @@ model User {
   reservedMessages       ReservedMessage[]
   interestedCategories   UserInterestedCategory[]
   inquiries              Inquiry[]
+  payments               Payment[]
+  paymentHistories       PaymentHistory[]
+  subscriptions          Subscription[]
 }
 
 model VerificationToken {
@@ -213,4 +218,70 @@ model GeneratedAudio {
   audio       Audio          @relation(fields: [audioId], references: [id], onDelete: Cascade)
 
   @@map("generated_audios")
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  userId           String
+  tid              String        @unique
+  cid              String
+  partnerOrderId   String
+  partnerUserId    String
+  itemName         String
+  quantity         Int
+  totalAmount      Int
+  taxFreeAmount    Int           @default(0)
+  vatAmount        Int           @default(0)
+  status           String        @default("ready") // ready, approved, failed, cancelled
+  paymentMethodType String?
+  paymentType      String        @default("onetime") // onetime, subscription
+  subscriptionId   String?       // 정기결제인 경우 구독 ID 연결
+  approvedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription     Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  paymentHistory   PaymentHistory[]
+
+  @@map("payments")
+}
+
+model PaymentHistory {
+  id               String   @id @default(cuid())
+  paymentId        String
+  userId           String
+  action           String   // ready, approve, cancel, fail
+  amount           Int?
+  paymentMethodType String?
+  cardInfo         Json?
+  errorCode        String?
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  payment          Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_histories")
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String
+  sid               String    @unique // 카카오페이 구독 ID
+  cid               String    // 가맹점 코드
+  status            String    @default("active") // active, inactive, suspended
+  billingCycle      String    @default("monthly") // monthly, yearly
+  amount            Int       // 정기결제 금액
+  taxFreeAmount     Int       @default(0)
+  vatAmount         Int       @default(0)
+  itemName          String    // 상품명
+  nextBillingDate   DateTime? // 다음 결제 예정일
+  lastBillingDate   DateTime? // 마지막 결제일
+  inactiveReason    String?   // 비활성화 사유
+  inactiveAt        DateTime? // 비활성화 일시
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments          Payment[] // 해당 구독의 결제 이력들
+
+  @@map("subscriptions")
 }
