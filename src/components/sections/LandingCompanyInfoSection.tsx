@@ -2,7 +2,7 @@
 
 export default function LandingCompanyInfoSection() {
   const companyStats = [
-    { number: "10K+", label: "활성 구독자", icon: "👥" },
+    { number: "10K+", label: "활성 사용자", icon: "👥" },
     { number: "50K+", label: "생성된 뉴스레터", icon: "📰" },
     { number: "99.9%", label: "서비스 가동률", icon: "⚡" },
     { number: "24/7", label: "AI 큐레이션", icon: "🤖" },

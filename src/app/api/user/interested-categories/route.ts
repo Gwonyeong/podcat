@@ -25,21 +25,7 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // 구독 상태 확인
-    const now = new Date();
-    const isSubscriptionActive = user.plan === 'pro' &&
-      (!user.subscriptionEndDate || user.subscriptionEndDate > now);
-
-    // 구독이 만료된 경우 무료 요금제로 변경
-    let currentPlan = user.plan;
-    if (user.plan === 'pro' && !isSubscriptionActive) {
-      currentPlan = 'free';
-      // 백그라운드에서 업데이트 (응답 속도를 위해 await 하지 않음)
-      prisma.user.update({
-        where: { id: user.id },
-        data: { plan: 'free' },
-      });
-    }
+    const currentPlan = user.plan;
 
     const interestedCategories = user.interestedCategories.map(
       (ic) => ic.category
@@ -48,8 +34,6 @@ export async function GET() {
     const response = NextResponse.json({
       interestedCategories,
       plan: currentPlan,
-      subscriptionEndDate: user.subscriptionEndDate,
-      subscriptionCanceled: user.subscriptionCanceled,
     });
     
     // 캐싱 방지 헤더 설정
@@ -94,12 +78,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // 구독 상태 확인
-    const now = new Date();
-    const isSubscriptionActive = user.plan === 'pro' &&
-      (!user.subscriptionEndDate || user.subscriptionEndDate > now);
-
-    const currentPlan = (user.plan === 'pro' && isSubscriptionActive) ? 'pro' : 'free';
+    const currentPlan = user.plan;
 
     // 무료 요금제는 최대 3개 카테고리만 선택 가능
     if (currentPlan === "free" && categoryIds.length > 3) {
@@ -144,8 +123,6 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       interestedCategories,
       plan: currentPlan,
-      subscriptionEndDate: user.subscriptionEndDate,
-      subscriptionCanceled: user.subscriptionCanceled,
     });
     
     // 캐싱 방지 헤더 설정

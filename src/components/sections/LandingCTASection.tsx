@@ -11,7 +11,7 @@ export default function LandingCTASection() {
     if (email.trim()) {
       setIsSubscribed(true);
       setEmail("");
-      // 실제 구독 로직은 여기에 구현
+      // 실제 신청 로직은 여기에 구현
       setTimeout(() => setIsSubscribed(false), 3000);
     }
   };

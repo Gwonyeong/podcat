@@ -99,9 +99,6 @@ Zustand stores located in `/src/store/`:
   - Audio files stored in `audio/` bucket
   - Thumbnails stored in `thumbnails/` bucket
   - Presenter images stored in `presenter-images/` bucket
-- **Payment System**: KakaoPay integration with support for both single payments and subscriptions
-  - Test CID: TC0ONETIME (single), TCSUBSCRIP (subscription)
-  - Production requires actual CID configuration
 
 ### Environment Variables Required
 ```
@@ -127,11 +124,6 @@ CRON_SECRET          # Secret key for cron job API authentication
 # Slack Notifications
 SLACK_WEBHOOK_URL     # Slack webhook URL for audio generation notifications
 
-# KakaoPay Configuration
-KAKAO_PAY_CID        # Payment CID (test: TC0ONETIME)
-KAKAO_PAY_CID_SUBSCRIPTION # Subscription CID (test: TCSUBSCRIP)
-KAKAO_PAY_ADMIN_KEY  # Admin key for API access
-KAKAO_PAY_API_URL    # KakaoPay API URL
 ```
 
 ### Common Development Tasks
@@ -148,7 +140,7 @@ When adding new API routes:
 
 When working with audio features:
 - Audio model includes title, audioUrl, imageUrl, category, script, description
-- Categories determine access level (free/paid) and have subscription tiers
+- Categories determine access level (free/paid)
 - Admin interface uses tab-based navigation
 
 ### Audio Auto-Generator Features
@@ -199,17 +191,3 @@ The audio auto-generator allows admins to schedule automated content creation:
 7. Audio file is uploaded to Supabase Storage
 8. Audio record is created in database with generated content flag
 
-### Payment & Subscription System
-
-**KakaoPay Integration:**
-- Single payment flow: `/api/payment/ready` → `/api/payment/approve`
-- Subscription flow: `/api/subscription/ready` → `/api/subscription/approve`
-- Auto-renewal handled by KakaoPay's recurring payment system
-- Payment history tracked in `PaymentHistory` model
-- User plan upgrades update `user.plan` and `user.subscriptionEndDate`
-
-**Subscription Features:**
-- Monthly and yearly billing cycles supported
-- Pro tier unlocks premium content categories
-- Subscription cancellation maintains access until period ends
-- Grace period handling for failed payments
