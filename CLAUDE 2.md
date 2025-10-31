@@ -27,7 +27,6 @@ yarn lint
 # Prisma commands
 yarn prisma generate  # Generate Prisma client to /src/generated/prisma
 yarn prisma migrate dev  # Run migrations in development
-yarn prisma db push  # Push schema changes without migration
 yarn prisma studio  # Open Prisma Studio
 ```
 
@@ -39,7 +38,6 @@ yarn prisma studio  # Open Prisma Studio
 - **Authentication**: NextAuth with Kakao OAuth
 - **State Management**: Zustand
 - **Styling**: Tailwind CSS with custom Korean design system
-- **Payment**: KakaoPay integration (single payment & subscription)
 - **TypeScript**: Strict mode enabled
 
 ### Database Schema
@@ -49,8 +47,6 @@ yarn prisma studio  # Open Prisma Studio
 - UserActivity for detailed analytics
 - AudioScheduler model for automated content generation with cron scheduling
 - GeneratedAudio model for tracking AI-generated content
-- Payment & Subscription models for KakaoPay integration
-- PaymentHistory for transaction logging
 
 ### Project Structure
 ```
@@ -63,7 +59,6 @@ src/
 ├── components/       # Reusable UI components
 ├── lib/             # Core utilities (auth, database, utils)
 ├── generated/       # Prisma client output
-├── store/           # Zustand stores
 └── types/           # TypeScript type definitions
 ```
 
@@ -75,8 +70,6 @@ All API routes follow RESTful conventions:
 - `/api/admin/scheduler` - Audio auto-generator scheduler management
 - `/api/cron/generate-audio` - Cron job endpoint for scheduled audio generation
 - `/api/track` - User activity tracking
-- `/api/payment/*` - KakaoPay payment processing
-- `/api/subscription/*` - Subscription management
 
 ### Authentication Flow
 1. NextAuth configured with Kakao provider
@@ -85,9 +78,10 @@ All API routes follow RESTful conventions:
 4. Admin access requires specific user roles
 
 ### State Management
-Zustand stores located in `/src/store/`:
-- `modalStore` - Modal state management
-- `playlistStore` - Audio playlist management
+Zustand stores located in `/src/stores/`:
+- `useMicStore` - Microphone permissions
+- `useStore` - Global application state
+- `useModalStore` - Modal state management
 
 ### Important Implementation Details
 - **Custom Prisma Client**: Always import from `/src/lib/prisma.ts`, not default location
@@ -97,7 +91,7 @@ Zustand stores located in `/src/store/`:
 - **Mobile Optimization**: Bottom sheet UI patterns for mobile devices
 - **File Storage**: Uses Supabase Storage for audio files, thumbnails, and presenter images
   - Audio files stored in `audio/` bucket
-  - Thumbnails stored in `thumbnails/` bucket
+  - Thumbnails stored in `thumbnails/` bucket  
   - Presenter images stored in `presenter-images/` bucket
 
 ### Environment Variables Required
@@ -123,11 +117,6 @@ CRON_SECRET          # Secret key for cron job API authentication
 
 # Slack Notifications
 SLACK_WEBHOOK_URL     # Slack webhook URL for audio generation notifications
-
-# NicePay Configuration
-NICEPAY_CLIENT_ID     # NicePay Client ID for sandbox
-NICEPAY_SECRET_KEY    # NicePay Secret Key for sandbox
-NICEPAY_API_URL       # NicePay API URL (sandbox: https://sandbox-api.nicepay.co.kr)
 ```
 
 ### Common Development Tasks
@@ -194,4 +183,3 @@ The audio auto-generator allows admins to schedule automated content creation:
 6. Thumbnail is fetched from Unsplash based on script content
 7. Audio file is uploaded to Supabase Storage
 8. Audio record is created in database with generated content flag
-

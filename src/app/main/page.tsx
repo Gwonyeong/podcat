@@ -1001,6 +1001,9 @@ export default function MainPage() {
           <p className="text-xs text-gray-500 mb-2">
             상호명: 파드켓 | 대표자명: 조권영
           </p>
+          <p className="text-xs text-gray-500 mb-2">
+            주소: 서울특별시 마포구 월드컵북로 6길 19-10
+          </p>
           <p className="text-xs text-gray-500 mb-4">전화번호: 010-5418-3486</p>
 
           {/* 이용약관 링크 */}

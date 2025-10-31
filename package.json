@@ -14,6 +14,7 @@
     "@prisma/client": "^6.14.0",
     "@supabase/supabase-js": "^2.39.7",
     "@tailwindcss/typography": "^0.5.16",
+    "@tosspayments/payment-sdk": "^1.9.1",
     "@types/node-cron": "^3.0.11",
     "@types/react-calendar": "^4.1.0",
     "cron-converter": "^2.1.0",

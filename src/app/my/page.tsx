@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/ui/BottomNav";
+import TossPaymentButton from "@/components/payment/TossPaymentButton";
 
 interface InterestedCategory {
   id: number;
@@ -201,6 +202,75 @@ export default function MyPage() {
           </div>
         </div>
 
+        {/* 프리미엄 구독 섹션 - 무료 사용자에게만 표시 */}
+        {userPlan === "free" && (
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 shadow-sm text-white">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold mb-2">
+                프리미엄으로 업그레이드
+              </h3>
+              <p className="text-sm opacity-90 mb-3">
+                모든 카테고리 무제한 접근
+              </p>
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center space-x-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm">프리미엄 전용 8개 카테고리</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm">무제한 카테고리 선택</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm">매일 새로운 프리미엄 콘텐츠</span>
+                </div>
+              </div>
+              <div className="flex items-baseline space-x-1 mb-4">
+                <span className="text-3xl font-bold">₩2,900</span>
+                <span className="text-sm opacity-75">/월</span>
+              </div>
+            </div>
+            <TossPaymentButton
+              itemName="프리미엄 월간 구독"
+              amount={2900}
+              plan="premium"
+              className="w-full py-3 px-4 bg-white text-purple-600 rounded-lg font-bold hover:bg-gray-50 transition-colors"
+            >
+              정기 구독하기
+            </TossPaymentButton>
+          </div>
+        )}
 
         {/* 관심 카테고리 섹션 */}
         <div className="bg-white rounded-lg p-6 shadow-sm">
