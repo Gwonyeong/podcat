@@ -355,13 +355,21 @@ export default function MyPage() {
                   </p>
                 )}
                 {subscriptionData?.subscriptionCanceled ? (
-                  <p>
-                    서비스 이용 종료일: <span className="font-medium text-orange-600">
-                      {subscriptionData.subscriptionEndDate &&
-                        new Date(subscriptionData.subscriptionEndDate).toLocaleDateString('ko-KR')
-                      }
-                    </span>
+                  <div className="space-y-1">
+                    <p className="text-orange-600 font-medium">
+                      구독이 취소되었습니다
                     </p>
+                    <p>
+                      서비스 종료일: <span className="font-medium text-orange-600">
+                        {subscriptionData.subscriptionEndDate &&
+                          new Date(subscriptionData.subscriptionEndDate).toLocaleDateString('ko-KR')
+                        }
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      종료일까지 프로 요금제 서비스를 계속 이용하실 수 있습니다.
+                    </p>
+                  </div>
                   ) : subscriptionData?.subscription ? (
                     <p>
                       다음 결제일: <span className="font-medium">

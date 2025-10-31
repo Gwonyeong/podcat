@@ -34,6 +34,28 @@ export async function GET() {
 
     const subscription = user.subscriptions[0];
 
+    // 구독 만료 체크 및 자동 다운그레이드
+    const now = new Date();
+    if (user.subscriptionCanceled && user.subscriptionEndDate && new Date(user.subscriptionEndDate) <= now) {
+      // 구독이 만료된 경우 free 플랜으로 다운그레이드
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          plan: 'free',
+          subscriptionCanceled: false,
+          subscriptionEndDate: null
+        }
+      });
+
+      // 업데이트된 상태 반환
+      return NextResponse.json({
+        plan: 'free',
+        subscriptionCanceled: false,
+        subscriptionEndDate: null,
+        subscription: null
+      });
+    }
+
     return NextResponse.json({
       plan: user.plan,
       subscriptionCanceled: user.subscriptionCanceled || false,

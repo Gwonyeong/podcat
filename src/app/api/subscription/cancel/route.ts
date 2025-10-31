@@ -32,8 +32,8 @@ export async function POST() {
     let tossPaymentsSuccess = true;
     let endDate = null;
 
-    // 토스페이먼츠 빌링키 해지 (구독 정보가 있는 경우만)
-    if (activeSubscription) {
+    // 토스페이먼츠 빌링키 해지 (구독 정보가 있고 유효한 빌링키가 있는 경우만)
+    if (activeSubscription && activeSubscription.billingKey && !activeSubscription.billingKey.startsWith('temp_billing_')) {
       const secretKey = process.env.TOSS_SECRET_KEY;
       if (!secretKey) {
         return NextResponse.json({
@@ -54,9 +54,18 @@ export async function POST() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('토스페이먼츠 빌링키 해지 실패:', errorData);
-        tossPaymentsSuccess = false;
+        // 빌링키 해지 실패해도 구독 취소는 진행 (일반 결제의 경우)
+        if (errorData.code === 'INVALID_BILL_KEY_REQUEST') {
+          console.log('유효하지 않은 빌링키이므로 구독 취소만 진행합니다.');
+        } else {
+          tossPaymentsSuccess = false;
+        }
       }
 
+      endDate = activeSubscription.nextBillingDate;
+    } else if (activeSubscription) {
+      // 빌링키가 없거나 임시 빌링키인 경우 (일반 결제)
+      console.log('빌링키가 없는 구독이므로 구독 취소만 진행합니다.');
       endDate = activeSubscription.nextBillingDate;
     }
 
@@ -79,12 +88,11 @@ export async function POST() {
         );
       }
 
-      // 사용자 정보 업데이트 - plan을 free로 변경
+      // 사용자 정보 업데이트 - 취소 상태만 업데이트, plan은 종료일까지 유지
       transactions.push(
         prisma.user.update({
           where: { id: session.user.id },
           data: {
-            plan: 'free',
             subscriptionCanceled: activeSubscription ? true : false,
             subscriptionEndDate: endDate
           }

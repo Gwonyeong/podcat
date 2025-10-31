@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         prisma.subscription.create({
           data: {
             userId: session.user.id,
-            billingKey: payment.billingKey || `billing_${paymentKey}`, // 토스페이먼츠에서 제공하는 빌링키
+            billingKey: payment.billingKey || `temp_billing_${paymentKey}`, // 일반 결제는 임시 빌링키 사용
             customerKey: customerKey,
             plan: 'pro',
             amount: amount,
