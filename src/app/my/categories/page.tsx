@@ -58,7 +58,7 @@ export default function CategorySelectionPage() {
 
     // 무료 사용자가 유료 카테고리를 선택하려고 하는 경우 방지
     if (userPlan === 'free' && category && !category.isFree) {
-      alert('프리미엄 요금제에서만 이용 가능한 카테고리입니다.');
+      alert('프로 요금제에서만 이용 가능한 카테고리입니다.');
       return;
     }
 
@@ -158,7 +158,7 @@ export default function CategorySelectionPage() {
                       }`
                 }`}
               >
-                {/* 선택 표시 또는 프리미엄 잠금 표시 */}
+                {/* 선택 표시 또는 프로 잠금 표시 */}
                 {isSelected && !isDisabled && (
                   <div className="absolute top-3 right-3 bg-green-500 text-white rounded-full p-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

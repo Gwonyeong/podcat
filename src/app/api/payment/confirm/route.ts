@@ -44,31 +44,39 @@ export async function POST(request: NextRequest) {
     const payment = await response.json();
 
     if (response.ok) {
-      // 결제 성공 - 사용자 플랜 업데이트
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          plan: 'pro'
-        }
-      });
+      // 다음 결제일 (한 달 후)
+      const nextBillingDate = new Date();
+      nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
 
-      // 결제 내역 저장 (필요시 구현)
-      // await prisma.paymentHistory.create({
-      //   data: {
-      //     userId: session.user.id,
-      //     paymentKey,
-      //     orderId,
-      //     amount,
-      //     method: payment.method,
-      //     status: payment.status,
-      //     approvedAt: new Date(payment.approvedAt)
-      //   }
-      // });
+      // 고객키 생성 (사용자 ID 기반)
+      const customerKey = `customer_${session.user.id}`;
+
+      await prisma.$transaction([
+        // 사용자 플랜 업데이트
+        prisma.user.update({
+          where: { id: session.user.id },
+          data: {
+            plan: 'pro'
+          }
+        }),
+        // 구독 정보 저장
+        prisma.subscription.create({
+          data: {
+            userId: session.user.id,
+            billingKey: payment.billingKey || `billing_${paymentKey}`, // 토스페이먼츠에서 제공하는 빌링키
+            customerKey: customerKey,
+            plan: 'pro',
+            amount: amount,
+            status: 'active',
+            nextBillingDate: nextBillingDate
+          }
+        })
+      ]);
 
       return NextResponse.json({
         success: true,
         payment,
-        message: '결제가 완료되었습니다. 프리미엄 서비스를 이용하실 수 있습니다.'
+        message: '결제가 완료되었습니다. 프로 요금제 서비스를 이용하실 수 있습니다.'
       });
     } else {
       console.error('토스페이먼츠 승인 실패:', payment);

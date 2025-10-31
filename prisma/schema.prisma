@@ -42,6 +42,8 @@ model User {
   emailVerified          DateTime?
   image                  String?
   plan                   String                   @default("free")
+  subscriptionEndDate    DateTime?                // 구독 종료 예정일
+  subscriptionCanceled   Boolean                  @default(false) // 구독 취소 여부
   isAdmin                Boolean                  @default(false)
   accounts               Account[]
   sessions               Session[]
@@ -50,6 +52,7 @@ model User {
   reservedMessages       ReservedMessage[]
   interestedCategories   UserInterestedCategory[]
   inquiries              Inquiry[]
+  subscriptions          Subscription[]
 }
 
 model VerificationToken {
@@ -213,5 +216,24 @@ model GeneratedAudio {
   audio       Audio          @relation(fields: [audioId], references: [id], onDelete: Cascade)
 
   @@map("generated_audios")
+}
+
+model Subscription {
+  id               String    @id @default(cuid())
+  userId           String
+  billingKey       String    @unique         // 토스페이먼츠 빌링키
+  customerKey      String                   // 토스페이먼츠 고객키
+  plan             String                   // premium, pro 등
+  amount           Int                      // 월 결제 금액
+  status           String    @default("active") // active, paused, canceled, expired
+  nextBillingDate  DateTime                 // 다음 결제 예정일
+  startedAt        DateTime  @default(now()) // 구독 시작일
+  canceledAt       DateTime?                // 구독 취소일
+  endedAt          DateTime?                // 구독 종료일
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }
 

@@ -17,6 +17,22 @@ interface UserData {
   plan: "free" | "pro";
 }
 
+interface SubscriptionData {
+  plan: string;
+  subscriptionCanceled: boolean;
+  subscriptionEndDate: string | null;
+  subscription: {
+    id: string;
+    plan: string;
+    amount: number;
+    status: string;
+    nextBillingDate: string;
+    startedAt: string;
+    canceledAt: string | null;
+    endedAt: string | null;
+  } | null;
+}
+
 interface ReservedMessage {
   id: number;
   message: string;
@@ -36,8 +52,11 @@ export default function MyPage() {
   );
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showPreparingModal, setShowPreparingModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [newMessageTime, setNewMessageTime] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
+  const [isCanceling, setIsCanceling] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -53,9 +72,10 @@ export default function MyPage() {
 
   const fetchUserData = async () => {
     try {
-      const [categoriesRes, messagesRes] = await Promise.all([
+      const [categoriesRes, messagesRes, subscriptionRes] = await Promise.all([
         fetch("/api/user/interested-categories"),
         fetch("/api/user/reserved-messages"),
+        fetch("/api/subscription/status"),
       ]);
 
       if (categoriesRes.ok) {
@@ -68,10 +88,48 @@ export default function MyPage() {
         const messagesData = await messagesRes.json();
         setReservedMessages(messagesData.reservedMessages);
       }
+
+      if (subscriptionRes.ok) {
+        const subscriptionData: SubscriptionData = await subscriptionRes.json();
+        setSubscriptionData(subscriptionData);
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (userPlan !== 'pro' || isCanceling) return;
+
+    setIsCanceling(true);
+
+    try {
+      const response = await fetch('/api/subscription/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const message = result.endDate
+          ? `구독이 취소되었습니다. ${new Date(result.endDate).toLocaleDateString('ko-KR')}까지 프로 요금제 서비스를 이용하실 수 있습니다.`
+          : '구독이 취소되었습니다.';
+        alert(message);
+        setShowCancelModal(false);
+        fetchUserData(); // 데이터 새로고침
+      } else {
+        alert(`구독 취소 실패: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('구독 취소 오류:', error);
+      alert('구독 취소 중 오류가 발생했습니다.');
+    } finally {
+      setIsCanceling(false);
     }
   };
 
@@ -202,12 +260,12 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 프리미엄 구독 섹션 - 무료 사용자에게만 표시 */}
+        {/* 프로 요금제 구독 섹션 - 무료 사용자에게만 표시 */}
         {userPlan === "free" && (
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 shadow-sm text-white">
             <div className="mb-4">
               <h3 className="text-xl font-bold mb-2">
-                프리미엄으로 업그레이드
+                프로 요금제로 업그레이드
               </h3>
               <p className="text-sm opacity-90 mb-3">
                 모든 카테고리 무제한 접근
@@ -225,7 +283,7 @@ export default function MyPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm">프리미엄 전용 8개 카테고리</span>
+                  <span className="text-sm">프로 요금제 전용 8개 카테고리</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg
@@ -253,7 +311,7 @@ export default function MyPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm">매일 새로운 프리미엄 콘텐츠</span>
+                  <span className="text-sm">매일 새로운 프로 요금제 콘텐츠</span>
                 </div>
               </div>
               <div className="flex items-baseline space-x-1 mb-4">
@@ -262,13 +320,89 @@ export default function MyPage() {
               </div>
             </div>
             <TossPaymentButton
-              itemName="프리미엄 월간 구독"
+              itemName="프로 요금제 월간 구독"
               amount={2900}
               plan="premium"
               className="w-full py-3 px-4 bg-white text-purple-600 rounded-lg font-bold hover:bg-gray-50 transition-colors"
             >
               정기 구독하기
             </TossPaymentButton>
+          </div>
+        )}
+
+        {/* 프로 요금제 구독 관리 섹션 - 프로 요금제 사용자에게 표시 */}
+        {userPlan === "pro" && (
+          <div className="bg-white rounded-lg p-6 shadow-sm">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                구독 관리
+              </h3>
+              <div className="flex items-center space-x-2 mb-3">
+                <span className="inline-flex px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800 font-medium">
+                  프로 요금제
+                </span>
+                {subscriptionData?.subscriptionCanceled && (
+                  <span className="inline-flex px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+                    취소 예정
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2 text-sm text-gray-600">
+                {subscriptionData?.subscription && (
+                  <p>
+                    월 결제 금액: <span className="font-medium">₩{subscriptionData.subscription.amount.toLocaleString()}</span>
+                  </p>
+                )}
+                {subscriptionData?.subscriptionCanceled ? (
+                  <p>
+                    서비스 이용 종료일: <span className="font-medium text-orange-600">
+                      {subscriptionData.subscriptionEndDate &&
+                        new Date(subscriptionData.subscriptionEndDate).toLocaleDateString('ko-KR')
+                      }
+                    </span>
+                    </p>
+                  ) : subscriptionData?.subscription ? (
+                    <p>
+                      다음 결제일: <span className="font-medium">
+                        {new Date(subscriptionData.subscription.nextBillingDate).toLocaleDateString('ko-KR')}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-gray-500">
+                      프로 요금제를 이용 중입니다.
+                    </p>
+                  )}
+                </div>
+            </div>
+
+            {/* 구독 취소 버튼 - 프로 요금제 사용자 */}
+            {userPlan === 'pro' && !subscriptionData?.subscriptionCanceled && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="w-full py-3 px-4 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors border border-red-200"
+              >
+                구독 취소하기
+              </button>
+            )}
+
+            {subscriptionData?.subscriptionCanceled && (
+              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                <div className="flex items-start space-x-3">
+                  <svg className="w-5 h-5 text-orange-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <h4 className="text-sm font-medium text-orange-800">구독 취소 예정</h4>
+                    <p className="text-sm text-orange-700 mt-1">
+                      {subscriptionData.subscriptionEndDate &&
+                        new Date(subscriptionData.subscriptionEndDate).toLocaleDateString('ko-KR')
+                      }까지 프로 요금제 서비스를 계속 이용하실 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -523,6 +657,46 @@ export default function MyPage() {
                 className="flex-1 px-4 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 font-medium"
               >
                 설정 완료
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 구독 취소 확인 모달 */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                구독을 취소하시겠습니까?
+              </h3>
+              <p className="text-sm text-gray-500 break-keep leading-relaxed">
+                구독을 취소하시면 다음 결제일까지만 프로 요금제 서비스를 이용하실 수 있습니다.
+                <br />
+                취소 후에도 언제든지 다시 구독하실 수 있습니다.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleCancelSubscription}
+                disabled={isCanceling}
+                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isCanceling ? '처리 중...' : '구독 취소하기'}
+              </button>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={isCanceling}
+                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50 transition-colors"
+              >
+                계속 이용하기
               </button>
             </div>
           </div>

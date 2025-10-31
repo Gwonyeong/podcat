@@ -86,11 +86,11 @@ export default function PaymentSuccessPage() {
           <p className="text-gray-600 mb-6 break-keep leading-relaxed">{message}</p>
 
           <div className="bg-indigo-50 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-semibold text-indigo-900 mb-2">🎉 프리미엄 혜택</h3>
+            <h3 className="text-lg font-semibold text-indigo-900 mb-2">🎉 프로 요금제 혜택</h3>
             <ul className="text-sm text-indigo-700 space-y-1 text-left">
-              <li>✓ 프리미엄 전용 8개 카테고리</li>
+              <li>✓ 프로 요금제 전용 8개 카테고리</li>
               <li>✓ 무제한 카테고리 선택</li>
-              <li>✓ 매일 새로운 프리미엄 콘텐츠</li>
+              <li>✓ 매일 새로운 프로 요금제 콘텐츠</li>
             </ul>
           </div>
 
