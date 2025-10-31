@@ -12,6 +12,18 @@ interface TossPaymentButtonProps {
   children: React.ReactNode;
 }
 
+interface TossPayments {
+  requestPayment: (method: string, options: {
+    amount: number;
+    orderId: string;
+    orderName: string;
+    customerName?: string;
+    customerEmail?: string;
+    successUrl: string;
+    failUrl: string;
+  }) => Promise<void>;
+}
+
 export default function TossPaymentButton({
   itemName,
   amount,
@@ -21,7 +33,7 @@ export default function TossPaymentButton({
 }: TossPaymentButtonProps) {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const [tossPayments, setTossPayments] = useState<unknown>(null);
+  const [tossPayments, setTossPayments] = useState<TossPayments | null>(null);
 
   const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
@@ -33,7 +45,7 @@ export default function TossPaymentButton({
       }
 
       try {
-        const tossPayments = await loadTossPayments(clientKey);
+        const tossPayments = await loadTossPayments(clientKey) as TossPayments;
         setTossPayments(tossPayments);
       } catch (error) {
         console.error('토스페이먼츠 초기화 실패:', error);
