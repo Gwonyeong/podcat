@@ -19,7 +19,8 @@ export default function FooterSection() {
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <p className="text-sm md:text-base text-gray-400">Podcat © 2025</p>
+        <p className="text-sm md:text-base text-gray-400 mb-1">Podcat © 2025</p>
+        <p className="text-xs text-gray-500">통신판매업 신고번호: 2025-서울마포-2857</p>
       </motion.div>
     </section>
   );

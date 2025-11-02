@@ -999,6 +999,9 @@ export default function MainPage() {
             사업자등록번호: 467-15-02791
           </p>
           <p className="text-xs text-gray-500 mb-2">
+            통신판매업 신고번호: 2025-서울마포-2857
+          </p>
+          <p className="text-xs text-gray-500 mb-2">
             상호명: 파드켓 | 대표자명: 조권영
           </p>
           <p className="text-xs text-gray-500 mb-2">

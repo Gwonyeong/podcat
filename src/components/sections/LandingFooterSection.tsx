@@ -158,7 +158,8 @@ export default function LandingFooterSection() {
         {/* 하단 푸터 */}
         <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
           <div className="text-slate-400 text-sm mb-4 sm:mb-0">
-            © {currentYear} Podcat. 모든 권리 보유.
+            <div className="mb-1">© {currentYear} Podcat. 모든 권리 보유.</div>
+            <div className="text-xs">통신판매업 신고번호: 2025-서울마포-2857</div>
           </div>
 
           <div className="flex items-center justify-center sm:justify-end space-x-4 sm:space-x-6 text-sm text-slate-400">
