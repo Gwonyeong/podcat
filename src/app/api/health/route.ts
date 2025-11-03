@@ -2,7 +2,21 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
-  const status: any = {
+  const status: {
+    api: string;
+    environment: string | undefined;
+    timestamp: string;
+    database?: string;
+    databaseError?: string;
+    prismaClient?: string;
+    prismaError?: string;
+    categoryCount?: number;
+    envVars?: {
+      DATABASE_URL: boolean;
+      NEXTAUTH_URL: boolean;
+      NEXTAUTH_SECRET: boolean;
+    };
+  } = {
     api: "ok",
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
