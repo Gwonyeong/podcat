@@ -8,16 +8,20 @@ export async function GET(req: NextRequest) {
     // 인증 확인
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
+      console.error("No session or user ID found");
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
       );
     }
 
+    console.log("Session user ID:", session.user.id);
+
     const { searchParams } = new URL(req.url);
     const date = searchParams.get("date"); // 선택된 날짜 (YYYY-MM-DD 형식)
 
     // 유저의 관심 카테고리 가져오기
+    console.log("Fetching user interested categories...");
     const userInterestedCategories =
       await prisma.userInterestedCategory.findMany({
         where: {
@@ -27,6 +31,7 @@ export async function GET(req: NextRequest) {
           categoryId: true,
         },
       });
+    console.log("Found interested categories:", userInterestedCategories.length);
 
     const interestedCategoryIds = userInterestedCategories.map(
       (uc) => uc.categoryId
@@ -75,6 +80,7 @@ export async function GET(req: NextRequest) {
       ...categoryFilter
     };
 
+    console.log("Querying audios with whereClause:", JSON.stringify(whereClause));
     const audios = await prisma.audio.findMany({
       where: whereClause,
       include: {
@@ -84,6 +90,7 @@ export async function GET(req: NextRequest) {
         publishDate: "desc",
       },
     });
+    console.log("Found audios:", audios.length);
 
     const response = NextResponse.json(audios);
     
@@ -94,9 +101,17 @@ export async function GET(req: NextRequest) {
     
     return response;
   } catch (error) {
-    console.error("Error fetching audios:", error);
+    console.error("Error fetching audios - Full error:", error);
+    console.error("Error name:", (error as any)?.name);
+    console.error("Error message:", (error as any)?.message);
+    console.error("Error stack:", (error as any)?.stack);
+
     return NextResponse.json(
-      { error: "Error fetching audios" },
+      {
+        error: "Error fetching audios",
+        details: process.env.NODE_ENV === "development" ? (error as any)?.message : undefined,
+        errorType: (error as any)?.name
+      },
       { status: 500 }
     );
   }
