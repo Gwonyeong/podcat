@@ -228,9 +228,12 @@ export default function MainPage() {
   const fetchAudios = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/audio`, {
-        cache: "force-cache", // 캐시 활용
-        next: { revalidate: 30 }, // 30초마다 재검증
+      const res = await fetch(`/api/audio?t=${Date.now()}`, {
+        cache: "no-cache", // 캐시 사용 안함
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (res.ok) {
         const data = await res.json();

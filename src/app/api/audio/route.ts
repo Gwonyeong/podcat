@@ -122,11 +122,13 @@ export async function GET(req: NextRequest) {
     console.log("Found audios:", audios.length);
 
     const response = NextResponse.json(audios);
-    
-    // 캐싱 방지 헤더 설정
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+    // 캐싱 방지 헤더 설정 (강화)
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
+    response.headers.set('ETag', `"${Date.now()}"`); // 매번 다른 ETag로 캐시 무효화
+    response.headers.set('Last-Modified', new Date().toUTCString());
     
     return response;
   } catch (error) {
