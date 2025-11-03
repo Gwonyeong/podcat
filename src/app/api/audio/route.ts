@@ -5,8 +5,38 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    // 디버그 모드 체크
+    const { searchParams } = new URL(req.url);
+    const debug = searchParams.get("debug") === "true";
+
+    if (debug) {
+      console.log("Debug mode: Starting API call");
+      console.log("Database URL exists:", !!process.env.DATABASE_URL);
+      console.log("Node environment:", process.env.NODE_ENV);
+
+      // 데이터베이스 연결 테스트
+      try {
+        console.log("Testing database connection...");
+        const testQuery = await prisma.$queryRaw`SELECT 1 as test`;
+        console.log("Database connection successful:", testQuery);
+      } catch (dbError) {
+        console.error("Database connection failed:", dbError);
+        return NextResponse.json({
+          error: "Database connection failed",
+          details: (dbError as Error)?.message,
+          stack: process.env.NODE_ENV === "development" ? (dbError as Error)?.stack : undefined
+        }, { status: 500 });
+      }
+    }
+
     // 인증 확인
     const session = await getServerSession(authOptions);
+
+    if (debug) {
+      console.log("Session check result:", !!session);
+      console.log("Session user ID:", session?.user?.id);
+    }
+
     if (!session?.user?.id) {
       console.error("No session or user ID found");
       return NextResponse.json(
@@ -17,7 +47,6 @@ export async function GET(req: NextRequest) {
 
     console.log("Session user ID:", session.user.id);
 
-    const { searchParams } = new URL(req.url);
     const date = searchParams.get("date"); // 선택된 날짜 (YYYY-MM-DD 형식)
 
     // 유저의 관심 카테고리 가져오기
