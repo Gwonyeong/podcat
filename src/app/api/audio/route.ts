@@ -101,16 +101,17 @@ export async function GET(req: NextRequest) {
     
     return response;
   } catch (error) {
+    const err = error as Error;
     console.error("Error fetching audios - Full error:", error);
-    console.error("Error name:", (error as any)?.name);
-    console.error("Error message:", (error as any)?.message);
-    console.error("Error stack:", (error as any)?.stack);
+    console.error("Error name:", err?.name);
+    console.error("Error message:", err?.message);
+    console.error("Error stack:", err?.stack);
 
     return NextResponse.json(
       {
         error: "Error fetching audios",
-        details: process.env.NODE_ENV === "development" ? (error as any)?.message : undefined,
-        errorType: (error as any)?.name
+        details: process.env.NODE_ENV === "development" ? err?.message : undefined,
+        errorType: err?.name
       },
       { status: 500 }
     );
