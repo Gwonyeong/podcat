@@ -10,6 +10,7 @@ interface TossPaymentButtonProps {
   plan: string;
   className?: string;
   children: React.ReactNode;
+  isSubscription?: boolean; // 정기 결제 여부
 }
 
 interface TossPayments {
@@ -29,7 +30,8 @@ export default function TossPaymentButton({
   amount,
   plan,
   className = "",
-  children
+  children,
+  isSubscription = false
 }: TossPaymentButtonProps) {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,19 +66,29 @@ export default function TossPaymentButton({
     setIsLoading(true);
 
     try {
-      // 주문 ID 생성 (유니크해야 함)
-      const orderId = `PODCAT_${plan.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      if (isSubscription) {
+        // 정기 결제 - 빌링키 발급 요청
+        const customerKey = `customer_${session.user.id}_${Date.now()}`;
 
-      // 결제 요청
-      await tossPayments.requestPayment('카드', {
-        amount: amount,
-        orderId: orderId,
-        orderName: itemName,
-        customerName: session.user.name || '사용자',
-        customerEmail: session.user.email || '',
-        successUrl: `${window.location.origin}/payment/success`,
-        failUrl: `${window.location.origin}/payment/fail`,
-      });
+        await tossPayments.requestBillingAuth('카드', {
+          customerKey: customerKey,
+          successUrl: `${window.location.origin}/payment/billing-success?customerKey=${customerKey}`,
+          failUrl: `${window.location.origin}/payment/fail`,
+        });
+      } else {
+        // 일반 결제 요청 (기존 코드)
+        const orderId = `PODCAT_${plan.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        await tossPayments.requestPayment('카드', {
+          amount: amount,
+          orderId: orderId,
+          orderName: itemName,
+          customerName: session.user.name || '사용자',
+          customerEmail: session.user.email || '',
+          successUrl: `${window.location.origin}/payment/success`,
+          failUrl: `${window.location.origin}/payment/fail`,
+        });
+      }
 
     } catch (error: unknown) {
       console.error('결제 요청 실패:', error);
@@ -117,7 +129,7 @@ export default function TossPaymentButton({
           : 'hover:opacity-90'
       } transition-opacity`}
     >
-      {isLoading ? '결제 진행 중...' : children}
+      {isLoading ? (isSubscription ? '구독 등록 중...' : '결제 진행 중...') : children}
     </button>
   );
 }

@@ -323,6 +323,7 @@ export default function MyPage() {
               itemName="프로 요금제 월간 구독"
               amount={2900}
               plan="premium"
+              isSubscription={true}
               className="w-full py-3 px-4 bg-white text-purple-600 rounded-lg font-bold hover:bg-gray-50 transition-colors"
             >
               정기 구독하기

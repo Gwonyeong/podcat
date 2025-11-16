@@ -53,6 +53,9 @@ model User {
   interestedCategories   UserInterestedCategory[]
   inquiries              Inquiry[]
   subscriptions          Subscription[]
+  paymentHistories       PaymentHistory[]
+  billingKey             String?                  // 토스페이먼츠 빌링키
+  customerKey            String?                  // 토스페이먼츠 고객키
 }
 
 model VerificationToken {
@@ -233,7 +236,26 @@ model Subscription {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentHistories PaymentHistory[]
 
   @@map("subscriptions")
+}
+
+model PaymentHistory {
+  id            String       @id @default(cuid())
+  userId        String
+  subscriptionId String?
+  billingKey    String?
+  amount        Int
+  type          String       // "subscription", "one_time"
+  status        String       // "success", "failed"
+  paymentKey    String?      // 토스페이먼츠 결제 키
+  orderId       String
+  failReason    String?
+  createdAt     DateTime     @default(now())
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription  Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@map("payment_histories")
 }
 
