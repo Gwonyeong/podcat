@@ -23,6 +23,11 @@ interface TossPayments {
     successUrl: string;
     failUrl: string;
   }) => Promise<void>;
+  requestBillingAuth: (method: string, options: {
+    customerKey: string;
+    successUrl: string;
+    failUrl: string;
+  }) => Promise<void>;
 }
 
 export default function TossPaymentButton({

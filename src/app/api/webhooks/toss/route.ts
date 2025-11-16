@@ -34,26 +34,31 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handlePaymentSuccess(data: any) {
+async function handlePaymentSuccess(data: unknown) {
   try {
-    console.log('결제 성공 처리:', data);
+    const paymentData = data as {
+      orderId: string;
+      paymentKey: string;
+      status: string;
+    };
+    console.log('결제 성공 처리:', paymentData);
 
     // orderId로 결제 히스토리 업데이트
     const updatedHistory = await prisma.paymentHistory.updateMany({
       where: {
-        orderId: data.orderId,
+        orderId: paymentData.orderId,
         status: { in: ['pending', 'failed'] }
       },
       data: {
         status: 'success',
-        paymentKey: data.paymentKey,
+        paymentKey: paymentData.paymentKey,
       },
     });
 
     // 구독 결제인 경우 다음 결제일 업데이트
-    if (data.orderId.startsWith('SUB_')) {
+    if (paymentData.orderId.startsWith('SUB_')) {
       const paymentHistory = await prisma.paymentHistory.findFirst({
-        where: { orderId: data.orderId },
+        where: { orderId: paymentData.orderId },
         include: { subscription: true }
       });
 
@@ -77,25 +82,30 @@ async function handlePaymentSuccess(data: any) {
   }
 }
 
-async function handlePaymentFailure(data: any) {
+async function handlePaymentFailure(data: unknown) {
   try {
-    console.log('결제 실패 처리:', data);
+    const failureData = data as {
+      orderId: string;
+      failure?: { reason?: string };
+      failReason?: string;
+    };
+    console.log('결제 실패 처리:', failureData);
 
     // 결제 히스토리 업데이트
     const updatedHistory = await prisma.paymentHistory.updateMany({
       where: {
-        orderId: data.orderId,
+        orderId: failureData.orderId,
       },
       data: {
         status: 'failed',
-        failReason: data.failure?.reason || data.failReason || '결제 실패',
+        failReason: failureData.failure?.reason || failureData.failReason || '결제 실패',
       },
     });
 
     // 구독 결제 실패 시 처리
-    if (data.orderId.startsWith('SUB_')) {
+    if (failureData.orderId.startsWith('SUB_')) {
       const paymentHistory = await prisma.paymentHistory.findFirst({
-        where: { orderId: data.orderId },
+        where: { orderId: failureData.orderId },
         include: { subscription: true, user: true }
       });
 
@@ -112,16 +122,20 @@ async function handlePaymentFailure(data: any) {
   }
 }
 
-async function handleBillingKeyDeleted(data: any) {
+async function handleBillingKeyDeleted(data: unknown) {
   try {
-    console.log('빌링키 삭제 처리:', data);
+    const billingData = data as {
+      customerKey?: string;
+      billingKey?: string;
+    };
+    console.log('빌링키 삭제 처리:', billingData);
 
     // 빌링키가 삭제된 사용자 찾기 및 구독 취소
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          { customerKey: data.customerKey },
-          { billingKey: data.billingKey }
+          { customerKey: billingData.customerKey },
+          { billingKey: billingData.billingKey }
         ]
       }
     });
@@ -155,7 +169,7 @@ async function handleBillingKeyDeleted(data: any) {
 
       console.log(`빌링키 삭제 처리 완료 - 사용자: ${user.id}`);
     } else {
-      console.log('해당 빌링키의 사용자를 찾을 수 없음:', data);
+      console.log('해당 빌링키의 사용자를 찾을 수 없음:', billingData);
     }
   } catch (error) {
     console.error('빌링키 삭제 처리 오류:', error);
