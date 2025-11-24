@@ -40,17 +40,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { 
-      name, 
-      categoryId, 
-      prompt, 
+    const {
+      name,
+      categoryId,
+      prompt,
       promptMode = 'single',
       usePerplexity = false,
       perplexitySystemPrompt,
       topicList,
-      cronExpression, 
+      cronExpression,
       publishDateOffset = 0,
-      isActive 
+      isActive,
+      autoGenerateTopics = false,
+      autoGenerateCount = 5,
+      topicThreshold = 2
     } = body;
 
     // Validate cron expression
@@ -82,6 +85,9 @@ export async function POST(req: NextRequest) {
         publishDateOffset: parseInt(publishDateOffset) || 0,
         isActive: isActive ?? true,
         nextRunAt: nextRunAt,
+        autoGenerateTopics: autoGenerateTopics ?? false,
+        autoGenerateCount: parseInt(autoGenerateCount) || 5,
+        topicThreshold: parseInt(topicThreshold) || 2,
       },
       include: {
         category: true,

@@ -42,6 +42,9 @@ export default function CreateSchedulerPage() {
     thumbnailUrl?: string;
     duration: number;
   } | null>(null);
+  const [autoGenerateTopics, setAutoGenerateTopics] = useState(false);
+  const [autoGenerateCount, setAutoGenerateCount] = useState(5);
+  const [topicThreshold, setTopicThreshold] = useState(2);
 
   const daysOfWeek = [
     { label: "매일", value: "*" },
@@ -248,6 +251,9 @@ export default function CreateSchedulerPage() {
           cronExpression: generateCronExpression(),
           publishDateOffset,
           isActive,
+          autoGenerateTopics: promptMode === 'list' ? autoGenerateTopics : false,
+          autoGenerateCount: promptMode === 'list' ? autoGenerateCount : 5,
+          topicThreshold: promptMode === 'list' ? topicThreshold : 2,
         }),
       });
 
@@ -585,6 +591,64 @@ export default function CreateSchedulerPage() {
                     </div>
                   ))}
                 </div>
+                {/* 자동 주제 생성 설정 */}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <h4 className="text-sm font-medium text-blue-800 mb-3">자동 주제 생성 설정</h4>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <input
+                        id="autoGenerateTopics"
+                        type="checkbox"
+                        checked={autoGenerateTopics}
+                        onChange={(e) => setAutoGenerateTopics(e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label htmlFor="autoGenerateTopics" className="ml-2 block text-sm text-blue-800">
+                        주제가 부족하면 자동으로 새 주제 생성
+                      </label>
+                    </div>
+
+                    {autoGenerateTopics && (
+                      <div className="grid grid-cols-2 gap-3 mt-3">
+                        <div>
+                          <label className="block text-xs font-medium text-blue-700 mb-1">
+                            자동 생성 기준 (개 이하)
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={topicThreshold}
+                            onChange={(e) => setTopicThreshold(parseInt(e.target.value) || 2)}
+                            className="w-full px-2 py-1 text-sm border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-blue-700 mb-1">
+                            한 번에 생성할 개수
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="20"
+                            value={autoGenerateCount}
+                            onChange={(e) => setAutoGenerateCount(parseInt(e.target.value) || 5)}
+                            className="w-full px-2 py-1 text-sm border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-blue-700">
+                      {autoGenerateTopics
+                        ? `남은 주제가 ${topicThreshold}개 이하가 되면, 최근 생성된 10개 주제를 참고하여 ${autoGenerateCount}개의 새 주제를 자동 생성합니다.`
+                        : "체크박스를 활성화하면 주제가 부족할 때 자동으로 새 주제를 생성합니다."
+                      }
+                    </p>
+                  </div>
+                </div>
+
                 <div className="mt-3 flex items-end gap-3">
                   <p className="flex-1 text-sm text-gray-500">
                     각 주제는 스케줄에 따라 순차적으로 처리됩니다. 한 번에 하나씩 사용되며, 모든 주제가 소진되면 알림을 받습니다.

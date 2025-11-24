@@ -47,18 +47,21 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 
   try {
     const body = await req.json();
-    const { 
-      name, 
-      categoryId, 
-      prompt, 
+    const {
+      name,
+      categoryId,
+      prompt,
       promptMode,
       usePerplexity,
       perplexitySystemPrompt,
       topicList,
       currentTopicIndex,
-      cronExpression, 
+      cronExpression,
       publishDateOffset,
-      isActive 
+      isActive,
+      autoGenerateTopics,
+      autoGenerateCount,
+      topicThreshold
     } = body;
 
     // Validate cron expression if provided
@@ -93,6 +96,9 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       ...(cronExpression && { cronExpression }),
       ...(publishDateOffset !== undefined && { publishDateOffset: parseInt(publishDateOffset) || 0 }),
       ...(isActive !== undefined && { isActive }),
+      ...(autoGenerateTopics !== undefined && { autoGenerateTopics }),
+      ...(autoGenerateCount !== undefined && { autoGenerateCount: parseInt(autoGenerateCount) || 5 }),
+      ...(topicThreshold !== undefined && { topicThreshold: parseInt(topicThreshold) || 2 }),
       ...(nextRunAt !== undefined && { nextRunAt }),
     };
 

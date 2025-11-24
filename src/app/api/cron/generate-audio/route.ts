@@ -51,14 +51,24 @@ export async function GET(req: NextRequest) {
         const nextRunAt = calculateNextRunTime(scheduler.cronExpression, executionTime);
         await prisma.audioScheduler.update({
           where: { id: scheduler.id },
-          data: { 
+          data: {
             lastRunAt: executionTime,
             nextRunAt: nextRunAt,
             totalGenerated: scheduler.totalGenerated + (result.success ? 1 : 0)
           },
         });
-        
+
         console.log(`[CRON] Scheduler ${scheduler.id} executed. Next run: ${nextRunAt}`);
+
+        // Check if auto topic generation is needed (only for successful list mode executions)
+        if (result.success && scheduler.promptMode === 'list' && scheduler.autoGenerateTopics) {
+          try {
+            await checkAndGenerateTopics(scheduler.id);
+          } catch (autoGenError) {
+            console.warn(`[CRON] Failed to auto-generate topics for scheduler ${scheduler.id}:`, autoGenError);
+            // Don't fail the entire job for auto-generation errors
+          }
+        }
         
         // Get audio details for success notification
         let audioTitle: string | undefined;
@@ -137,8 +147,38 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Error in cron job:', error);
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'Cron job failed' 
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Cron job failed'
     }, { status: 500 });
+  }
+}
+
+async function checkAndGenerateTopics(schedulerId: number) {
+  try {
+    // Call the auto-generate-topics API endpoint
+    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/scheduler/auto-generate-topics`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ schedulerId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Auto-generation API failed: ${errorData.error}`);
+    }
+
+    const result = await response.json();
+
+    if (result.generatedTopics) {
+      console.log(`[CRON] Auto-generated ${result.generatedTopics.length} topics for scheduler ${schedulerId}`);
+    } else {
+      console.log(`[CRON] Auto-generation not needed for scheduler ${schedulerId}: ${result.message}`);
+    }
+
+  } catch (error) {
+    console.error(`[CRON] Error in checkAndGenerateTopics for scheduler ${schedulerId}:`, error);
+    throw error;
   }
 }
