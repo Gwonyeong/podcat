@@ -1,13 +1,15 @@
 import { createApi } from "unsplash-js";
 import prisma from "./prisma";
 import { uploadToSupabase, generateStorageKey } from "./supabase";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Anthropic from "@anthropic-ai/sdk";
 
 const unsplash = createApi({
   accessKey: process.env.UNSPLASH_ACCESS_KEY!,
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const anthropic = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY!,
+});
 
 export interface AudioSchedulerWithCategory {
   id: number;
@@ -20,7 +22,6 @@ export interface AudioSchedulerWithCategory {
   usePerplexity: boolean;
   perplexitySystemPrompt: string | null;
   publishDateOffset: number;
-  elevenLabsVoiceId: string;
   cronExpression: string;
   isActive: boolean;
   lastRunAt: Date | null;
@@ -35,6 +36,7 @@ export interface AudioSchedulerWithCategory {
     presenterImage: string | null;
     presenterName: string | null;
     presenterPersona: string | null;
+    presenterVoiceId: string | null;
   };
 }
 
@@ -140,8 +142,6 @@ async function validateAndCleanScript(
   categoryName: string
 ): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const validationPrompt = `다음 팟캐스트 대본을 검수해주세요.
 
 아래 대본에서 진행자가 실제로 말하지 않는 부분을 모두 제거하고, 오직 진행자가 직접 발화하는 텍스트만 남겨주세요.
@@ -166,9 +166,18 @@ ${script}
 
 검수된 대본 (진행자의 실제 발화만):`;
 
-    const result = await model.generateContent(validationPrompt);
-    const response = result.response;
-    let cleanedScript = response.text();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "user",
+          content: validationPrompt,
+        },
+      ],
+    });
+
+    let cleanedScript = response.content[0].type === 'text' ? response.content[0].text : '';
 
     // 추가 정리: 혹시 남아있을 수 있는 괄호 내용 제거
     cleanedScript = cleanedScript
@@ -196,13 +205,12 @@ ${script}
   }
 }
 
-// Gemini를 사용하여 대본 생성 (모드별 처리)
+// Claude를 사용하여 대본 생성 (모드별 처리)
 async function generateScript(
   scheduler: AudioSchedulerWithCategory,
   contentPrompt?: string
 ): Promise<{ script: string; title: string; usedTopic?: Topic }> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     let finalPrompt = contentPrompt || scheduler.prompt;
     let usedTopic: Topic | undefined;
 
@@ -267,9 +275,18 @@ ${finalPrompt}
 - 도입부, 본론, 결론 구조
 - 구체적인 예시와 설명 포함`;
 
-    const result = await model.generateContent(fullPrompt);
-    const response = result.response;
-    let script = response.text();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "user",
+          content: fullPrompt,
+        },
+      ],
+    });
+
+    let script = response.content[0].type === 'text' ? response.content[0].text : '';
 
     // 대본 검수 - 지시문 및 불필요한 요소 제거
     console.log("대본 검수 시작...");
@@ -293,15 +310,22 @@ ${finalPrompt}
 // 대본을 요약하여 설명 생성
 async function generateSummary(script: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const prompt = `다음 팟캐스트 대본을 2-3문장으로 요약해주세요. 핵심 주제와 주요 내용을 포함해주세요:
 
 ${script}`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    return response.text();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 1000,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    return response.content[0].type === 'text' ? response.content[0].text : '';
   } catch (error) {
     console.error("요약 생성 실패:", error);
     return "이 에피소드에서는 흥미로운 주제를 다룹니다.";
@@ -314,17 +338,24 @@ async function generateTitle(
   categoryName: string
 ): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const prompt = `다음 팟캐스트 대본의 핵심 내용을 담은 매력적인 제목을 하나만 생성해주세요.
 제목은 15자 이내로, 구체적이고 호기심을 자극하는 형태여야 합니다.
 따옴표나 부가 설명 없이 제목만 답변해주세요:
 
 ${script.substring(0, 1000)}`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const generatedTitle = response.text().trim();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 100,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    const generatedTitle = response.content[0].type === 'text' ? response.content[0].text.trim() : '';
 
     // 날짜 추가
     const today = new Date();
@@ -352,8 +383,6 @@ async function generateImageSearchQuery(
   categoryName: string
 ): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const prompt = `다음 팟캐스트 대본의 핵심 주제와 내용을 분석하여, 해당 주제를 시각적으로 잘 표현할 수 있는 영문 이미지 검색 키워드를 생성해주세요.
 
 요구사항:
@@ -373,9 +402,18 @@ ${script.substring(0, 1000)}
 
 키워드 (영문만):`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let keywords = response.text().trim();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 100,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    let keywords = response.content[0].type === 'text' ? response.content[0].text.trim() : '';
 
     // 혹시 한국어나 불필요한 내용이 포함되어 있다면 정리
     keywords = keywords
@@ -396,10 +434,46 @@ ${script.substring(0, 1000)}
   }
 }
 
+// ElevenLabs 음성 목록 확인 함수 (디버깅용)
+export async function getElevenLabsVoices() {
+  try {
+    if (!process.env.ELEVENLABS_API_KEY) {
+      throw new Error("ELEVENLABS_API_KEY가 설정되지 않았습니다.");
+    }
+
+    const response = await fetch("https://api.elevenlabs.io/v1/voices", {
+      headers: {
+        "xi-api-key": process.env.ELEVENLABS_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`ElevenLabs API 에러: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.voices || [];
+  } catch (error) {
+    console.error("ElevenLabs 음성 목록 조회 실패:", error);
+    throw error;
+  }
+}
+
 export async function generateAudioFromScheduler(
   scheduler: AudioSchedulerWithCategory
 ) {
   try {
+    console.log(`\n=== 오디오 생성 시작 ===`);
+    console.log(`스케줄러 ID: ${scheduler.id}, 카테고리: ${scheduler.category.name}`);
+    console.log(`사용할 Voice ID: ${scheduler.category.presenterVoiceId}`);
+
+    // Voice ID 유효성 사전 검사 (카테고리의 Voice ID 확인)
+    if (!scheduler.category.presenterVoiceId || scheduler.category.presenterVoiceId.trim() === '') {
+      throw new Error(
+        `카테고리 '${scheduler.category.name}'에 Voice ID가 설정되지 않았습니다. 카테고리 설정을 확인해주세요.`
+      );
+    }
+
     // 1. Generate script based on mode
     console.log(`대본 생성 중... (모드: ${scheduler.promptMode})`);
     const { script, title, usedTopic } = await generateScript(scheduler);
@@ -421,7 +495,7 @@ export async function generateAudioFromScheduler(
     console.log("음성 생성 중...");
     const audioBuffer = await generateTTSAudio(
       script,
-      scheduler.elevenLabsVoiceId
+      scheduler.category.presenterVoiceId
     );
 
     // 5. Upload audio to Supabase
@@ -501,6 +575,18 @@ async function generateTTSAudio(
   voiceId: string
 ): Promise<Buffer> {
   try {
+    console.log(`TTS 생성 시도: Voice ID=${voiceId}, 텍스트 길이=${text.length}`);
+
+    // API 키 존재 확인
+    if (!process.env.ELEVENLABS_API_KEY) {
+      throw new Error("ELEVENLABS_API_KEY가 환경변수에 설정되지 않았습니다.");
+    }
+
+    // Voice ID 유효성 검사
+    if (!voiceId || voiceId.trim() === '') {
+      throw new Error("Voice ID가 비어있거나 유효하지 않습니다.");
+    }
+
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
@@ -508,10 +594,10 @@ async function generateTTSAudio(
         headers: {
           Accept: "audio/mpeg",
           "Content-Type": "application/json",
-          "xi-api-key": process.env.ELEVENLABS_API_KEY!,
+          "xi-api-key": process.env.ELEVENLABS_API_KEY,
         },
         body: JSON.stringify({
-          text,
+          text: text.slice(0, 5000), // 텍스트 길이 제한 (ElevenLabs 제한)
           model_id: "eleven_multilingual_v2",
           voice_settings: {
             stability: 0.5,
@@ -523,15 +609,34 @@ async function generateTTSAudio(
 
     if (!response.ok) {
       const errorData = await response.text();
+      console.error(`ElevenLabs API 응답 실패: ${response.status}`, errorData);
+
+      if (response.status === 404) {
+        throw new Error(
+          `음성 ID를 찾을 수 없습니다 (${voiceId}). ` +
+          `ElevenLabs 대시보드에서 Voice Lab에 음성이 추가되어 있는지 확인해주세요. ` +
+          `Voice Library의 음성을 사용하려면 먼저 Voice Lab에 추가해야 합니다.`
+        );
+      } else if (response.status === 401) {
+        throw new Error(
+          `ElevenLabs API 인증 실패. API 키를 확인해주세요.`
+        );
+      } else if (response.status === 400) {
+        throw new Error(
+          `ElevenLabs API 요청 오류: ${errorData}. Voice ID(${voiceId}) 또는 요청 형식을 확인해주세요.`
+        );
+      }
+
       throw new Error(
         `ElevenLabs API error: ${response.status} - ${errorData}`
       );
     }
 
     const arrayBuffer = await response.arrayBuffer();
+    console.log(`TTS 생성 성공: Voice ID=${voiceId}, 오디오 크기=${arrayBuffer.byteLength} bytes`);
     return Buffer.from(arrayBuffer);
   } catch (error) {
-    console.error("Error generating TTS audio:", error);
+    console.error("TTS 오디오 생성 실패:", error);
     throw error;
   }
 }

@@ -235,7 +235,6 @@ export async function POST(request: NextRequest) {
           name: template.name,
           categoryId: category.id,
           prompt: template.promptMode === 'list' ? '' : template.prompt || '',
-          elevenLabsVoiceId: category.presenterVoiceId,
           cronExpression: template.cronExpression,
           isActive: true,
           promptMode: template.promptMode,

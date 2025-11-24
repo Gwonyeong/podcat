@@ -31,7 +31,6 @@ interface AudioScheduler {
   usePerplexity: boolean;
   perplexitySystemPrompt: string | null;
   publishDateOffset: number;
-  elevenLabsVoiceId: string;
   cronExpression: string;
   isActive: boolean;
   lastRunAt: string | null;
@@ -328,7 +327,6 @@ export default function EditSchedulerPage() {
           perplexitySystemPrompt: promptMode === 'perplexity' ? perplexitySystemPrompt : null,
           topicList: promptMode === 'list' ? topicList.filter(t => t.title.trim()) : null,
           currentTopicIndex: scheduler?.currentTopicIndex || 0,
-          elevenLabsVoiceId: selectedCategory.presenterVoiceId,
           cronExpression: generateCronExpression(),
           publishDateOffset,
           isActive,
@@ -379,7 +377,6 @@ export default function EditSchedulerPage() {
         },
         body: JSON.stringify({
           prompt: generatedScript,
-          elevenLabsVoiceId: selectedCategory!.presenterVoiceId,
           categoryName: selectedCategory!.name,
         }),
       });

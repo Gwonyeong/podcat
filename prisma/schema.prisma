@@ -190,7 +190,6 @@ model AudioScheduler {
   name                  String
   categoryId            Int
   prompt                String
-  elevenLabsVoiceId     String
   cronExpression        String
   isActive              Boolean  @default(true)
   lastRunAt             DateTime?

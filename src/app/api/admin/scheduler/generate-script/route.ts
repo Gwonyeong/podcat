@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkAdminAuth } from "@/lib/auth-helpers";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Anthropic from "@anthropic-ai/sdk";
 import prisma from "@/lib/prisma";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const anthropic = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY!,
+});
 
 // 대본 검수 함수 - 진행자가 실제로 말하지 않는 부분 제거
 async function validateScript(script: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const validationPrompt = `다음 팟캐스트 대본에서 진행자가 실제로 말하지 않는 부분을 모두 제거해주세요.
 
 제거 대상:
@@ -25,9 +25,18 @@ ${script}
 
 `;
 
-    const result = await model.generateContent(validationPrompt);
-    const response = result.response;
-    let cleanedScript = response.text();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "user",
+          content: validationPrompt,
+        },
+      ],
+    });
+
+    let cleanedScript = response.content[0].type === 'text' ? response.content[0].text : '';
 
     // 추가 정리
     cleanedScript = cleanedScript
@@ -93,9 +102,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Gemini를 이용한 대본 생성
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
+    // Claude를 이용한 대본 생성
     const systemPrompt = `당신은 한국 팟캐스트 진행자입니다. 주어진 정보를 바탕으로 진행자가 직접 말할 대본만을 작성해주세요.
 
 카테고리: ${category.name}
@@ -116,9 +123,18 @@ ${contentPrompt}
 
 진행자의 대사만 작성해주세요:`;
 
-    const result = await model.generateContent(systemPrompt);
-    const response = await result.response;
-    let script = response.text();
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 4000,
+      messages: [
+        {
+          role: "user",
+          content: systemPrompt,
+        },
+      ],
+    });
+
+    let script = response.content[0].type === 'text' ? response.content[0].text : '';
 
     // 대본 검수 - 지시문 및 불필요한 요소 제거
     console.log("대본 검수 시작...");
@@ -135,13 +151,13 @@ ${contentPrompt}
   } catch (error) {
     console.error("Error generating script:", error);
 
-    // Handle specific Gemini API errors
+    // Handle specific Claude API errors
     if (error instanceof Error) {
-      if (error.message.includes("API key")) {
+      if (error.message.includes("API key") || error.message.includes("authentication")) {
         return NextResponse.json(
           {
             error:
-              "Gemini API 키가 설정되지 않았습니다. 환경변수를 확인해주세요.",
+              "Claude API 키가 설정되지 않았습니다. 환경변수를 확인해주세요.",
           },
           { status: 500 }
         );

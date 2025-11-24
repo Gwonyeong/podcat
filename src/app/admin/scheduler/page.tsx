@@ -24,7 +24,6 @@ interface AudioScheduler {
   name: string;
   categoryId: number;
   prompt: string;
-  elevenLabsVoiceId: string;
   cronExpression: string;
   isActive: boolean;
   lastRunAt: string | null;

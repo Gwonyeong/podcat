@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
       usePerplexity = false,
       perplexitySystemPrompt,
       topicList,
-      elevenLabsVoiceId, 
       cronExpression, 
       publishDateOffset = 0,
       isActive 
@@ -79,7 +78,6 @@ export async function POST(req: NextRequest) {
         perplexitySystemPrompt,
         topicList: topicList ? topicList : null,
         currentTopicIndex: 0,
-        elevenLabsVoiceId,
         cronExpression,
         publishDateOffset: parseInt(publishDateOffset) || 0,
         isActive: isActive ?? true,

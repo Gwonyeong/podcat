@@ -245,7 +245,6 @@ export default function CreateSchedulerPage() {
           usePerplexity: promptMode === 'perplexity',
           perplexitySystemPrompt: promptMode === 'perplexity' ? perplexitySystemPrompt : null,
           topicList: promptMode === 'list' ? topicList.filter(t => t.title.trim()) : null,
-          elevenLabsVoiceId: selectedCategory.presenterVoiceId,
           cronExpression: generateCronExpression(),
           publishDateOffset,
           isActive,
@@ -294,7 +293,6 @@ export default function CreateSchedulerPage() {
         },
         body: JSON.stringify({
           prompt: generatedScript,
-          elevenLabsVoiceId: selectedCategory.presenterVoiceId,
           categoryName: selectedCategory.name,
         }),
       });

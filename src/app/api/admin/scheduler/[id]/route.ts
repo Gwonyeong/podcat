@@ -56,7 +56,6 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       perplexitySystemPrompt,
       topicList,
       currentTopicIndex,
-      elevenLabsVoiceId, 
       cronExpression, 
       publishDateOffset,
       isActive 
@@ -91,7 +90,6 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       ...(perplexitySystemPrompt !== undefined && { perplexitySystemPrompt }),
       ...(topicList !== undefined && { topicList }),
       ...(currentTopicIndex !== undefined && { currentTopicIndex }),
-      ...(elevenLabsVoiceId && { elevenLabsVoiceId }),
       ...(cronExpression && { cronExpression }),
       ...(publishDateOffset !== undefined && { publishDateOffset: parseInt(publishDateOffset) || 0 }),
       ...(isActive !== undefined && { isActive }),

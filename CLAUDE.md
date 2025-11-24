@@ -115,7 +115,7 @@ SUPABASE_SERVICE_ROLE_KEY   # Supabase service role key for server operations
 SUPABASE_STORAGE_BUCKET     # Supabase storage bucket name (default: podcat-files)
 
 # Audio Auto-Generator Configuration
-GEMINI_API_KEY        # Google Gemini API key for script generation
+CLAUDE_API_KEY        # Anthropic Claude API key for script generation
 ELEVENLABS_API_KEY    # ElevenLabs API key for TTS generation
 UNSPLASH_ACCESS_KEY   # Unsplash API access key for thumbnail images
 PERPLEXITY_API_KEY    # Perplexity API key for web search (optional)
