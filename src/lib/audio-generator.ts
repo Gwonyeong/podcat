@@ -27,6 +27,9 @@ export interface AudioSchedulerWithCategory {
   lastRunAt: Date | null;
   nextRunAt: Date | null;
   totalGenerated: number;
+  autoGenerateTopics: boolean;
+  autoGenerateCount: number;
+  topicThreshold: number;
   createdAt: Date;
   updatedAt: Date;
   category: {
@@ -92,7 +95,7 @@ async function searchWithPerplexity(
   }
 }
 
-// 주제 리스트에서 다음 주제 가져오기
+// 주제 리스트에서 다음 주제 가져오기 (자동 생성 포함)
 async function getNextTopicFromList(
   scheduler: AudioSchedulerWithCategory
 ): Promise<{ topic: Topic; newIndex: number } | null> {
@@ -134,6 +137,79 @@ async function getNextTopicFromList(
     topic: topics[currentIndex],
     newIndex: currentIndex + 1,
   };
+}
+
+// 자동 주제 생성 확인 및 실행
+async function checkAndGenerateTopicsBeforeExecution(
+  scheduler: AudioSchedulerWithCategory
+): Promise<boolean> {
+  // 리스트 모드이고 자동 생성이 활성화된 경우에만 실행
+  if (scheduler.promptMode !== 'list' || !scheduler.autoGenerateTopics) {
+    return true;
+  }
+
+  let topics: Topic[] = [];
+  try {
+    if (typeof scheduler.topicList === "string") {
+      topics = JSON.parse(scheduler.topicList);
+    } else if (Array.isArray(scheduler.topicList)) {
+      topics = scheduler.topicList;
+    } else {
+      topics = [];
+    }
+  } catch (error) {
+    console.error("주제 리스트 파싱 실패:", error);
+    topics = [];
+  }
+
+  const remainingTopics = topics.length - scheduler.currentTopicIndex;
+  const threshold = scheduler.topicThreshold || 2;
+
+  console.log(`[자동 생성 체크] 스케줄러 ${scheduler.id}: 남은 주제 ${remainingTopics}개, 임계값 ${threshold}개`);
+
+  // 남은 주제가 임계값보다 많으면 자동 생성 불필요
+  if (remainingTopics > threshold) {
+    return true;
+  }
+
+  console.log(`[자동 생성] 스케줄러 ${scheduler.id}: 주제가 부족하여 자동 생성을 시작합니다.`);
+
+  try {
+    // auto-generate-topics API 호출
+    const response = await fetch(
+      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/scheduler/auto-generate-topics`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ schedulerId: scheduler.id }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`[자동 생성] API 실패: ${errorData.error}`);
+      // 자동 생성 실패해도 기존 주제로 계속 진행
+      return true;
+    }
+
+    const result = await response.json();
+    if (result.generatedTopics) {
+      console.log(`[자동 생성] ${result.generatedTopics.length}개의 새 주제가 생성되었습니다.`);
+
+      // 스케줄러 객체의 topicList 업데이트 (메모리상에서)
+      scheduler.topicList = result.totalTopics ?
+        [...topics, ...result.generatedTopics] :
+        scheduler.topicList;
+    }
+
+    return true;
+  } catch (error) {
+    console.error(`[자동 생성] 오류 발생:`, error);
+    // 자동 생성 실패해도 기존 주제로 계속 진행
+    return true;
+  }
 }
 
 // 대본 검수 - 진행자가 실제로 말하지 않는 부분 제거
@@ -213,6 +289,11 @@ async function generateScript(
   try {
     let finalPrompt = contentPrompt || scheduler.prompt;
     let usedTopic: Topic | undefined;
+
+    // 리스트 모드일 경우, 먼저 자동 생성 체크
+    if (scheduler.promptMode === "list" && !contentPrompt) {
+      await checkAndGenerateTopicsBeforeExecution(scheduler);
+    }
 
     // 모드별 처리
     switch (scheduler.promptMode) {
