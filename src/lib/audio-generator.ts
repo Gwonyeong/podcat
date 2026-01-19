@@ -212,75 +212,6 @@ async function checkAndGenerateTopicsBeforeExecution(
   }
 }
 
-// 대본 검수 - 진행자가 실제로 말하지 않는 부분 제거
-async function validateAndCleanScript(
-  script: string,
-  categoryName: string
-): Promise<string> {
-  try {
-    const validationPrompt = `다음 팟캐스트 대본을 검수해주세요.
-
-아래 대본에서 진행자가 실제로 말하지 않는 부분을 모두 제거하고, 오직 진행자가 직접 발화하는 텍스트만 남겨주세요.
-
-제거해야 할 요소들:
-1. 배경음악 지시문 (예: "(차분한 배경음악이 깔리며)", "[BGM 시작]")
-2. 효과음 지시문 (예: "(종소리)", "[효과음: 박수]")
-3. 무대 지시문 (예: "(잠시 멈춤)", "(미소를 지으며)")
-4. 해설이나 설명 (예: "진행자가 말한다", "~한 목소리로")
-5. 감정 표현 지시 (예: "(감동적으로)", "(열정적으로)")
-6. 시각적 지시문 (예: "(자료 화면 제시)", "(그래프를 보여주며)")
-7. 괄호, 대괄호, 꺾쇠괄호로 둘러싸인 모든 지시문
-8. 이모지나 특수문자 장식
-
-오직 진행자가 마이크 앞에서 실제로 말하는 대사만 남겨주세요.
-문장 부호(마침표, 쉼표, 물음표, 느낌표)는 유지하되, 불필요한 줄바꿈은 정리해주세요.
-
-카테고리: ${categoryName}
-
-원본 대본:
-${script}
-
-검수된 대본 (진행자의 실제 발화만):`;
-
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-5",
-      max_tokens: 4000,
-      messages: [
-        {
-          role: "user",
-          content: validationPrompt,
-        },
-      ],
-    });
-
-    let cleanedScript = response.content[0].type === 'text' ? response.content[0].text : '';
-
-    // 추가 정리: 혹시 남아있을 수 있는 괄호 내용 제거
-    cleanedScript = cleanedScript
-      .replace(/\([^)]*\)/g, "") // 소괄호 내용 제거
-      .replace(/\[[^\]]*\]/g, "") // 대괄호 내용 제거
-      .replace(/<[^>]*>/g, "") // 꺾쇠괄호 내용 제거
-      .replace(/\{[^}]*\}/g, "") // 중괄호 내용 제거
-      .replace(/\s+/g, " ") // 연속된 공백을 하나로
-      .replace(/^\s+|\s+$/gm, "") // 각 줄의 앞뒤 공백 제거
-      .split("\n")
-      .filter((line) => line.trim().length > 0) // 빈 줄 제거
-      .join("\n\n"); // 문단 간격 재설정
-
-    console.log("대본 검수 완료: 지시문 및 불필요한 요소 제거");
-    return cleanedScript;
-  } catch (error) {
-    console.error("대본 검수 실패:", error);
-    // 검수 실패 시 원본 반환 (최소한의 정리만 수행)
-    return script
-      .replace(/\([^)]*\)/g, "")
-      .replace(/\[[^\]]*\]/g, "")
-      .replace(/<[^>]*>/g, "")
-      .replace(/\{[^}]*\}/g, "")
-      .trim();
-  }
-}
-
 // Claude를 사용하여 대본 생성 (모드별 처리)
 async function generateScript(
   scheduler: AudioSchedulerWithCategory,
@@ -334,6 +265,28 @@ async function generateScript(
         break;
     }
 
+    // single 모드일 때 최근 10개 오디오 조회하여 중복 방지
+    let recentAudiosContext = "";
+    if (scheduler.promptMode === "single") {
+      const recentAudios = await prisma.audio.findMany({
+        where: { categoryId: scheduler.categoryId },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: { title: true, description: true },
+      });
+
+      if (recentAudios.length > 0) {
+        const recentTopics = recentAudios
+          .map((audio: { title: string; description: string | null }, idx: number) => `${idx + 1}. 제목: ${audio.title}\n   요약: ${audio.description || "없음"}`)
+          .join("\n");
+        recentAudiosContext = `
+[중복 방지 - 최근 생성된 에피소드]
+아래는 최근에 이미 다룬 주제들입니다. 이와 겹치지 않는 새로운 관점이나 주제를 선정해주세요:
+${recentTopics}
+`;
+      }
+    }
+
     const fullPrompt = `당신은 "${
       scheduler.category.name
     }" 카테고리의 전문 팟캐스트 진행자입니다.
@@ -341,12 +294,13 @@ async function generateScript(
 진행자 정보:
 - 이름: ${scheduler.category.presenterName || "정보 없음"}
 - 특성: ${scheduler.category.presenterPersona || "일반적인 전문가"}
-
-다음 주제로 3-5분 분량의 한국어 팟캐스트 대본을 작성해주세요:
+${recentAudiosContext}
+다음 주제 범위에서 새로운 에피소드를 위한 3-5분 분량의 한국어 팟캐스트 대본을 작성해주세요:
 1500자 이내
 ${finalPrompt}
 
 중요한 규칙:
+- 위에 나열된 최근 에피소드와 겹치지 않는 새로운 세부 주제를 선정하세요
 - 진행자가 직접 말하는 대사만 작성하세요
 - "진행자가 말한다", "한 목소리로" 등의 설명문은 절대 포함하지 말아주세요
 - 무대 지시문, 해설, 묘사는 포함하지 말아주세요
@@ -367,12 +321,7 @@ ${finalPrompt}
       ],
     });
 
-    let script = response.content[0].type === 'text' ? response.content[0].text : '';
-
-    // 대본 검수 - 지시문 및 불필요한 요소 제거
-    console.log("대본 검수 시작...");
-    script = await validateAndCleanScript(script, scheduler.category.name);
-    console.log("대본 검수 완료");
+    const script = response.content[0].type === 'text' ? response.content[0].text : '';
 
     // 제목 생성
     const title = await generateTitle(script, scheduler.category.name);
